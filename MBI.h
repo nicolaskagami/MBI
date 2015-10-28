@@ -55,6 +55,8 @@ class MBI
         void add_edge(unsigned src,unsigned tgt,bool signal);
         void set_delay(unsigned vert,unsigned delay);
         void print();
+        //Parse Files
+        void parse_paag()
         //
         void option1(unsigned vert);
     private:

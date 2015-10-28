@@ -1,0 +1,712 @@
+/*
+* This file provides a technology library comprised of only a few simple cells:
+*	AND2_X1, INV_X1, BUF_X1, NAND2_X1 and NOR2_X1
+****************************************************************************/
+
+library (SimpleCells) {
+
+  /* General Attributes */
+  technology              		  (cmos);
+  delay_model             		: table_lookup;
+  
+  /* Units Attributes */
+  time_unit               		: "1ns";
+  leakage_power_unit      		: "1nW";
+  voltage_unit            		: "1V";
+  current_unit            		: "1mA";
+  pulling_resistance_unit 		: "1kohm";
+  capacitive_load_unit    		  (1,ff);
+  
+  /* Operation Conditions */
+  nom_process             		: 1.00;
+  nom_temperature         		: 25.00;
+  nom_voltage             		: 1.10;
+  
+  voltage_map (VDD,1.10);
+  voltage_map (VSS,0.00);
+  
+  wire_load("default_wlm") {
+    capacitance : 1.774000e-01;
+    resistance : 3.571429e-03;
+    slope : 5.000000;
+    fanout_length( 1, 1.7460 );
+    fanout_length( 2, 3.9394 );
+    fanout_length( 3, 6.4626 );
+    fanout_length( 4, 9.2201 );
+    fanout_length( 5, 11.9123 );
+    fanout_length( 6, 14.8358 );
+    fanout_length( 7, 18.6155 );
+    fanout_length( 8, 22.6727 );
+    fanout_length( 9, 25.4842 );
+    fanout_length( 11, 27.0320 );
+  }
+
+  default_wire_load : "default_wlm" ;
+  
+  lu_table_template (Timing_1_1) {
+	variable_1 : input_net_transition;
+	variable_2 : total_output_net_capacitance;
+	index_1 ("1.0");
+	index_2 ("1.0");
+  }
+  
+  power_lut_template (Power_1_1) {
+	variable_1 : input_transition_time;
+	variable_2 : total_output_net_capacitance;
+	index_1 ("1.0");
+	index_2 ("1.0");
+  }
+  
+  /******************************************************************************************
+   Module          	: AND2_X1
+   Cell Description	: Combinational cell (AND2_X1) with drive strength X1
+  *******************************************************************************************/
+
+  cell (AND2_X1) {
+
+	drive_strength     	: 1;
+
+	area               	: 6.0;
+	pg_pin(VDD) {
+		voltage_name : VDD;
+		pg_type      : primary_power;
+	}
+	pg_pin(VSS) {
+		voltage_name : VSS;
+		pg_type      : primary_ground;
+	}
+
+
+	cell_leakage_power 	: 6.0;
+
+	leakage_power () {
+		when           : "!A & !B";
+		value          : 6.0;
+	}
+	leakage_power () {
+		when           : "!A & B";
+		value          : 6.0;
+	}
+	leakage_power () {
+		when           : "A & !B";
+		value          : 6.0;
+	}
+	leakage_power () {
+		when           : "A & B";
+		value          : 6.0;
+	}
+
+	pin (A) {
+
+		direction		: input;
+		related_power_pin		: "VDD";
+		related_ground_pin		: "VSS";
+		capacitance		: 6.0;
+		fall_capacitance	: 6.0;
+		rise_capacitance	: 6.0;
+	}
+
+	pin (B) {
+
+		direction		: input;
+		related_power_pin		: "VDD";
+		related_ground_pin		: "VSS";
+		capacitance		: 6.0;
+		fall_capacitance	: 6.0;
+		rise_capacitance	: 6.0;
+	}
+
+	pin (O) {
+
+		direction		: output;
+		related_power_pin	: "VDD";
+		related_ground_pin	: "VSS";
+		max_capacitance		: 1000000;
+		function		: "A & B";
+
+		timing () {
+
+			related_pin	   : "A";
+			timing_sense	   : positive_unate;
+
+			cell_fall(Timing_1_1) {
+				index_1 ("1.0");
+				index_2 ("1.0");
+				values ("1.0");
+			}
+			cell_rise(Timing_1_1) {
+				index_1 ("1.0");
+				index_2 ("1.0");
+				values ("1.0");
+			}
+			fall_transition(Timing_1_1) {
+				index_1 ("1.0");
+				index_2 ("1.0");
+				values ("1.0");
+			}
+			rise_transition(Timing_1_1) {
+				index_1 ("1.0");
+				index_2 ("1.0");
+				values ("1.0");
+			}
+		}
+
+		timing () {
+
+			related_pin	   : "B";
+			timing_sense	   : positive_unate;
+
+			cell_fall(Timing_1_1) {
+				index_1 ("1.0");
+				index_2 ("1.0");
+				values ("1.0");
+			}
+			cell_rise(Timing_1_1) {
+				index_1 ("1.0");
+				index_2 ("1.0");
+				values ("1.0");
+			}
+			fall_transition(Timing_1_1) {
+				index_1 ("1.0");
+				index_2 ("1.0");
+				values ("1.0");
+			}
+			rise_transition(Timing_1_1) {
+				index_1 ("1.0");
+				index_2 ("1.0");
+				values ("1.0");
+			}
+		}
+
+		internal_power () {
+
+			related_pin	         : "A";
+			fall_power(Power_1_1) {
+				index_1 ("1.0");
+				index_2 ("1.0");
+				values ("1.0");
+			}
+			rise_power(Power_1_1) {
+				index_1 ("1.0");
+				index_2 ("1.0");
+				values ("1.0");
+			}
+		}
+
+		internal_power () {
+
+			related_pin	         : "B";
+			fall_power(Power_1_1) {
+				index_1 ("1.0");
+				index_2 ("1.0");
+				values ("1.0");
+			}
+			rise_power(Power_1_1) {
+				index_1 ("1.0");
+				index_2 ("1.0");
+				values ("1.0");
+			}
+		}
+	}
+
+  }
+  
+  /******************************************************************************************
+   Module          	: INV_X1
+   Cell Description	: Combinational cell (INV_X1) with drive strength X1
+  *******************************************************************************************/
+
+  cell (INV_X1) {
+
+	drive_strength     	: 1;
+
+	area               	: 2.0;
+	pg_pin(VDD) {
+		voltage_name : VDD;
+		pg_type      : primary_power;
+	}
+	pg_pin(VSS) {
+		voltage_name : VSS;
+		pg_type      : primary_ground;
+	}
+
+
+	cell_leakage_power 	: 2.0;
+
+	leakage_power () {
+		when           : "!A";
+		value          : 2.0;
+	}
+	leakage_power () {
+		when           : "A";
+		value          : 2.0;
+	}
+
+	pin (A) {
+
+		direction		: input;
+		related_power_pin		: "VDD";
+		related_ground_pin		: "VSS";
+		capacitance		: 2.0;
+		fall_capacitance	: 2.0;
+		rise_capacitance	: 2.0;
+	}
+
+	pin (O) {
+
+		direction		: output;
+		related_power_pin	: "VDD";
+		related_ground_pin	: "VSS";
+		max_capacitance		: 1000000;
+		function		: "!A";
+
+		timing () {
+
+			related_pin	   : "A";
+			timing_sense	   : negative_unate;
+
+			cell_fall(Timing_1_1) {
+				index_1 ("1.0");
+				index_2 ("1.0");
+				values ("1.0");
+			}
+			cell_rise(Timing_1_1) {
+				index_1 ("1.0");
+				index_2 ("1.0");
+				values ("1.0");
+			}
+			fall_transition(Timing_1_1) {
+				index_1 ("1.0");
+				index_2 ("1.0");
+				values ("1.0");
+			}
+			rise_transition(Timing_1_1) {
+				index_1 ("1.0");
+				index_2 ("1.0");
+				values ("1.0");
+			}
+		}
+
+		internal_power () {
+
+			related_pin	         : "A";
+			fall_power(Power_1_1) {
+				index_1 ("1.0");
+				index_2 ("1.0");
+				values ("1.0");
+			}
+			rise_power(Power_1_1) {
+				index_1 ("1.0");
+				index_2 ("1.0");
+				values ("1.0");
+			}
+		}
+	}
+
+  }
+  
+  
+  /******************************************************************************************
+   Module          	: BUF_X1
+   Cell Description	: Combinational cell (BUF_X1) with drive strength X1
+  *******************************************************************************************/
+
+  cell (BUF_X1) {
+
+	drive_strength     	: 1;
+
+	area               	: 0.0;
+	pg_pin(VDD) {
+		voltage_name : VDD;
+		pg_type      : primary_power;
+	}
+	pg_pin(VSS) {
+		voltage_name : VSS;
+		pg_type      : primary_ground;
+	}
+
+
+	cell_leakage_power 	: 0.0;
+
+	leakage_power () {
+		when           : "!A";
+		value          : 0.0;
+	}
+	leakage_power () {
+		when           : "A";
+		value          : 0.0;
+	}
+
+	pin (A) {
+
+		direction		: input;
+		related_power_pin		: "VDD";
+		related_ground_pin		: "VSS";
+		capacitance		: 0.0;
+		fall_capacitance	: 0.0;
+		rise_capacitance	: 0.0;
+	}
+
+	pin (O) {
+
+		direction		: output;
+		related_power_pin	: "VDD";
+		related_ground_pin	: "VSS";
+		max_capacitance		: 1000000;
+		function		: "A";
+
+		timing () {
+
+			related_pin	   : "A";
+			timing_sense	   : positive_unate;
+
+			cell_fall(Timing_1_1) {
+				index_1 ("1.0");
+				index_2 ("1.0");
+				values ("1.0");
+			}
+			cell_rise(Timing_1_1) {
+				index_1 ("1.0");
+				index_2 ("1.0");
+				values ("1.0");
+			}
+			fall_transition(Timing_1_1) {
+				index_1 ("1.0");
+				index_2 ("1.0");
+				values ("1.0");
+			}
+			rise_transition(Timing_1_1) {
+				index_1 ("1.0");
+				index_2 ("1.0");
+				values ("1.0");
+			}
+		}
+
+		internal_power () {
+
+			related_pin	         : "A";
+			fall_power(Power_1_1) {
+				index_1 ("1.0");
+				index_2 ("1.0");
+				values ("1.0");
+			}
+			rise_power(Power_1_1) {
+				index_1 ("1.0");
+				index_2 ("1.0");
+				values ("1.0");
+			}
+		}
+	}
+
+  }
+  
+  /******************************************************************************************
+   Module          	: NAND2_X1
+   Cell Description	: Combinational cell (NAND2_X1) with drive strength X1
+  *******************************************************************************************/
+
+  cell (NAND2_X1) {
+
+	drive_strength     	: 1;
+
+	area               	: 4.0;
+	pg_pin(VDD) {
+		voltage_name : VDD;
+		pg_type      : primary_power;
+	}
+	pg_pin(VSS) {
+		voltage_name : VSS;
+		pg_type      : primary_ground;
+	}
+
+
+	cell_leakage_power 	: 4.0;
+
+	leakage_power () {
+		when           : "!A & !B";
+		value          : 4.0;
+	}
+	leakage_power () {
+		when           : "!A & B";
+		value          : 4.0;
+	}
+	leakage_power () {
+		when           : "A & !B";
+		value          : 4.0;
+	}
+	leakage_power () {
+		when           : "A & B";
+		value          : 4.0;
+	}
+
+	pin (A) {
+
+		direction		: input;
+		related_power_pin		: "VDD";
+		related_ground_pin		: "VSS";
+		capacitance		: 4.0;
+		fall_capacitance	: 4.0;
+		rise_capacitance	: 4.0;
+	}
+
+	pin (B) {
+
+		direction		: input;
+		related_power_pin		: "VDD";
+		related_ground_pin		: "VSS";
+		capacitance		: 4.0;
+		fall_capacitance	: 4.0;
+		rise_capacitance	: 4.0;
+	}
+
+	pin (O) {
+
+		direction		: output;
+		related_power_pin	: "VDD";
+		related_ground_pin	: "VSS";
+		max_capacitance		: 1000000;
+		function		: "!(A & B)";
+
+		timing () {
+
+			related_pin	   : "A";
+			timing_sense	   : negative_unate;
+
+			cell_fall(Timing_1_1) {
+				index_1 ("1.0");
+				index_2 ("1.0");
+				values ("1.0");
+			}
+			cell_rise(Timing_1_1) {
+				index_1 ("1.0");
+				index_2 ("1.0");
+				values ("1.0");
+			}
+			fall_transition(Timing_1_1) {
+				index_1 ("1.0");
+				index_2 ("1.0");
+				values ("1.0");
+			}
+			rise_transition(Timing_1_1) {
+				index_1 ("1.0");
+				index_2 ("1.0");
+				values ("1.0");
+			}
+		}
+
+		timing () {
+
+			related_pin	   : "B";
+			timing_sense	   : negative_unate;
+
+			cell_fall(Timing_1_1) {
+				index_1 ("1.0");
+				index_2 ("1.0");
+				values ("1.0");
+			}
+			cell_rise(Timing_1_1) {
+				index_1 ("1.0");
+				index_2 ("1.0");
+				values ("1.0");
+			}
+			fall_transition(Timing_1_1) {
+				index_1 ("1.0");
+				index_2 ("1.0");
+				values ("1.0");
+			}
+			rise_transition(Timing_1_1) {
+				index_1 ("1.0");
+				index_2 ("1.0");
+				values ("1.0");
+			}
+		}
+
+		internal_power () {
+
+			related_pin	         : "A";
+			fall_power(Power_1_1) {
+				index_1 ("1.0");
+				index_2 ("1.0");
+				values ("1.0");
+			}
+			rise_power(Power_1_1) {
+				index_1 ("1.0");
+				index_2 ("1.0");
+				values ("1.0");
+			}
+		}
+
+		internal_power () {
+
+			related_pin	         : "B";
+			fall_power(Power_1_1) {
+				index_1 ("1.0");
+				index_2 ("1.0");
+				values ("1.0");
+			}
+			rise_power(Power_1_1) {
+				index_1 ("1.0");
+				index_2 ("1.0");
+				values ("1.0");
+			}
+		}
+	}
+
+  }
+  
+  
+  /******************************************************************************************
+   Module          	: NOR2_X1
+   Cell Description	: Combinational cell (NOR2_X1) with drive strength X1
+  *******************************************************************************************/
+
+  cell (NOR2_X1) {
+
+	drive_strength     	: 1;
+
+	area               	: 4.0;
+	pg_pin(VDD) {
+		voltage_name : VDD;
+		pg_type      : primary_power;
+	}
+	pg_pin(VSS) {
+		voltage_name : VSS;
+		pg_type      : primary_ground;
+	}
+
+
+	cell_leakage_power 	: 4.0;
+
+	leakage_power () {
+		when           : "!A & !B";
+		value          : 4.0;
+	}
+	leakage_power () {
+		when           : "!A & B";
+		value          : 4.0;
+	}
+	leakage_power () {
+		when           : "A & !B";
+		value          : 4.0;
+	}
+	leakage_power () {
+		when           : "A & B";
+		value          : 4.0;
+	}
+
+	pin (A) {
+
+		direction		: input;
+		related_power_pin		: "VDD";
+		related_ground_pin		: "VSS";
+		capacitance		: 4.0;
+		fall_capacitance	: 4.0;
+		rise_capacitance	: 4.0;
+	}
+
+	pin (B) {
+
+		direction		: input;
+		related_power_pin		: "VDD";
+		related_ground_pin		: "VSS";
+		capacitance		: 4.0;
+		fall_capacitance	: 4.0;
+		rise_capacitance	: 4.0;
+	}
+
+	pin (O) {
+
+		direction		: output;
+		related_power_pin	: "VDD";
+		related_ground_pin	: "VSS";
+		max_capacitance		: 1000000;
+		function		: "!(A | B)";
+
+		timing () {
+
+			related_pin	   : "A";
+			timing_sense	   : negative_unate;
+
+			cell_fall(Timing_1_1) {
+				index_1 ("1.0");
+				index_2 ("1.0");
+				values ("1.0");
+			}
+			cell_rise(Timing_1_1) {
+				index_1 ("1.0");
+				index_2 ("1.0");
+				values ("1.0");
+			}
+			fall_transition(Timing_1_1) {
+				index_1 ("1.0");
+				index_2 ("1.0");
+				values ("1.0");
+			}
+			rise_transition(Timing_1_1) {
+				index_1 ("1.0");
+				index_2 ("1.0");
+				values ("1.0");
+			}
+		}
+
+		timing () {
+
+			related_pin	   : "B";
+			timing_sense	   : negative_unate;
+
+			cell_fall(Timing_1_1) {
+				index_1 ("1.0");
+				index_2 ("1.0");
+				values ("1.0");
+			}
+			cell_rise(Timing_1_1) {
+				index_1 ("1.0");
+				index_2 ("1.0");
+				values ("1.0");
+			}
+			fall_transition(Timing_1_1) {
+				index_1 ("1.0");
+				index_2 ("1.0");
+				values ("1.0");
+			}
+			rise_transition(Timing_1_1) {
+				index_1 ("1.0");
+				index_2 ("1.0");
+				values ("1.0");
+			}
+		}
+
+		internal_power () {
+
+			related_pin	         : "A";
+			fall_power(Power_1_1) {
+				index_1 ("1.0");
+				index_2 ("1.0");
+				values ("1.0");
+			}
+			rise_power(Power_1_1) {
+				index_1 ("1.0");
+				index_2 ("1.0");
+				values ("1.0");
+			}
+		}
+
+		internal_power () {
+
+			related_pin	         : "B";
+			fall_power(Power_1_1) {
+				index_1 ("1.0");
+				index_2 ("1.0");
+				values ("1.0");
+			}
+			rise_power(Power_1_1) {
+				index_1 ("1.0");
+				index_2 ("1.0");
+				values ("1.0");
+			}
+		}
+	}
+
+  }
+
+}
