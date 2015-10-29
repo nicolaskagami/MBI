@@ -5,6 +5,7 @@
 #include<string.h>
 
 #define MAX_LINE 255
+#define MAX_LABEL 32
 
 class Point
 {
@@ -14,7 +15,7 @@ class Point
 
         bool operator== (Point b);
 };
-typedef struct vertex
+typedef struct
 {
     Point position;
     unsigned delay;//can be placed at the target vertex
@@ -25,7 +26,7 @@ typedef struct vertex
     unsigned negative_targets;
 
 }VERT;
-typedef struct edge 
+typedef struct 
 {
     unsigned target;
 
@@ -33,12 +34,25 @@ typedef struct edge
     unsigned level;
 }EDGE;
 
-typedef struct level
+typedef struct
 {
     unsigned vacant;
     unsigned inv_taken;
     unsigned signal_taken;
 } LEVEL;
+
+//PAAG data
+typedef struct
+{
+    unsigned index;
+    char name[MAX_LABEL];
+} INPUT;
+
+typedef struct
+{
+    unsigned index;
+    char name[MAX_LABEL];
+} OUTPUT;
 
 class MBI
 {
@@ -60,8 +74,12 @@ class MBI
         void add_edge(unsigned src,unsigned tgt,bool signal);
         void set_delay(unsigned vert,unsigned delay);
         void print();
-        //Parse Files
+        //Parser
+	//PAAG
+	INPUT * paag_inputs;
+	OUTPUT * paag_outputs;
         void parse_paag(char * paagFileName);
+	
         //
         void option1(unsigned vert);
     private:

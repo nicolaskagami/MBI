@@ -177,10 +177,12 @@ void MBI::parse_paag(char * paagFileName)
             unsigned i;
             unsigned x,y;
             allocate_memory(M+1,A*2);
-            printf("M %d, I %d, L %d, O %d, A %d, X %d, Y %d\n",M,I,L,O,A,X,Y);
+            //printf("M %d, I %d, L %d, O %d, A %d, X %d, Y %d\n",M,I,L,O,A,X,Y);
             //Inputs
             //Add input i as vertex number i/2 (vertex 0 being reserved for FALSE)
             //Position vertex according to X and Y
+	    paag_inputs = (INPUT*) malloc(sizeof(INPUT)*I);
+	    paag_outputs = (OUTPUT*) malloc(sizeof(OUTPUT)*O);
             for(i=0;i<I;i++)
             {
                 unsigned input;
@@ -191,7 +193,11 @@ void MBI::parse_paag(char * paagFileName)
                 x = strtoul(aux,&aux,10);
                 aux = strtok(NULL,")");
                 y = strtoul (aux,&aux,10);
-                printf("IN: %u (%u,%u)\n",input,x,y);
+
+		paag_inputs[i].name[0] = '\0';
+		paag_inputs[i].index = input/2;
+		//Add vertex
+                //printf("IN: %u (%u,%u)\n",input,x,y);
             }
             //Latches
             for(i=0;i<L;i++)
@@ -211,7 +217,10 @@ void MBI::parse_paag(char * paagFileName)
                 x = strtoul(aux,&aux,10);
                 aux = strtok(NULL,")");
                 y = strtoul (aux,&aux,10);
-                printf("OUT: %d (%u,%u)\n",output,x,y);
+
+		paag_outputs[i].name[0] = '\0';
+		paag_outputs[i].index = output/2;
+                //printf("OUT: %d (%u,%u)\n",output,x,y);
             }
             //Signals
             for(i=0;i<A;i++)
@@ -227,7 +236,7 @@ void MBI::parse_paag(char * paagFileName)
                 x = strtoul(aux,&aux,10);
                 aux = strtok(NULL,")");
                 y = strtoul (aux,&aux,10);
-                printf("Signal: %u %u %u (%u,%u)\n",signal,srca,srcb,x,y);
+                //printf("Signal: %u %u %u (%u,%u)\n",signal,srca,srcb,x,y);
             }
 
             while(fgets(line,MAX_LINE,paagFile))
@@ -240,27 +249,30 @@ void MBI::parse_paag(char * paagFileName)
                 {
                     case 'i':
                                 index = strtoul(&line[1],&aux,10);
-                                name = aux;
-                                printf("Input label: %u, %s\n",index,name);
+                                name = strtok(aux,"\n");
+				if(index<I)
+				{
+					strcpy(paag_inputs[index].name,name);
+				}
+                                //printf("Input label: %u, %s\n",index,name);
                                 break;
                     case 'o':
                                 index = strtoul(&line[1],&aux,10);
-                                name = aux;
-                                printf("Output label: %u, %s\n",index,name);
+                                name = strtok(aux,"\n");
+				if(index<O)
+				{
+					strcpy(paag_outputs[index].name,name);
+				}
+                                //printf("Output label: %u, %s\n",index,name);
                                 break;
                 }
             }
-
-            /*
-            allocateMem(M,O);
-            aagInputs();
-            aagOutputs(); 
-            aagSignals();
-            aagInputsNames();
-            aagOutputsNames();
-            fgets(aag_name,MAX_LINE,aagFile);
-            fgets(aag_name,MAX_LINE,aagFile);
-            */
+	    /*
+	    for(i=0;i<I;i++)
+		    printf("IN %d %s: %d\n",i,paag_inputs[i].name,paag_inputs[i].index);
+	    for(i=0;i<O;i++)
+		    printf("OUT %d %s: %d\n",i,paag_outputs[i].name,paag_outputs[i].index);
+		    */
         }
         else
         {
