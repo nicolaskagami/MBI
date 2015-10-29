@@ -2,6 +2,9 @@
 #include<iostream>
 #include<stdio.h>
 #include<stdlib.h>
+#include<string.h>
+
+#define MAX_LINE 255
 
 class Point
 {
@@ -49,14 +52,16 @@ class MBI
         unsigned max_inv_fanout;
 
         MBI(unsigned v,unsigned e);
+        MBI(char *paagFileName);
         ~MBI();
+        int allocate_memory(unsigned v, unsigned e);
         void preallocate(unsigned src,unsigned tgt,bool signal);
         void indexify();
         void add_edge(unsigned src,unsigned tgt,bool signal);
         void set_delay(unsigned vert,unsigned delay);
         void print();
         //Parse Files
-        void parse_paag()
+        void parse_paag(char * paagFileName);
         //
         void option1(unsigned vert);
     private:

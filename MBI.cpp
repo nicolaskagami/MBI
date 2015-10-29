@@ -8,9 +8,31 @@ bool Point::operator== (Point b)
     else 
         return false;
 }
-
+MBI::MBI(char *paagFileName)
+{
+    parse_paag(paagFileName);
+}
 MBI::MBI(unsigned v, unsigned e)
 {
+    edges = (EDGE*) malloc(sizeof(EDGE)*e);
+    vertices = (VERT*) malloc(sizeof(VERT)*v);
+    num_edges = e;
+    num_vertices = v;
+    if(edges==NULL || vertices==NULL)
+    {
+        std::cerr << "Memory Allocation Error\n" ;
+        exit(1);
+    }
+    for(unsigned i=0;i<num_vertices;i++)
+    {
+	    vertices[i].delay = 0;
+	    vertices[i].positive_targets = 0;
+	    vertices[i].negative_targets = 0;
+    }
+}
+int MBI::allocate_memory(unsigned v, unsigned e)
+{
+
     edges = (EDGE*) malloc(sizeof(EDGE)*e);
     vertices = (VERT*) malloc(sizeof(VERT)*v);
     num_edges = e;
@@ -115,6 +137,138 @@ void MBI::print()
         }
     }
 }
+//Parsers
+//Zeroth vertex is true, negated is false
+//Add a procedure to propagate delay from output to nearest vertex (possibly adding?
+void MBI::parse_paag(char * paagFileName)
+{
+    FILE * paagFile;
+    char paag_name[MAX_LINE];
+    unsigned M,I,L,O,A,X,Y;
+
+    paagFile = fopen(paagFileName,"r");
+    if(paagFile)
+    {
+        //Header
+        {
+            char head[MAX_LINE];
+            fgets(head,MAX_LINE,paagFile);
+            char * aux = &head[5];
+            if(strcmp("paag",strtok(head," ")) == 0)
+            {
+                M = strtol(aux,&aux,10);
+                I = strtol(aux,&aux,10);
+                L = strtol(aux,&aux,10);
+                O = strtol(aux,&aux,10);
+                A = strtol(aux,&aux,10);
+                X = strtol(aux,&aux,10);
+                Y = strtol(aux,NULL,10);
+            }
+            else
+            {
+                printf("Header Syntax Error\n");
+                exit(1);
+            }
+        }
+        if(M==(A+I))
+        {
+            char line[MAX_LINE];
+            char * aux;
+            unsigned i;
+            unsigned x,y;
+            allocate_memory(M+1,A*2);
+            printf("M %d, I %d, L %d, O %d, A %d, X %d, Y %d\n",M,I,L,O,A,X,Y);
+            //Inputs
+            //Add input i as vertex number i/2 (vertex 0 being reserved for FALSE)
+            //Position vertex according to X and Y
+            for(i=0;i<I;i++)
+            {
+                unsigned input;
+                fgets(line,MAX_LINE,paagFile);
+                input = strtoul(line,&aux,10);
+                aux = strtok(aux,"(,");
+                aux = strtok(NULL,"(,");
+                x = strtoul(aux,&aux,10);
+                aux = strtok(NULL,")");
+                y = strtoul (aux,&aux,10);
+                printf("IN: %u (%u,%u)\n",input,x,y);
+            }
+            //Latches
+            for(i=0;i<L;i++)
+            {
+                fgets(line,MAX_LINE,paagFile);
+            }
+            //Outputs
+            //Add to a list of outputs or to vertex (needs to be positioned!)
+            for(i=0;i<O;i++)
+            {
+                unsigned output;
+                fgets(line,MAX_LINE,paagFile);
+                //outputs[i].ID =  strtol(line,NULL,10);
+                output = strtoul(line,&aux,10);
+                aux = strtok(aux,"(,");
+                aux = strtok(NULL,"(,");
+                x = strtoul(aux,&aux,10);
+                aux = strtok(NULL,")");
+                y = strtoul (aux,&aux,10);
+                printf("OUT: %d (%u,%u)\n",output,x,y);
+            }
+            //Signals
+            for(i=0;i<A;i++)
+            {
+                unsigned signal,srca,srcb;
+                fgets(line,MAX_LINE,paagFile);
+                //outputs[i].ID =  strtol(line,NULL,10);
+                signal = strtoul(line,&aux,10);
+                srca = strtoul(aux,&aux,10);
+                srcb = strtoul(aux,&aux,10);
+                aux = strtok(aux,"(,");
+                aux = strtok(NULL,"(,");
+                x = strtoul(aux,&aux,10);
+                aux = strtok(NULL,")");
+                y = strtoul (aux,&aux,10);
+                printf("Signal: %u %u %u (%u,%u)\n",signal,srca,srcb,x,y);
+            }
+
+            while(fgets(line,MAX_LINE,paagFile))
+            {
+                char * name;
+                unsigned index;
+                if(line[0] == 'c')   
+                    break;
+                switch(line[0])
+                {
+                    case 'i':
+                                index = strtoul(&line[1],&aux,10);
+                                name = aux;
+                                printf("Input label: %u, %s\n",index,name);
+                                break;
+                    case 'o':
+                                index = strtoul(&line[1],&aux,10);
+                                name = aux;
+                                printf("Output label: %u, %s\n",index,name);
+                                break;
+                }
+            }
+
+            /*
+            allocateMem(M,O);
+            aagInputs();
+            aagOutputs(); 
+            aagSignals();
+            aagInputsNames();
+            aagOutputsNames();
+            fgets(aag_name,MAX_LINE,aagFile);
+            fgets(aag_name,MAX_LINE,aagFile);
+            */
+        }
+        else
+        {
+            printf("Number of Signals doesn't match\n");
+        }
+    }
+
+}
 
 unsigned minHeight(unsigned posConsumers,unsigned negConsumers,unsigned fanout)
 {
@@ -188,6 +342,8 @@ void MBI::option1(unsigned vert)
 
 int main(int argc, char ** argv)
 {
+    MBI nets("./input/example.paag");
+    /*
     MBI nets(10,10);
     nets.preallocate(0,1,0);
     nets.preallocate(0,2,1);
@@ -218,4 +374,5 @@ int main(int argc, char ** argv)
     nets.set_delay(8,8);
     nets.set_delay(9,9);
     nets.print();
+    */
 }
