@@ -26,11 +26,11 @@ MBI::MBI(unsigned v, unsigned e)
     }
     for(unsigned i=0;i<num_vertices;i++)
     {
-	    vertices[i].delay = 0;
-	    vertices[i].positive_targets = 0;
-	    vertices[i].negative_targets = 0;
-	    vertices[i].position.x = -1;
-	    vertices[i].position.y = -1;
+            vertices[i].delay = 0;
+            vertices[i].positive_targets = 0;
+            vertices[i].negative_targets = 0;
+            vertices[i].position.x = -1;
+            vertices[i].position.y = -1;
     }
 }
 int MBI::allocate_memory(unsigned v, unsigned e)
@@ -47,9 +47,9 @@ int MBI::allocate_memory(unsigned v, unsigned e)
     }
     for(unsigned i=0;i<num_vertices;i++)
     {
-	    vertices[i].delay = 0;
-	    vertices[i].positive_targets = 0;
-	    vertices[i].negative_targets = 0;
+            vertices[i].delay = 0;
+            vertices[i].positive_targets = 0;
+            vertices[i].negative_targets = 0;
     }
 }
 MBI::~MBI()
@@ -110,7 +110,7 @@ void MBI::add_edge(unsigned src,unsigned tgt,bool signal)
     }
     edges[ind].target = tgt;    
 }
-void MBI::set_delay(unsigned vert,unsigned delay)
+void MBI::set_delay(unsigned vert,float delay)
 {
     if(vert>=num_vertices)
     {
@@ -130,12 +130,15 @@ void MBI::set_position(unsigned vert,unsigned x,unsigned y)
 void MBI::print()
 {
     unsigned i;
+    printf("Clocks:\n");
+    for (std::list<CLOCK>::iterator it=clocks.begin(); it!=clocks.end(); ++it)
+       printf("%s: Period: %f\n",it->name,it->period); 
     printf("Inputs\n");
     for(i=0;i<I;i++)
-	    printf("IN %d %s: %d Delay: %f\n",i,paag_inputs[i].name,paag_inputs[i].index,paag_inputs[i].delay);
+        printf("IN %d %s: %d Delay: %f\n",i,paag_inputs[i].name,paag_inputs[i].index,paag_inputs[i].delay);
     printf("Outputs\n");
     for(i=0;i<O;i++)
-	    printf("OUT %d %s: %d Max Delay: %f\n",i,paag_outputs[i].name,paag_outputs[i].index,paag_outputs[i].max_delay);
+            printf("OUT %d %s: %d Max Delay: %f\n",i,paag_outputs[i].name,paag_outputs[i].index,paag_outputs[i].max_delay);
     printf("Vertices: %d\n",num_vertices);
     printf("Edges: %d\n",num_edges);
     for(i = 0;i<num_vertices;i++)
@@ -143,7 +146,7 @@ void MBI::print()
         //if((vertices[i].positive_targets+vertices[i].negative_targets)>0)
         {
             printf("Vert %d (%u,%u)\n",i,vertices[i].position.x,vertices[i].position.y);
-	    printf("Estimated Delay: %d\n",vertices[i].delay);
+            printf("Estimated Delay: %d\n",vertices[i].delay);
             printf("Positive Consumers: ");
             for(unsigned b = vertices[i].pindex,j=0;j<vertices[i].positive_targets;j++)
                 printf("%d ",edges[b+j].target);
@@ -196,8 +199,8 @@ void MBI::parse_paag(char * paagFileName)
             //Inputs
             //Add input i as vertex number i/2 (vertex 0 being reserved for FALSE)
             //Position vertex according to X and Y
-	    paag_inputs = (INPUT*) malloc(sizeof(INPUT)*I);
-	    paag_outputs = (OUTPUT*) malloc(sizeof(OUTPUT)*O);
+            paag_inputs = (INPUT*) malloc(sizeof(INPUT)*I);
+            paag_outputs = (OUTPUT*) malloc(sizeof(OUTPUT)*O);
             for(i=0;i<I;i++)
             {
                 unsigned input;
@@ -209,11 +212,11 @@ void MBI::parse_paag(char * paagFileName)
                 aux = strtok(NULL,")");
                 y = strtoul (aux,&aux,10);
 
-		paag_inputs[i].name[0] = '\0';
-		paag_inputs[i].index = input/2;
-		paag_inputs[i].delay = 0;
-		set_position(input/2,x,y);
-		//Add vertex
+                paag_inputs[i].name[0] = '\0';
+                paag_inputs[i].index = input/2;
+                paag_inputs[i].delay = 0;
+                set_position(input/2,x,y);
+                //Add vertex
                 //printf("IN: %u (%u,%u)\n",input,x,y);
             }
             //Latches
@@ -235,14 +238,14 @@ void MBI::parse_paag(char * paagFileName)
                 aux = strtok(NULL,")");
                 y = strtoul (aux,&aux,10);
 
-		paag_outputs[i].name[0] = '\0';
-		paag_outputs[i].index = output/2;
-		paag_outputs[i].max_delay = 0;
+                paag_outputs[i].name[0] = '\0';
+                paag_outputs[i].index = output/2;
+                paag_outputs[i].max_delay = 0;
                 //printf("OUT: %d (%u,%u)\n",output,x,y);
             }
             //Signals
-	    fpos_t file_position;
-	    fgetpos(paagFile,&file_position);
+            fpos_t file_position;
+            fgetpos(paagFile,&file_position);
             for(i=0;i<A;i++)
             {
                 unsigned signal,srca,srcb;
@@ -251,12 +254,12 @@ void MBI::parse_paag(char * paagFileName)
                 srca = strtoul(aux,&aux,10);
                 srcb = strtoul(aux,&aux,10);
 
-		preallocate(srca/2,signal/2,srca%2);
-		preallocate(srcb/2,signal/2,srcb%2);
+                preallocate(srca/2,signal/2,srca%2);
+                preallocate(srcb/2,signal/2,srcb%2);
                 //printf("Signal: %u %u %u (%u,%u)\n",signal,srca,srcb,x,y);
             }
-	    fsetpos(paagFile,&file_position);
-	    indexify();
+            fsetpos(paagFile,&file_position);
+            indexify();
             for(i=0;i<A;i++)
             {
                 unsigned signal,srca,srcb;
@@ -270,9 +273,9 @@ void MBI::parse_paag(char * paagFileName)
                 aux = strtok(NULL,")");
                 y = strtoul (aux,&aux,10);
 
-		set_position(signal/2,x,y);
-		add_edge(srca/2,signal/2,srca%2);
-		add_edge(srcb/2,signal/2,srcb%2);
+                set_position(signal/2,x,y);
+                add_edge(srca/2,signal/2,srca%2);
+                add_edge(srcb/2,signal/2,srcb%2);
                 //printf("Signal: %u %u %u (%u,%u)\n",signal,srca,srcb,x,y);
             }
 
@@ -286,30 +289,31 @@ void MBI::parse_paag(char * paagFileName)
                 {
                     case 'i':
                                 index = strtoul(&line[1],&aux,10);
-                                name = strtok(aux,"\n");
-				if(index<I)
-				{
-					strcpy(paag_inputs[index].name,name);
-				}
+                                name = strtok(aux," \n");
+                                if(index<I)
+                                {
+                                        strcpy(paag_inputs[index].name,name);
+                                }
                                 //printf("Input label: %u, %s\n",index,name);
                                 break;
                     case 'o':
                                 index = strtoul(&line[1],&aux,10);
-                                name = strtok(aux,"\n");
-				if(index<O)
-				{
-					strcpy(paag_outputs[index].name,name);
-				}
+                                name = strtok(aux," \n");
+                                if(index<O)
+                                {
+                                        strcpy(paag_outputs[index].name,name);
+                                }
                                 //printf("Output label: %u, %s\n",index,name);
                                 break;
                 }
             }
-	    /*
-	    for(i=0;i<I;i++)
-		    printf("IN %d %s: %d\n",i,paag_inputs[i].name,paag_inputs[i].index);
-	    for(i=0;i<O;i++)
-		    printf("OUT %d %s: %d\n",i,paag_outputs[i].name,paag_outputs[i].index);
-		    */
+            /*
+            for(i=0;i<I;i++)
+                    printf("IN %d %s: %d\n",i,paag_inputs[i].name,paag_inputs[i].index);
+            for(i=0;i<O;i++)
+                    printf("OUT %d %s: %d\n",i,paag_outputs[i].name,paag_outputs[i].index);
+                    */
+            fclose(paagFile);
         }
         else
         {
@@ -321,20 +325,118 @@ void MBI::parse_paag(char * paagFileName)
 void MBI::parse_sdc(char * sdcFileName)
 {
     FILE * sdcFile;
-
+    
     sdcFile = fopen(sdcFileName,"r");
     if(sdcFile)
     {
         char line[MAX_LINE];
         char * aux;
         //Header
-            while(fgets(line,MAX_LINE,sdcFile))
+        while(fgets(line,MAX_LINE,sdcFile))
+        {
+            aux = strtok(line," ");
+            if(strcmp(aux,"create_clock") == 0)
             {
-	    }
+                CLOCK clk;
+                for(aux=strtok(NULL," \n");aux!=NULL;aux=strtok(NULL," \n"))
+                {
+                    if(strcmp(aux,"-period")==0)
+                    {
+                        aux=strtok(NULL," \n");
+                        if(aux)
+                        {
+                            clk.period = strtof(aux,NULL);
+                            //printf("Period: %f\n",clk.period);
+                        }
+                    }
+                    if(strcmp(aux,"-name")==0)
+                    {
+                        aux=strtok(NULL," \n");
+                        if(aux)
+                        {
+                            strcpy(clk.name,aux);
+                            //printf("NAME: %s\n",clk.name);
+                        }
+                    }
+                }
+                     clocks.push_front(clk); 
+            }
+            else
+            if(strcmp(aux,"set_input_delay") == 0)
+            {
+                float delay;
+                bool delay_parsed = false;
+                char input_name[MAX_LINE];
+                for(aux=strtok(NULL," \n");aux!=NULL;aux=strtok(NULL," \n"))
+                {
+                    if(strcmp(aux,"-clock")==0)
+                    {
+                        aux=strtok(NULL," \n");
+                        if(aux)
+                        {
+                            //printf("For clock: %s\n",aux);
+                        }
+                    } else
+                    if(delay_parsed==false)
+                    {
+                        delay = strtof(aux,&aux);
+                        delay_parsed = true;
+                    } else {
+                        if(aux)
+                        {
+                            unsigned i;
+                            strcpy(input_name,aux);
+                            for(i=0;i<I;i++)
+                            {
+                                if(strcmp(input_name,paag_inputs[i].name)==0)
+				{
+				    paag_inputs[i].delay = delay;
+                                    //set_delay(paag_inputs[i].index,delay);        
+				}
+                            }
+                        }
+                    }                        
+                }
+            }
+            else
+            if(strcmp(aux,"set_max_delay") == 0)
+            {
+                float delay;
+                bool delay_parsed = false;
+                char output_name[MAX_LINE];
+                for(aux=strtok(NULL," \n");aux!=NULL;aux=strtok(NULL," \n"))
+                {
+                    if(strcmp(aux,"-to")==0)
+                    {
+                        aux=strtok(NULL," \n");
+                        if(aux)
+                        {
+                            unsigned i;
+                            strcpy(output_name,aux);
+                            for(i=0;i<I;i++)
+                            {
+                                if(strcmp(output_name,paag_outputs[i].name)==0)
+				{
+				    paag_outputs[i].max_delay = delay;
+                                    //set_delay(paag_outputs[i].index,delay);        
+				}
+                            }
+                        }
+                    } else
+                    if(delay_parsed==false)
+                    {
+                        delay = strtof(aux,&aux);
+                        delay_parsed = true;
+                    }
+                }
+                
+            }
+
+        }
+        fclose(sdcFile);
     }
 
 }
-
 
 unsigned minHeight(unsigned posConsumers,unsigned negConsumers,unsigned fanout)
 {
@@ -380,9 +482,9 @@ void MBI::option1(unsigned vert)
     LEVEL * levels = (LEVEL*) malloc(sizeof(LEVEL)*height);
     for(unsigned i=1;i<height;i++)
     {
-	    levels[i].vacant=0;
-	    levels[i].inv_taken=0;
-	    levels[i].signal_taken=0;
+            levels[i].vacant=0;
+            levels[i].inv_taken=0;
+            levels[i].signal_taken=0;
     }
     levels[0].vacant = max_cell_fanout;
     unsigned base = vertices[vert].pindex;
@@ -397,7 +499,7 @@ void MBI::option1(unsigned vert)
                 levels[h].vacant--;
                 break;
             }
-        }	
+        }        
     }
 }
 
@@ -408,7 +510,7 @@ void MBI::option1(unsigned vert)
 
 int main(int argc, char ** argv)
 {
-    MBI nets("./input/example.paag","./inpu/example.sdc");
+    MBI nets("./input/example.paag","./input/example.sdc");
     nets.print();
     /*
     MBI nets(10,10);

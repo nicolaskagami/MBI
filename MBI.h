@@ -3,6 +3,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
+#include<list>
 
 #define MAX_LINE 255
 #define MAX_LABEL 32
@@ -56,6 +57,12 @@ typedef struct
     float max_delay;
 } OUTPUT;
 
+typedef struct
+{
+    char name[MAX_LABEL];
+    float period;
+} CLOCK;
+
 class MBI
 {
     public:
@@ -74,7 +81,7 @@ class MBI
         void preallocate(unsigned src,unsigned tgt,bool signal);
         void indexify();
         void add_edge(unsigned src,unsigned tgt,bool signal);
-        void set_delay(unsigned vert,unsigned delay);
+        void set_delay(unsigned vert,float delay);
 	void set_position(unsigned vert,unsigned x,unsigned y);
         void print();
 
@@ -84,6 +91,7 @@ class MBI
 	INPUT * paag_inputs;
 	OUTPUT * paag_outputs;
         void parse_paag(char * paagFileName);
+	std::list<CLOCK> clocks;
         void parse_sdc(char * sdcFileName);
         //
         void option1(unsigned vert);

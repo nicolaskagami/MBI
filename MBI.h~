@@ -3,6 +3,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
+#include<list>
 
 #define MAX_LINE 255
 #define MAX_LABEL 32
@@ -56,6 +57,12 @@ typedef struct
     float max_delay;
 } OUTPUT;
 
+typedef struct
+{
+    char name[MAX_LABEL];
+    float period;
+} CLOCK;
+
 class MBI
 {
     public:
@@ -68,7 +75,7 @@ class MBI
         unsigned max_inv_fanout;
 
         MBI(unsigned v,unsigned e);
-        MBI(char *paagFileName);
+        MBI(char * paagFileName,char * sdcFileName);
         ~MBI();
         int allocate_memory(unsigned v, unsigned e);
         void preallocate(unsigned src,unsigned tgt,bool signal);
@@ -77,12 +84,14 @@ class MBI
         void set_delay(unsigned vert,unsigned delay);
 	void set_position(unsigned vert,unsigned x,unsigned y);
         void print();
+
         //Parser
 	//PAAG
         unsigned M,I,L,O,A,X,Y;
 	INPUT * paag_inputs;
 	OUTPUT * paag_outputs;
         void parse_paag(char * paagFileName);
+	std::list<CLOCK> clocks;
         void parse_sdc(char * sdcFileName);
         //
         void option1(unsigned vert);
