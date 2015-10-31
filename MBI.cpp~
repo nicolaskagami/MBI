@@ -160,6 +160,7 @@ void MBI::print()
 void MBI::parse_paag(char * paagFileName)
 {
     FILE * paagFile;
+    char paag_name[MAX_LINE];
 
     paagFile = fopen(paagFileName,"r");
     if(paagFile)
@@ -320,19 +321,6 @@ void MBI::parse_paag(char * paagFileName)
 }
 void MBI::parse_sdc(char * sdcFileName)
 {
-    FILE * sdcFile;
-
-    sdcFile = fopen(sdcFileName,"r");
-    if(sdcFile)
-    {
-        char line[MAX_LINE];
-        char * aux;
-        //Header
-            while(fgets(line,MAX_LINE,sdcFile))
-            {
-	    }
-    }
-
 }
 
 

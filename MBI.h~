@@ -68,7 +68,7 @@ class MBI
         unsigned max_inv_fanout;
 
         MBI(unsigned v,unsigned e);
-        MBI(char * paagFileName,char * sdcFileName);
+        MBI(char *paagFileName);
         ~MBI();
         int allocate_memory(unsigned v, unsigned e);
         void preallocate(unsigned src,unsigned tgt,bool signal);
@@ -77,7 +77,6 @@ class MBI
         void set_delay(unsigned vert,unsigned delay);
 	void set_position(unsigned vert,unsigned x,unsigned y);
         void print();
-
         //Parser
 	//PAAG
         unsigned M,I,L,O,A,X,Y;
