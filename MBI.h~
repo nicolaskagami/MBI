@@ -19,7 +19,8 @@ class Point
 typedef struct
 {
     Point position;
-    unsigned delay;//can be placed at the target vertex
+    float pre_delay;//can be placed at the target vertex
+    float post_delay;
 
     unsigned pindex;
     unsigned positive_targets;
@@ -31,7 +32,7 @@ typedef struct
 {
     unsigned target;
 
-    unsigned path_delay;
+    float path_delay;
     unsigned level;
 }EDGE;
 
@@ -73,6 +74,7 @@ class MBI
 
         unsigned max_cell_fanout;
         unsigned max_inv_fanout;
+	float unit_delay;
 
         MBI(unsigned v,unsigned e);
         MBI(char * paagFileName,char * sdcFileName);
@@ -81,7 +83,7 @@ class MBI
         void preallocate(unsigned src,unsigned tgt,bool signal);
         void indexify();
         void add_edge(unsigned src,unsigned tgt,bool signal);
-        void set_delay(unsigned vert,unsigned delay);
+        //void set_delay(unsigned vert,float delay);
 	void set_position(unsigned vert,unsigned x,unsigned y);
         void print();
 
@@ -91,6 +93,7 @@ class MBI
 	INPUT * paag_inputs;
 	OUTPUT * paag_outputs;
         void parse_paag(char * paagFileName);
+	//SDC
 	std::list<CLOCK> clocks;
         void parse_sdc(char * sdcFileName);
         //

@@ -26,7 +26,8 @@ MBI::MBI(unsigned v, unsigned e)
     }
     for(unsigned i=0;i<num_vertices;i++)
     {
-            vertices[i].delay = 0;
+            vertices[i].pre_delay = 0;
+            vertices[i].post_delay = 0;
             vertices[i].positive_targets = 0;
             vertices[i].negative_targets = 0;
             vertices[i].position.x = -1;
@@ -47,7 +48,8 @@ int MBI::allocate_memory(unsigned v, unsigned e)
     }
     for(unsigned i=0;i<num_vertices;i++)
     {
-            vertices[i].delay = 0;
+            vertices[i].pre_delay = 0;
+            vertices[i].post_delay = 0;
             vertices[i].positive_targets = 0;
             vertices[i].negative_targets = 0;
     }
@@ -110,7 +112,7 @@ void MBI::add_edge(unsigned src,unsigned tgt,bool signal)
     }
     edges[ind].target = tgt;    
 }
-void MBI::set_delay(unsigned vert,float delay)
+/*void MBI::set_delay(unsigned vert,float delay)
 {
     if(vert>=num_vertices)
     {
@@ -118,7 +120,7 @@ void MBI::set_delay(unsigned vert,float delay)
         exit(1);
     }
     vertices[vert].delay = delay;
-}
+}*/
 void MBI::set_position(unsigned vert,unsigned x,unsigned y)
 {
     if(vert<num_vertices)
@@ -146,7 +148,7 @@ void MBI::print()
         //if((vertices[i].positive_targets+vertices[i].negative_targets)>0)
         {
             printf("Vert %d (%u,%u)\n",i,vertices[i].position.x,vertices[i].position.y);
-            printf("Estimated Delay: %d\n",vertices[i].delay);
+            printf("Estimated Delay: %f %f\n",vertices[i].pre_delay,vertices[i].post_delay);
             printf("Positive Consumers: ");
             for(unsigned b = vertices[i].pindex,j=0;j<vertices[i].positive_targets;j++)
                 printf("%d ",edges[b+j].target);
@@ -417,7 +419,6 @@ void MBI::parse_sdc(char * sdcFileName)
                             {
                                 if(strcmp(output_name,paag_outputs[i].name)==0)
 				{
-					printf("%d,%f\n",i,delay);
 				    paag_outputs[i].max_delay = delay;
                                     //set_delay(paag_outputs[i].index,delay);        
 				}
@@ -430,13 +431,27 @@ void MBI::parse_sdc(char * sdcFileName)
                         delay_parsed = true;
                     }
                 }
-                
             }
-
         }
         fclose(sdcFile);
     }
 
+}
+void MBI::estimate_delay()
+{
+    unsigned i,vert;
+    for(i=0;i<I;i++)
+    {
+        vert = paag_inputs[i].index;
+        if(vertices[vert].pre_delay<paag_inputs[i].delay)
+            vertices[vert].pre_delay = paag_inputs[i].delay;
+    }
+    for(i=0;i<O;i++)
+    {
+        vert = paag_outputs[i].index;
+        if(vertices[vert].post_delay<paag_outputs[i].max_delay)
+            vertices[vert].post_delay = paag_outputs[i].max_delay;
+    }
 }
 
 unsigned minHeight(unsigned posConsumers,unsigned negConsumers,unsigned fanout)
@@ -512,6 +527,8 @@ void MBI::option1(unsigned vert)
 int main(int argc, char ** argv)
 {
     MBI nets("./input/example.paag","./input/example.sdc");
+    nets.unit_delay = 0.1;
+    nets.estimate_delay();
     nets.print();
     /*
     MBI nets(10,10);
