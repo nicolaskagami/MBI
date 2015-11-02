@@ -4,8 +4,11 @@
 #include<stdlib.h>
 #include<string.h>
 #include<list>
+#include<queue>
 
 #define MAX_LINE 255
+#define MAX_NAME 255
+#define MAX_SOURCES 2
 #define MAX_LABEL 32
 
 class Point
@@ -19,6 +22,9 @@ class Point
 typedef struct
 {
     Point position;
+    unsigned num_srcs;
+    unsigned srcs[MAX_SOURCES];
+
     float pre_delay;//can be placed at the target vertex
     float post_delay;
 
@@ -64,6 +70,53 @@ typedef struct
     float period;
 } CLOCK;
 
+//LIB data
+typedef struct
+{
+    char name[MAX_NAME];
+	char var1[MAX_NAME];
+	char var2[MAX_NAME];
+	unsigned num_indices;
+	float * ind1;
+	float * ind2;
+} TIMING_LUT;
+
+typedef struct
+{
+    char name[MAX_NAME];
+	char var1[MAX_NAME];
+	char var2[MAX_NAME];
+	unsigned num_indices;
+	float * ind1;
+	float * ind2;
+} POWER_LUT;
+
+typedef struct
+{
+	//Related power pin
+	//Related ground pin
+	float capacitance;
+	float fall_capacitance;
+	float rise_capacitance;
+} INPUT_PIN;
+
+typedef struct
+{
+	//Related power pin
+	//Related ground pin
+	float capacitance;
+	float fall_capacitance;
+	float rise_capacitance;
+} OUTPUT_PIN;
+
+typedef struct
+{
+    char name[MAX_NAME];
+	unsigned drive_strength;
+	float area;
+	float cell_leakage_power;
+} CELL;
+
 class MBI
 {
     public:
@@ -74,30 +127,41 @@ class MBI
 
         unsigned max_cell_fanout;
         unsigned max_inv_fanout;
-	float unit_delay;
+        float unit_delay;
 
         MBI(unsigned v,unsigned e);
-        MBI(char * paagFileName,char * sdcFileName);
+        MBI(char * paagFileName,char * sdcFileName,char * libFileName);
         ~MBI();
         int allocate_memory(unsigned v, unsigned e);
         void preallocate(unsigned src,unsigned tgt,bool signal);
         void indexify();
         void add_edge(unsigned src,unsigned tgt,bool signal);
-	void estimate_delay();
+        void set_position(unsigned vert,unsigned x,unsigned y);
         //void set_delay(unsigned vert,float delay);
-	void set_position(unsigned vert,unsigned x,unsigned y);
+      
+        void estimate_delay();
+        void insert_buffers();
         void print();
 
         //Parser
-	//PAAG
+        //PAAG
         unsigned M,I,L,O,A,X,Y;
-	INPUT * paag_inputs;
-	OUTPUT * paag_outputs;
+        INPUT * paag_inputs;
+        OUTPUT * paag_outputs;
         void parse_paag(char * paagFileName);
-	//SDC
-	std::list<CLOCK> clocks;
+		void clean_paag();
+        //SDC
+        std::list<CLOCK> clocks;
         void parse_sdc(char * sdcFileName);
-        //
+		void clean_sdc();
+        //LIB
+		std::list<TIMING_LUT> time_luts;
+		std::list<POWER_LUT> power_luts;
+		std::list<CELL> cells;
+        void parse_lib(char * libFileName);  
+		void print_lib();
+		void clean_lib();
+		//
         void option1(unsigned vert);
     private:
         //Constructing auxiliary variables

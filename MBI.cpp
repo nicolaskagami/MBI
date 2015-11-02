@@ -8,10 +8,11 @@ bool Point::operator== (Point b)
     else 
         return false;
 }
-MBI::MBI(char *paagFileName,char * sdcFileName)
+MBI::MBI(char *paagFileName,char * sdcFileName,char * libFileName)
 {
     parse_paag(paagFileName);
     parse_sdc(sdcFileName);
+    parse_lib(libFileName);
 }
 MBI::MBI(unsigned v, unsigned e)
 {
@@ -26,8 +27,9 @@ MBI::MBI(unsigned v, unsigned e)
     }
     for(unsigned i=0;i<num_vertices;i++)
     {
+            vertices[i].num_srcs = 0;
             vertices[i].pre_delay = 0;
-            vertices[i].post_delay = 0;
+            vertices[i].post_delay = -1;
             vertices[i].positive_targets = 0;
             vertices[i].negative_targets = 0;
             vertices[i].position.x = -1;
@@ -48,10 +50,13 @@ int MBI::allocate_memory(unsigned v, unsigned e)
     }
     for(unsigned i=0;i<num_vertices;i++)
     {
+            vertices[i].num_srcs = 0;
             vertices[i].pre_delay = 0;
-            vertices[i].post_delay = 0;
+            vertices[i].post_delay = -1;
             vertices[i].positive_targets = 0;
             vertices[i].negative_targets = 0;
+            vertices[i].position.x = -1;
+            vertices[i].position.y = -1;
     }
 }
 MBI::~MBI()
@@ -89,12 +94,17 @@ void MBI::indexify()
 void MBI::add_edge(unsigned src,unsigned tgt,bool signal)
 {
     //printf("Adding Edge %d %d \n",src, tgt);
-    if(src>=num_vertices)
+    if((src>=num_vertices)||(tgt>=num_vertices))
     {
         printf("Invalid vertex\n");
         exit(1);
     }
-    unsigned ind;
+    unsigned ind,srcs;
+    srcs = vertices[tgt].num_srcs++;
+    if(srcs<MAX_SOURCES)
+    {
+        vertices[tgt].srcs[srcs] = src;
+    }
     if(signal)
     {
         ind = vertices[src].nindex + vertices[src].negative_targets;
@@ -148,7 +158,10 @@ void MBI::print()
         //if((vertices[i].positive_targets+vertices[i].negative_targets)>0)
         {
             printf("Vert %d (%u,%u)\n",i,vertices[i].position.x,vertices[i].position.y);
-            printf("Estimated Delay: %f %f\n",vertices[i].pre_delay,vertices[i].post_delay);
+          printf("Sources: ");
+          for(unsigned srcs = 0; srcs < vertices[i].num_srcs;srcs++)
+                printf("%u ",vertices[i].srcs[srcs]);
+            printf("\nEstimated Delay: %f %f\n",vertices[i].pre_delay,vertices[i].post_delay);
             printf("Positive Consumers: ");
             for(unsigned b = vertices[i].pindex,j=0;j<vertices[i].positive_targets;j++)
                 printf("%d ",edges[b+j].target);
@@ -190,7 +203,7 @@ void MBI::parse_paag(char * paagFileName)
                 exit(1);
             }
         }
-        if(M==(A+I))
+        if(M==(A+I+L))
         {
             char line[MAX_LINE];
             char * aux;
@@ -320,9 +333,14 @@ void MBI::parse_paag(char * paagFileName)
         else
         {
             printf("Number of Signals doesn't match\n");
+          exit(1);
         }
     }
 
+}
+void MBI::clean_paag()
+{
+	
 }
 void MBI::parse_sdc(char * sdcFileName)
 {
@@ -361,7 +379,7 @@ void MBI::parse_sdc(char * sdcFileName)
                         }
                     }
                 }
-                     clocks.push_front(clk); 
+                clocks.push_front(clk); 
             }
             else
             if(strcmp(aux,"set_input_delay") == 0)
@@ -391,10 +409,10 @@ void MBI::parse_sdc(char * sdcFileName)
                             for(i=0;i<I;i++)
                             {
                                 if(strcmp(input_name,paag_inputs[i].name)==0)
-				{
-				    paag_inputs[i].delay = delay;
+                                {
+                                    paag_inputs[i].delay = delay;
                                     //set_delay(paag_inputs[i].index,delay);        
-				}
+                                }
                             }
                         }
                     }                        
@@ -418,10 +436,10 @@ void MBI::parse_sdc(char * sdcFileName)
                             for(i=0;i<I;i++)
                             {
                                 if(strcmp(output_name,paag_outputs[i].name)==0)
-				{
-				    paag_outputs[i].max_delay = delay;
+                                {
+                                    paag_outputs[i].max_delay = delay;
                                     //set_delay(paag_outputs[i].index,delay);        
-				}
+                                }
                             }
                         }
                     } else
@@ -437,21 +455,344 @@ void MBI::parse_sdc(char * sdcFileName)
     }
 
 }
+void MBI::clean_sdc()
+{
+	
+}
+void MBI::parse_lib(char * libFileName)
+{
+    FILE * libFile;
+    
+    libFile = fopen(libFileName,"r");
+    if(libFile)
+    {
+        char line[MAX_LINE];
+        char * aux;
+        //Header
+            while(fgets(line,MAX_LINE,libFile))
+            {
+                  aux = strtok(line," ");
+                  if(strcmp(aux,"library") == 0)
+                  {
+                        aux = strtok(NULL,"(");
+                        aux = strtok(aux,")");
+                        puts(aux);
+                        while(fgets(line,MAX_LINE,libFile))
+                        {
+                            if(line[0] == '}')
+                            {
+								puts("END");
+								break;
+							}
+							aux = strtok(line," \t");
+							if(strcmp(aux,"lu_table_template") == 0) // TIMING LUT
+							{
+								aux = strtok(NULL,"(");
+								aux = strtok(aux,")");
+								TIMING_LUT tlut;
+								strcpy(tlut.name,aux);
+
+								fgets(line,MAX_LINE,libFile);		
+								aux = strtok(line," \t");
+								if(strcmp(aux,"variable_1") == 0)
+								{
+									aux = strtok(NULL," :;");
+									strcpy(tlut.var1,aux);
+								}
+								
+								fgets(line,MAX_LINE,libFile);		
+								aux = strtok(line," \t");
+								if(strcmp(aux,"variable_2") == 0)
+								{
+									aux = strtok(NULL," :;");
+									strcpy(tlut.var2,aux);
+								}
+								
+								fgets(line,MAX_LINE,libFile);		
+								char line_buffer[MAX_LINE];
+								unsigned i;
+								strcpy(line_buffer,line);
+								aux = strtok(line," \t");
+								if(strcmp(aux,"index_1") == 0)
+								{									
+									for(i=0,aux=strtok(NULL,"()\"");aux!=NULL;i++,aux=strtok(NULL,",\")"))
+									{
+										if(aux[0]==';')
+											break;
+									}
+									tlut.num_indices = i;
+									tlut.ind1 = (float*) malloc(sizeof(float)*i);
+									tlut.ind2 = (float*) malloc(sizeof(float)*i);
+									strcpy(line,line_buffer);
+									aux = strtok(line," \t");
+									for(i=0,aux=strtok(NULL,"()\"");aux!=NULL;i++,aux=strtok(NULL,",\")"))
+									{
+										if(aux[0]==';')
+											break;
+										tlut.ind1[i] = strtof(aux,NULL);
+									}
+								}
+								fgets(line,MAX_LINE,libFile);		
+								aux = strtok(line," \t");
+								if(strcmp(aux,"index_2") == 0)
+								{
+									for(i=0,aux=strtok(NULL,"()\"");(aux!=NULL)&&(i<tlut.num_indices);i++,aux=strtok(NULL,",\")"))
+									{
+										if(aux[0]==';')
+											break;
+										tlut.ind2[i] = strtof(aux,NULL);
+									}
+									if(i!=tlut.num_indices)
+									{
+										printf("Inconsistent number of indices in Timing Lut: %s\n",tlut.name);
+										exit(1);
+									}
+								}
+								time_luts.push_back(tlut);
+								/*
+								puts(tlut.name);
+								puts(tlut.var1);
+								for(i=0;i<tlut.num_indices;i++)
+									printf("%f, ",tlut.ind1[i]);
+								puts(tlut.var2);
+								
+								for(i=0;i<tlut.num_indices;i++)
+									printf("%f, ",tlut.ind2[i]);*/
+								
+							} else
+							if(strcmp(aux,"power_lut_template") == 0) // POWER LUT
+							{
+								POWER_LUT plut;
+								
+								aux = strtok(NULL,"(");
+								aux = strtok(aux,")");
+								strcpy(plut.name,aux);
+
+								fgets(line,MAX_LINE,libFile);		
+								aux = strtok(line," \t");
+								if(strcmp(aux,"variable_1") == 0)
+								{
+									aux = strtok(NULL," :;");
+									strcpy(plut.var1,aux);
+								}
+								
+								fgets(line,MAX_LINE,libFile);		
+								aux = strtok(line," \t");
+								if(strcmp(aux,"variable_2") == 0)
+								{
+									aux = strtok(NULL," :;");
+									strcpy(plut.var2,aux);
+								}
+								
+								fgets(line,MAX_LINE,libFile);		
+								char line_buffer[MAX_LINE];
+								unsigned i;
+								strcpy(line_buffer,line);
+								aux = strtok(line," \t");
+								if(strcmp(aux,"index_1") == 0)
+								{									
+									for(i=0,aux=strtok(NULL,"()\"");aux!=NULL;i++,aux=strtok(NULL,",\")"))
+									{
+										if(aux[0]==';')
+											break;
+									}
+									plut.num_indices = i;
+									plut.ind1 = (float*) malloc(sizeof(float)*i);
+									plut.ind2 = (float*) malloc(sizeof(float)*i);
+									strcpy(line,line_buffer);
+									aux = strtok(line," \t");
+									for(i=0,aux=strtok(NULL,"()\"");aux!=NULL;i++,aux=strtok(NULL,",\")"))
+									{
+										if(aux[0]==';')
+											break;
+										plut.ind1[i] = strtof(aux,NULL);
+									}
+								}
+								fgets(line,MAX_LINE,libFile);		
+								aux = strtok(line," \t");
+								if(strcmp(aux,"index_2") == 0)
+								{
+									for(i=0,aux=strtok(NULL,"()\"");(aux!=NULL)&&(i<plut.num_indices);i++,aux=strtok(NULL,",\")"))
+									{
+										if(aux[0]==';')
+											break;
+										plut.ind2[i] = strtof(aux,NULL);
+									}
+									if(i!=plut.num_indices)
+									{
+										printf("Inconsistent number of indices in Power Lut: %s\n",plut.name);
+										exit(1);
+									}
+								}
+								power_luts.push_back(plut);
+							} else
+							if(strcmp(aux,"voltage_map") == 0) //name (a,b)
+							{
+								aux = strtok(NULL,"(,");
+								//puts(aux);
+								aux = strtok(NULL,",)");
+								//puts(aux);
+							} else
+							if(strcmp(aux,"time_unit") == 0) // name : "value";
+							{
+								aux = strtok(NULL,":");
+								aux = strtok(NULL,"\"");
+								aux = strtok(NULL,";\"");
+								//puts(aux);
+							} else
+							if(strcmp(aux,"nom_process") == 0) //name : value;
+							{
+								aux = strtok(NULL," :");
+								aux = strtok(NULL," ;\"");
+								//puts(aux);
+							} else
+							if(strcmp(aux,"technology") == 0) //name (value);
+							{
+								aux = strtok(NULL,"()");
+								//puts(aux);
+							} else
+							if(strcmp(aux,"cell") == 0)
+							{
+								CELL cell;
+								aux = strtok(NULL,"(");
+								aux = strtok(aux,")");
+								
+								strcpy(cell.name,aux);
+								
+								while(fgets(line,MAX_LINE,libFile))
+								{
+									aux = strtok(line," \t");
+									if(strcmp(aux,"drive_strength") == 0)
+									{
+										aux = strtok(NULL," :");
+										aux = strtok(NULL," ;\"");
+										cell.drive_strength = strtoul(aux,NULL,10);
+										//printf("%u\n",cell.drive_strength);
+										break;
+									}
+								}
+								while(fgets(line,MAX_LINE,libFile))
+								{
+									aux = strtok(line," \t");
+									if(strcmp(aux,"area") == 0)
+									{
+										aux = strtok(NULL," :");
+										aux = strtok(NULL," ;\"");
+										cell.area = strtof(aux,NULL);
+										//printf("%f\n",cell.area);
+										break;
+									}
+								}
+								while(fgets(line,MAX_LINE,libFile))
+								{
+									aux = strtok(line," \t");
+									if(strcmp(aux,"cell_leakage_power") == 0)
+									{
+										aux = strtok(NULL," :");
+										aux = strtok(NULL," ;\"");
+										cell.cell_leakage_power = strtof(aux,NULL);
+										printf("%f\n",cell.cell_leakage_power);
+										break;
+									}
+								}
+							}
+                        }
+                  }
+            }
+        fclose(libFile);
+    }
+}
+void MBI::print_lib()
+{
+	unsigned i;
+	printf("Time Luts:\n");
+	for (std::list<TIMING_LUT>::iterator it=time_luts.begin(); it!=time_luts.end(); ++it)
+	{
+		printf("%s: \n",it->name);
+		printf("\t%s: ",it->var1);
+		for(i=0;i<it->num_indices;i++)
+			printf("%f, ",it->ind1[i]);
+		printf("\n\t%s: ",it->var2);
+		for(i=0;i<it->num_indices;i++)
+			printf("%f, ",it->ind2[i]);
+		printf("\n");
+	}
+	printf("Power Luts:\n");
+	for (std::list<POWER_LUT>::iterator it=power_luts.begin(); it!=power_luts.end(); ++it)
+	{
+		printf("%s: \n",it->name);
+		printf("\t%s: ",it->var1);
+		for(i=0;i<it->num_indices;i++)
+			printf("%f, ",it->ind1[i]);
+		printf("\n\t%s: ",it->var2);
+		for(i=0;i<it->num_indices;i++)
+			printf("%f, ",it->ind2[i]);
+	}
+        
+}
+void MBI::clean_lib()
+{
+	for (std::list<TIMING_LUT>::iterator it=time_luts.begin(); it!=time_luts.end(); ++it)
+	{
+		free(it->ind1);
+		free(it->ind2);
+	}
+	for (std::list<POWER_LUT>::iterator it=power_luts.begin(); it!=power_luts.end(); ++it)
+	{
+		free(it->ind1);
+		free(it->ind2);
+	}
+	
+}
 void MBI::estimate_delay()
 {
     unsigned i,vert;
+    std::queue<unsigned> q;
     for(i=0;i<I;i++)
     {
         vert = paag_inputs[i].index;
         if(vertices[vert].pre_delay<paag_inputs[i].delay)
             vertices[vert].pre_delay = paag_inputs[i].delay;
+        q.push(vert);
+    }
+    while(!q.empty())
+    {
+        vert = q.front();
+        q.pop();
+        unsigned ind,base,tgt;
+        for(base = vertices[vert].pindex,ind=0;ind<(vertices[vert].positive_targets+vertices[vert].negative_targets);ind++)
+        {
+            tgt = edges[base+ind].target;
+            float delay = vertices[vert].pre_delay + unit_delay;
+            if(vertices[tgt].pre_delay<delay)
+                vertices[tgt].pre_delay = delay;
+            q.push(tgt);
+        }
     }
     for(i=0;i<O;i++)
     {
         vert = paag_outputs[i].index;
         if(vertices[vert].post_delay<paag_outputs[i].max_delay)
             vertices[vert].post_delay = paag_outputs[i].max_delay;
+        q.push(vert);
     }
+    while(!q.empty())
+    {
+        vert = q.front();
+        q.pop();
+        unsigned i,src;
+        for(i=0;i<vertices[vert].num_srcs;i++)
+        {
+            src = vertices[vert].srcs[i];
+            float delay = vertices[vert].post_delay - unit_delay;// Minus if max delay, should be changed to plus if the value means the delay until the end 
+            if((vertices[src].post_delay>delay)||(vertices[src].post_delay<0))
+                vertices[src].post_delay = delay;
+            q.push(src);
+        }
+    }
+}
+void MBI::insert_buffers()
+{
 }
 
 unsigned minHeight(unsigned posConsumers,unsigned negConsumers,unsigned fanout)
@@ -526,10 +867,12 @@ void MBI::option1(unsigned vert)
 
 int main(int argc, char ** argv)
 {
-    MBI nets("./input/example.paag","./input/example.sdc");
-    nets.unit_delay = 0.1;
+    MBI nets("./input/example3.paag","./input/example.sdc","./input/simple-cells.lib");
+    nets.unit_delay = 0.001;
     nets.estimate_delay();
-    nets.print();
+    nets.insert_buffers();
+	nets.print_lib();
+    //nets.print();
     /*
     MBI nets(10,10);
     nets.preallocate(0,1,0);
