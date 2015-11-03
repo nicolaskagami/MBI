@@ -111,6 +111,23 @@ typedef struct
 
 typedef struct
 {
+	char name[MAX_LABEL];
+	float voltage;
+} VOLT_MAP;
+
+typedef struct
+{
+	char name[MAX_LABEL];
+	float capacitance;
+	float resistance;
+	float slope;
+	unsigned num_indices;
+	unsigned * fanout;
+	float * length;
+} WIRE_LOAD;
+
+typedef struct
+{
     char name[MAX_NAME];
 	unsigned drive_strength;
 	float area;
@@ -158,6 +175,9 @@ class MBI
 		std::list<TIMING_LUT> time_luts;
 		std::list<POWER_LUT> power_luts;
 		std::list<CELL> cells;
+		std::list<VOLT_MAP> voltage_maps;
+		std::list<WIRE_LOAD> wire_loads;
+		float nom_process,nom_temperature, nom_voltage;
         void parse_lib(char * libFileName);  
 		void print_lib();
 		void clean_lib();

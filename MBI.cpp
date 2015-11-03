@@ -481,10 +481,9 @@ void MBI::parse_lib(char * libFileName)
                         {
                             if(line[0] == '}')
                             {
-								puts("END");
 								break;
 							}
-							aux = strtok(line," \t");
+							aux = strtok(line," \t(");
 							if(strcmp(aux,"lu_table_template") == 0) // TIMING LUT
 							{
 								aux = strtok(NULL,"(");
@@ -628,10 +627,12 @@ void MBI::parse_lib(char * libFileName)
 							} else
 							if(strcmp(aux,"voltage_map") == 0) //name (a,b)
 							{
+								VOLT_MAP volt_map;
 								aux = strtok(NULL,"(,");
-								//puts(aux);
+								strcpy(volt_map.name,aux);
 								aux = strtok(NULL,",)");
-								//puts(aux);
+								volt_map.voltage = strtof(aux,NULL);
+								voltage_maps.push_back(volt_map);
 							} else
 							if(strcmp(aux,"time_unit") == 0) // name : "value";
 							{
@@ -644,12 +645,88 @@ void MBI::parse_lib(char * libFileName)
 							{
 								aux = strtok(NULL," :");
 								aux = strtok(NULL," ;\"");
+								nom_process = strtof(aux,NULL);
+								//puts(aux);
+							} else
+							if(strcmp(aux,"nom_temperature") == 0) //name : value;
+							{
+								aux = strtok(NULL," :");
+								aux = strtok(NULL," ;\"");
+								nom_temperature = strtof(aux,NULL);
+								//puts(aux);
+							} else
+							if(strcmp(aux,"nom_voltage") == 0) //name : value;
+							{
+								aux = strtok(NULL," :");
+								aux = strtok(NULL," ;\"");
+								nom_voltage = strtof(aux,NULL);
 								//puts(aux);
 							} else
 							if(strcmp(aux,"technology") == 0) //name (value);
 							{
 								aux = strtok(NULL,"()");
 								//puts(aux);
+							} else
+							if(strcmp(aux,"wire_load") == 0) //name (value);
+							{
+								fpos_t position;
+								unsigned i;
+								WIRE_LOAD wl;
+								aux = strtok(NULL,"(\")");
+								strcpy(wl.name,aux);
+								//Capacitance
+								fgets(line,MAX_LINE,libFile);		
+								aux = strtok(line," \t");
+								if(strcmp(aux,"capacitance") == 0)
+								{
+									aux = strtok(NULL," :;");
+									wl.capacitance = strtof(aux,NULL);
+									//printf("%f\n",wl.capacitance);
+								}
+								//Resistance
+								fgets(line,MAX_LINE,libFile);		
+								aux = strtok(line," \t");
+								if(strcmp(aux,"resistance") == 0)
+								{
+									aux = strtok(NULL," :;");
+									wl.resistance = strtof(aux,NULL);
+									//printf("%f\n",wl.resistance);
+								}
+								//Slope
+								fgets(line,MAX_LINE,libFile);		
+								aux = strtok(line," \t");
+								if(strcmp(aux,"slope") == 0)
+								{
+									aux = strtok(NULL," :;");
+									wl.slope = strtof(aux,NULL);
+									//printf("%f\n",wl.slope);
+								}
+								fgetpos(libFile,&position);
+								i=0;
+								while(fgets(line,MAX_LINE,libFile))
+								{
+									aux = strtok(line," \t()");
+									if(strcmp(aux,"fanout_length"))
+										break;
+									i++;
+								}
+								fsetpos(libFile,&position);
+								wl.fanout = (unsigned *) malloc(sizeof(unsigned)*i);
+								wl.length = (float *) malloc(sizeof(float)*i);
+								wl.num_indices = i;
+								i=0;
+								while(fgets(line,MAX_LINE,libFile))
+								{
+									aux = strtok(line," \t()");
+									if(strcmp(aux,"fanout_length"))
+										break;
+									aux = strtok(NULL," \t(),");
+									wl.fanout[i] = strtoul(aux,NULL,10);
+									aux = strtok(NULL," \t(),");
+									wl.length[i] = strtof(aux,NULL);
+									i++;
+								}
+								wire_loads.push_back(wl);
 							} else
 							if(strcmp(aux,"cell") == 0)
 							{
@@ -691,7 +768,7 @@ void MBI::parse_lib(char * libFileName)
 										aux = strtok(NULL," :");
 										aux = strtok(NULL," ;\"");
 										cell.cell_leakage_power = strtof(aux,NULL);
-										printf("%f\n",cell.cell_leakage_power);
+										//printf("%f\n",cell.cell_leakage_power);
 										break;
 									}
 								}
@@ -705,6 +782,25 @@ void MBI::parse_lib(char * libFileName)
 void MBI::print_lib()
 {
 	unsigned i;
+	printf("Voltage Maps:\n");
+	for (std::list<VOLT_MAP>::iterator it=voltage_maps.begin(); it!=voltage_maps.end(); ++it)
+	{
+		printf("%s: %.2f\n",it->name,it->voltage);
+	}
+	
+	printf("Wire Loads:\n");
+	for (std::list<WIRE_LOAD>::iterator it=wire_loads.begin(); it!=wire_loads.end(); ++it)
+	{
+		printf("%s: \n",it->name);
+		printf("\tCapacitance: %f\n",it->capacitance);
+		printf("\tResistance: %f\n",it->resistance);
+		printf("\tSlope: %f\n",it->slope);
+		printf("\tFanout \tLength\n");
+		for(i=0;i<it->num_indices;i++)
+		{
+			printf("\t%u \t%f\n",it->fanout[i],it->length[i]);
+		}
+	}
 	printf("Time Luts:\n");
 	for (std::list<TIMING_LUT>::iterator it=time_luts.begin(); it!=time_luts.end(); ++it)
 	{
@@ -723,11 +819,13 @@ void MBI::print_lib()
 		printf("%s: \n",it->name);
 		printf("\t%s: ",it->var1);
 		for(i=0;i<it->num_indices;i++)
-			printf("%f, ",it->ind1[i]);
+			printf("%.2f, ",it->ind1[i]);
 		printf("\n\t%s: ",it->var2);
 		for(i=0;i<it->num_indices;i++)
-			printf("%f, ",it->ind2[i]);
+			printf("%.2f, ",it->ind2[i]);
+		printf("\n");
 	}
+	
         
 }
 void MBI::clean_lib()
