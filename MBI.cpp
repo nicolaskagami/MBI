@@ -462,11 +462,13 @@ void MBI::clean_sdc()
 void MBI::parse_lib(char * libFileName)
 {
     FILE * libFile;
+    default_wire_load = NULL;
     
     libFile = fopen(libFileName,"r");
     if(libFile)
     {
         char line[MAX_LINE];
+        char line_buffer[MAX_LINE];
         char * aux;
         //Header
             while(fgets(line,MAX_LINE,libFile))
@@ -508,7 +510,6 @@ void MBI::parse_lib(char * libFileName)
 								}
 								
 								fgets(line,MAX_LINE,libFile);		
-								char line_buffer[MAX_LINE];
 								unsigned i;
 								strcpy(line_buffer,line);
 								aux = strtok(line," \t");
@@ -728,6 +729,24 @@ void MBI::parse_lib(char * libFileName)
 								}
 								wire_loads.push_back(wl);
 							} else
+							if(strcmp(aux,"default_wire_load") == 0) 
+                            {
+								aux = strtok(NULL,"\"");
+								aux = strtok(NULL,"\"");
+
+                                for (std::list<WIRE_LOAD>::iterator it=wire_loads.begin(); it!=wire_loads.end(); ++it)
+                                {
+                                   if(strcmp(aux,it->name)==0) 
+                                   {
+                                       default_wire_load = &(*it);
+                                       break;
+                                   }
+                                }    
+                                if(default_wire_load == NULL)
+                                {
+                                    printf("LIB Warning: Suggested default wire load not found\n");
+                                }
+                            }else
 							if(strcmp(aux,"cell") == 0)
 							{
 								CELL cell;
@@ -735,43 +754,88 @@ void MBI::parse_lib(char * libFileName)
 								aux = strtok(aux,")");
 								
 								strcpy(cell.name,aux);
-								
 								while(fgets(line,MAX_LINE,libFile))
 								{
-									aux = strtok(line," \t");
-									if(strcmp(aux,"drive_strength") == 0)
-									{
-										aux = strtok(NULL," :");
-										aux = strtok(NULL," ;\"");
-										cell.drive_strength = strtoul(aux,NULL,10);
-										//printf("%u\n",cell.drive_strength);
-										break;
-									}
+									aux = strtok(line," \t(");
+                                    if(aux)
+                                    {
+                                        if(strcmp(aux,"drive_strength") == 0)
+                                        {
+                                            aux = strtok(NULL," :");
+                                            aux = strtok(NULL," ;\"");
+                                            cell.drive_strength = strtoul(aux,NULL,10);
+                                            //printf("%u\n",cell.drive_strength);
+                                        }else
+                                        if(strcmp(aux,"area") == 0)
+                                        {
+                                            aux = strtok(NULL," :");
+                                            aux = strtok(NULL," ;\"");
+                                            cell.area = strtof(aux,NULL);
+                                            //printf("%f\n",cell.area);
+                                        }else
+                                        if(strcmp(aux,"pg_pin") == 0)
+                                        {
+                                            PG_PIN pgpin;
+                                            aux = strtok(NULL," \t()");
+                                            strcpy(pgpin.name,aux);
+
+                                            fgets(line,MAX_LINE,libFile);
+                                            aux = strtok(line," \t:;");
+                                            if(strcmp(aux,"voltage_name")==0)
+                                            {
+                                                aux = strtok(NULL," \t:;");
+                                                for (std::list<VOLT_MAP>::iterator it=voltage_maps.begin(); it!=voltage_maps.end(); ++it)
+                                                {
+                                                    if(strcmp(aux,it->name)==0)
+                                                    {
+                                                       pgpin.volt_map = &(*it); 
+                                                    }
+                                                }
+                                            }
+                                            fgets(line,MAX_LINE,libFile);
+                                            aux = strtok(line," \t:;");
+                                            if(strcmp(aux,"pg_type")==0)
+                                                strcpy(pgpin.type,aux);
+                                            fgets(line,MAX_LINE,libFile);
+                                            cell.pg_pins.push_back(pgpin);
+                                        }else
+                                        if(strcmp(aux,"cell_leakage_power") == 0)
+                                        {
+                                            aux = strtok(NULL," :");
+                                            aux = strtok(NULL," ;\"");
+                                            cell.cell_leakage_power = strtof(aux,NULL);
+                                            //printf("%f\n",cell.cell_leakage_power);
+                                        }else
+                                        if(strcmp(aux,"leakage_power") == 0)
+                                        {
+                                            LEAKAGE_POWER lp;
+
+                                            fgets(line,MAX_LINE,libFile);
+                                            strcpy(line_buffer,line);
+                                            aux = strtok(line," \t:\";");
+                                            if(strcmp(aux,"when")==0)
+                                            {
+                                                aux = strtok(line_buffer,"\"");
+                                                aux = strtok(NULL,"\"");
+                                                strcpy(lp.when,aux);
+                                            }
+
+                                            fgets(line,MAX_LINE,libFile);
+                                            aux = strtok(line," \t:;");
+                                            if(strcmp(aux,"value")==0)
+                                            {
+                                                aux = strtok(NULL," \t:;\"");
+                                                lp.value = strtof(aux,NULL);
+                                            }
+                                            fgets(line,MAX_LINE,libFile);
+                                            cell.leakage_powers.push_back(lp);
+                                        }else
+                                        if(aux[0]=='}')
+                                            break;
+                                    }
+
 								}
-								while(fgets(line,MAX_LINE,libFile))
-								{
-									aux = strtok(line," \t");
-									if(strcmp(aux,"area") == 0)
-									{
-										aux = strtok(NULL," :");
-										aux = strtok(NULL," ;\"");
-										cell.area = strtof(aux,NULL);
-										//printf("%f\n",cell.area);
-										break;
-									}
-								}
-								while(fgets(line,MAX_LINE,libFile))
-								{
-									aux = strtok(line," \t");
-									if(strcmp(aux,"cell_leakage_power") == 0)
-									{
-										aux = strtok(NULL," :");
-										aux = strtok(NULL," ;\"");
-										cell.cell_leakage_power = strtof(aux,NULL);
-										//printf("%f\n",cell.cell_leakage_power);
-										break;
-									}
-								}
+                                cells.push_back(cell);
 							}
                         }
                   }
@@ -785,7 +849,7 @@ void MBI::print_lib()
 	printf("Voltage Maps:\n");
 	for (std::list<VOLT_MAP>::iterator it=voltage_maps.begin(); it!=voltage_maps.end(); ++it)
 	{
-		printf("%s: %.2f\n",it->name,it->voltage);
+		printf("\t%s: %.2f\n",it->name,it->voltage);
 	}
 	
 	printf("Wire Loads:\n");
@@ -801,6 +865,7 @@ void MBI::print_lib()
 			printf("\t%u \t%f\n",it->fanout[i],it->length[i]);
 		}
 	}
+
 	printf("Time Luts:\n");
 	for (std::list<TIMING_LUT>::iterator it=time_luts.begin(); it!=time_luts.end(); ++it)
 	{
@@ -813,6 +878,7 @@ void MBI::print_lib()
 			printf("%f, ",it->ind2[i]);
 		printf("\n");
 	}
+
 	printf("Power Luts:\n");
 	for (std::list<POWER_LUT>::iterator it=power_luts.begin(); it!=power_luts.end(); ++it)
 	{
@@ -825,7 +891,22 @@ void MBI::print_lib()
 			printf("%.2f, ",it->ind2[i]);
 		printf("\n");
 	}
-	
+
+    printf("Cells:\n");
+	for (std::list<CELL>::iterator it=cells.begin(); it!=cells.end(); ++it)
+    {
+		printf("\t%s: \n",it->name);
+        printf("\tDrive Strength: %u\n",it->drive_strength);
+        printf("\tArea: %f\n",it->area);
+        printf("\tCell Leakage Power: %f\n",it->cell_leakage_power);
+        printf("\t\tWhen\tValue\n");
+        for (std::list<LEAKAGE_POWER>::iterator lp=it->leakage_powers.begin(); lp!=it->leakage_powers.end(); ++lp)
+        {
+            printf("\t\t%s\t%f\n",lp->when,lp->value);
+        }
+        printf("\t\tPG_Pins\n");
+        //for (std::list<PG_PIN>::iterator pg=it->pg_pins.begin(); pg!=it->ge_powers.end(); ++lp)
+    }
         
 }
 void MBI::clean_lib()
@@ -965,7 +1046,7 @@ void MBI::option1(unsigned vert)
 
 int main(int argc, char ** argv)
 {
-    MBI nets("./input/example.paag","./input/example.sdc","./input/simple-cells.lib");
+    MBI nets("./input/example3.paag","./input/example.sdc","./input/simple-cells.lib");
     nets.unit_delay = 0.001;
     nets.estimate_delay();
     nets.insert_buffers();

@@ -111,9 +111,22 @@ typedef struct
 
 typedef struct
 {
+    char when[MAX_NAME];
+    float value;
+} LEAKAGE_POWER;
+
+typedef struct
+{
 	char name[MAX_LABEL];
 	float voltage;
 } VOLT_MAP;
+
+typedef struct 
+{
+    char name[MAX_LABEL];
+    VOLT_MAP * volt_map;
+    char type[MAX_NAME];
+} PG_PIN;
 
 typedef struct
 {
@@ -132,6 +145,8 @@ typedef struct
 	unsigned drive_strength;
 	float area;
 	float cell_leakage_power;
+    std::list<PG_PIN> pg_pins;
+    std::list<LEAKAGE_POWER> leakage_powers;
 } CELL;
 
 class MBI
@@ -177,6 +192,7 @@ class MBI
 		std::list<CELL> cells;
 		std::list<VOLT_MAP> voltage_maps;
 		std::list<WIRE_LOAD> wire_loads;
+        WIRE_LOAD * default_wire_load;
 		float nom_process,nom_temperature, nom_voltage;
         void parse_lib(char * libFileName);  
 		void print_lib();
