@@ -965,7 +965,7 @@ void MBI::option1(unsigned vert)
 
 int main(int argc, char ** argv)
 {
-    MBI nets("./input/example.paag","./input/example.sdc","./input/simple-cells.lib");
+    MBI nets("./input/example3.paag","./input/example.sdc","./input/simple-cells.lib");
     nets.unit_delay = 0.001;
     nets.estimate_delay();
     nets.insert_buffers();
