@@ -624,7 +624,7 @@ library (SimpleCells) {
 
 		timing () {
 
-			related_pin	   : "A";
+			related_pin	   : "Amor";
 			timing_sense	   : negative_unate;
 
 			cell_fall(Timing_1_1) {
@@ -656,8 +656,8 @@ library (SimpleCells) {
 
 			cell_fall(Timing_1_1) {
 				index_1 ("1.0");
-				index_2 ("1.0");
-				values ("1.0");
+				index_2 ("2.0");
+				values ("3.0");
 			}
 			cell_rise(Timing_1_1) {
 				index_1 ("1.0");
@@ -678,7 +678,7 @@ library (SimpleCells) {
 
 		internal_power () {
 
-			related_pin	         : "A";
+			related_pin	         : "Amor";
 			fall_power(Power_1_1) {
 				index_1 ("1.0");
 				index_2 ("1.0");

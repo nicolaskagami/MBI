@@ -795,8 +795,11 @@ void MBI::parse_lib(char * libFileName)
                                             fgets(line,MAX_LINE,libFile);
                                             aux = strtok(line," \t:;");
                                             if(strcmp(aux,"pg_type")==0)
+											{
+												aux = strtok(NULL," \t:;");
                                                 strcpy(pgpin.type,aux);
-                                            fgets(line,MAX_LINE,libFile);
+                                            }
+											fgets(line,MAX_LINE,libFile);
                                             cell.pg_pins.push_back(pgpin);
                                         }else
                                         if(strcmp(aux,"cell_leakage_power") == 0)
@@ -830,7 +833,356 @@ void MBI::parse_lib(char * libFileName)
                                             fgets(line,MAX_LINE,libFile);
                                             cell.leakage_powers.push_back(lp);
                                         }else
-                                        if(aux[0]=='}')
+										if(strcmp(aux,"pin") == 0)
+                                        {
+											char name[MAX_NAME];
+											aux = strtok(NULL," \t()");
+											strcpy(name,aux);
+											fgets(line,MAX_LINE,libFile);
+											fgets(line,MAX_LINE,libFile);
+											aux = strtok(line," \t:;");
+											if(strcmp(aux,"direction")==0)
+											{
+												aux = strtok(NULL," \t:;");
+												if(strcmp(aux,"input")==0)
+												{
+													int i;
+													INPUT_PIN input_pin;
+													input_pin.related_ground_pin = -1;
+													input_pin.related_power_pin = -1;
+													strcpy(input_pin.name,name);
+													fgets(line,MAX_LINE,libFile);
+													aux = strtok(line," \t;:\"");
+													if(strcmp(aux,"related_power_pin")==0)
+													{
+														aux = strtok(NULL," \t;:\"");
+														i=0;
+														for (std::list<PG_PIN>::iterator pg=cell.pg_pins.begin(); pg!=cell.pg_pins.end(); ++pg,i++)
+														{
+															if(strcmp(pg->name,aux)==0)
+																input_pin.related_power_pin = i;
+															
+														}
+														//printf("cell: %d\n",&cell.input_pins);
+														//printf("power pin:%d\n",input_pin.related_power_pin);
+													}
+													
+													fgets(line,MAX_LINE,libFile);
+													aux = strtok(line," \t;:\"");
+													if(strcmp(aux,"related_ground_pin")==0)
+													{
+														aux = strtok(NULL," \t;:\"");
+														i=0;
+														for (std::list<PG_PIN>::iterator pg=cell.pg_pins.begin(); pg!=cell.pg_pins.end(); ++pg,i++)
+														{
+															if(strcmp(pg->name,aux)==0)
+																input_pin.related_ground_pin = i;
+														}
+													}
+													
+													fgets(line,MAX_LINE,libFile);
+													aux = strtok(line," \t;:");
+													if(strcmp(aux,"capacitance")==0)
+													{
+														aux = strtok(NULL," \t;:");
+														input_pin.capacitance = strtof(aux,NULL);
+													}
+													
+													fgets(line,MAX_LINE,libFile);
+													aux = strtok(line," \t;:");
+													if(strcmp(aux,"fall_capacitance")==0)
+													{
+														aux = strtok(NULL," \t;:");
+														input_pin.fall_capacitance = strtof(aux,NULL);
+													}
+													
+													fgets(line,MAX_LINE,libFile);
+													aux = strtok(line," \t;:");
+													if(strcmp(aux,"rise_capacitance")==0)
+													{
+														aux = strtok(NULL," \t;:");
+														input_pin.rise_capacitance = strtof(aux,NULL);
+													}
+													fgets(line,MAX_LINE,libFile);
+													cell.input_pins.push_back(input_pin);
+												}else
+												if(strcmp(aux,"output")==0)
+												{
+													OUTPUT_PIN output_pin;
+													int i;
+													output_pin.related_ground_pin = -1;
+													output_pin.related_power_pin = -1;
+													strcpy(output_pin.name,name);
+													fgets(line,MAX_LINE,libFile);
+													aux = strtok(line," \t;:\"");
+													if(strcmp(aux,"related_power_pin")==0)
+													{
+														aux = strtok(NULL," \t;:\"");
+														i=0;
+														for (std::list<PG_PIN>::iterator pg=cell.pg_pins.begin(); pg!=cell.pg_pins.end(); ++pg,i++)
+														{
+															if(strcmp(pg->name,aux)==0)
+																output_pin.related_power_pin = i;
+															
+														}
+													}
+													
+													fgets(line,MAX_LINE,libFile);
+													aux = strtok(line," \t;:\"");
+													if(strcmp(aux,"related_ground_pin")==0)
+													{
+														aux = strtok(NULL," \t;:\"");
+														i=0;
+														for (std::list<PG_PIN>::iterator pg=cell.pg_pins.begin(); pg!=cell.pg_pins.end(); ++pg,i++)
+														{
+															if(strcmp(pg->name,aux)==0)
+																output_pin.related_ground_pin = i;
+														}
+													}
+													
+													fgets(line,MAX_LINE,libFile);
+													aux = strtok(line," \t;:");
+													if(strcmp(aux,"max_capacitance")==0)
+													{
+														aux = strtok(NULL," \t;:");
+														output_pin.max_capacitance = strtof(aux,NULL);
+													}
+													
+													fgets(line,MAX_LINE,libFile);
+													strcpy(line_buffer,line);
+													aux = strtok(line," \t;:\"");
+                                                
+													if(strcmp(aux,"function")==0)
+													{
+														aux = strtok(line_buffer,"\"");
+														aux = strtok(NULL,"\"");
+														strcpy(output_pin.function,aux);
+													}
+													
+													//fgets(line,MAX_LINE,libFile);
+													
+													while(fgets(line,MAX_LINE,libFile))
+													{
+														aux = strtok(line," \t;:\"");
+														if(strcmp(aux,"timing") == 0)
+														{
+															PIN_TIMING_PROFILE ptp;
+															fgets(line,MAX_LINE,libFile);
+															fgets(line,MAX_LINE,libFile);
+															aux = strtok(line," \t();:\"");
+															if(strcmp(aux,"related_pin")==0)
+															{
+																aux = strtok(NULL," \t()\":;");
+																strcpy(ptp.related_pin,aux);
+															}
+															fgets(line,MAX_LINE,libFile);
+															aux = strtok(line," \t()\":;");
+															if(strcmp(aux,"timing_sense")==0)
+															{
+																aux = strtok(NULL," \t()\":;");
+																strcpy(ptp.timing_sense,aux);
+															}
+															fgets(line,MAX_LINE,libFile);
+															fgets(line,MAX_LINE,libFile);
+															aux = strtok(line," \t();:\"");
+															if(strcmp(aux,"cell_fall")==0)
+															{
+																aux = strtok(NULL," \t()\":;");
+																strcpy(ptp.cell_fall.timing_lut,aux);
+																fgets(line,MAX_LINE,libFile);
+																aux = strtok(line," \t();:\"");
+																if(strcmp(aux,"index_1")==0)
+																{
+																	aux = strtok(NULL," \t();:\"");
+																	ptp.cell_fall.index1 = strtof(aux,NULL);
+																}
+																fgets(line,MAX_LINE,libFile);
+																aux = strtok(line," \t();:\"");
+																if(strcmp(aux,"index_2")==0)
+																{
+																	aux = strtok(NULL," \t();:\"");
+																	ptp.cell_fall.index2 = strtof(aux,NULL);
+																}
+																fgets(line,MAX_LINE,libFile);
+																aux = strtok(line," \t();:\"");
+																if(strcmp(aux,"values")==0)
+																{
+																	aux = strtok(NULL," \t();:\"");
+																	ptp.cell_fall.values = strtof(aux,NULL);
+																}
+																fgets(line,MAX_LINE,libFile);
+															}
+															fgets(line,MAX_LINE,libFile);
+															aux = strtok(line," \t();:\"");
+															if(strcmp(aux,"cell_rise")==0)
+															{
+																aux = strtok(NULL," \t()\":;");
+																strcpy(ptp.cell_rise.timing_lut,aux);
+																fgets(line,MAX_LINE,libFile);
+																aux = strtok(line," \t();:\"");
+																if(strcmp(aux,"index_1")==0)
+																{
+																	aux = strtok(NULL," \t();:\"");
+																	ptp.cell_rise.index1 = strtof(aux,NULL);
+																}
+																fgets(line,MAX_LINE,libFile);
+																aux = strtok(line," \t();:\"");
+																if(strcmp(aux,"index_2")==0)
+																{
+																	aux = strtok(NULL," \t();:\"");
+																	ptp.cell_rise.index2 = strtof(aux,NULL);
+																}
+																fgets(line,MAX_LINE,libFile);
+																aux = strtok(line," \t();:\"");
+																if(strcmp(aux,"values")==0)
+																{
+																	aux = strtok(NULL," \t();:\"");
+																	ptp.cell_rise.values = strtof(aux,NULL);
+																}
+																fgets(line,MAX_LINE,libFile);
+															}
+															fgets(line,MAX_LINE,libFile);
+															aux = strtok(line," \t();:\"");
+															if(strcmp(aux,"fall_transition")==0)
+															{
+																aux = strtok(NULL," \t()\":;");
+																strcpy(ptp.fall_transition.timing_lut,aux);
+																fgets(line,MAX_LINE,libFile);
+																aux = strtok(line," \t();:\"");
+																if(strcmp(aux,"index_1")==0)
+																{
+																	aux = strtok(NULL," \t();:\"");
+																	ptp.fall_transition.index1 = strtof(aux,NULL);
+																}
+																fgets(line,MAX_LINE,libFile);
+																aux = strtok(line," \t();:\"");
+																if(strcmp(aux,"index_2")==0)
+																{
+																	aux = strtok(NULL," \t();:\"");
+																	ptp.fall_transition.index2 = strtof(aux,NULL);
+																}
+																fgets(line,MAX_LINE,libFile);
+																aux = strtok(line," \t();:\"");
+																if(strcmp(aux,"values")==0)
+																{
+																	aux = strtok(NULL," \t();:\"");
+																	ptp.fall_transition.values = strtof(aux,NULL);
+																}
+																fgets(line,MAX_LINE,libFile);
+															}
+															fgets(line,MAX_LINE,libFile);
+															aux = strtok(line," \t();:\"");
+															if(strcmp(aux,"rise_transition")==0)
+															{
+																aux = strtok(NULL," \t()\":;");
+																strcpy(ptp.rise_transition.timing_lut,aux);
+																fgets(line,MAX_LINE,libFile);
+																aux = strtok(line," \t();:\"");
+																if(strcmp(aux,"index_1")==0)
+																{
+																	aux = strtok(NULL," \t();:\"");
+																	ptp.rise_transition.index1 = strtof(aux,NULL);
+																}
+																fgets(line,MAX_LINE,libFile);
+																aux = strtok(line," \t();:\"");
+																if(strcmp(aux,"index_2")==0)
+																{
+																	aux = strtok(NULL," \t();:\"");
+																	ptp.rise_transition.index2 = strtof(aux,NULL);
+																}
+																fgets(line,MAX_LINE,libFile);
+																aux = strtok(line," \t();:\"");
+																if(strcmp(aux,"values")==0)
+																{
+																	aux = strtok(NULL," \t();:\"");
+																	ptp.rise_transition.values = strtof(aux,NULL);
+																}
+																fgets(line,MAX_LINE,libFile);
+															}
+															fgets(line,MAX_LINE,libFile);
+															output_pin.timing_profiles.push_back(ptp);
+														}else
+														if(strcmp(aux,"internal_power") == 0)
+														{
+															PIN_POWER_PROFILE ppp;
+															fgets(line,MAX_LINE,libFile);
+															fgets(line,MAX_LINE,libFile);
+															aux = strtok(line," \t();:\"");
+															if(strcmp(aux,"related_pin")==0)
+															{
+																aux = strtok(NULL," \t()\":;");
+																strcpy(ppp.related_pin,aux);
+															}
+															
+															fgets(line,MAX_LINE,libFile);
+															aux = strtok(line," \t();:\"");
+															if(strcmp(aux,"fall_power")==0)
+															{
+																aux = strtok(NULL," \t()\":;");
+																strcpy(ppp.fall_power.power_lut,aux);
+																fgets(line,MAX_LINE,libFile);
+																aux = strtok(line," \t();:\"");
+																if(strcmp(aux,"index_1")==0)
+																{
+																	aux = strtok(NULL," \t();:\"");
+																	ppp.fall_power.index1 = strtof(aux,NULL);
+																}
+																fgets(line,MAX_LINE,libFile);
+																aux = strtok(line," \t();:\"");
+																if(strcmp(aux,"index_2")==0)
+																{
+																	aux = strtok(NULL," \t();:\"");
+																	ppp.fall_power.index2 = strtof(aux,NULL);
+																}
+																fgets(line,MAX_LINE,libFile);
+																aux = strtok(line," \t();:\"");
+																if(strcmp(aux,"values")==0)
+																{
+																	aux = strtok(NULL," \t();:\"");
+																	ppp.fall_power.values = strtof(aux,NULL);
+																}
+																fgets(line,MAX_LINE,libFile);
+															}
+															fgets(line,MAX_LINE,libFile);
+															aux = strtok(line," \t();:\"");
+															if(strcmp(aux,"rise_power")==0)
+															{
+																aux = strtok(NULL," \t()\":;");
+																strcpy(ppp.rise_power.power_lut,aux);
+																fgets(line,MAX_LINE,libFile);
+																aux = strtok(line," \t();:\"");
+																if(strcmp(aux,"index_1")==0)
+																{
+																	aux = strtok(NULL," \t();:\"");
+																	ppp.rise_power.index1 = strtof(aux,NULL);
+																}
+																fgets(line,MAX_LINE,libFile);
+																aux = strtok(line," \t();:\"");
+																if(strcmp(aux,"index_2")==0)
+																{
+																	aux = strtok(NULL," \t();:\"");
+																	ppp.rise_power.index2 = strtof(aux,NULL);
+																}
+																fgets(line,MAX_LINE,libFile);
+																aux = strtok(line," \t();:\"");
+																if(strcmp(aux,"values")==0)
+																{
+																	aux = strtok(NULL," \t();:\"");
+																	ppp.rise_power.values = strtof(aux,NULL);
+																}
+																fgets(line,MAX_LINE,libFile);
+															}
+															output_pin.power_profiles.push_back(ppp);
+														}else
+														if(aux[0]=='}')
+															break;
+													}
+													cell.output_pins.push_back(output_pin);
+												}
+											}
+											
+										}else
+										if(aux[0]=='}')
                                             break;
                                     }
 
@@ -898,14 +1250,59 @@ void MBI::print_lib()
 		printf("\t%s: \n",it->name);
         printf("\tDrive Strength: %u\n",it->drive_strength);
         printf("\tArea: %f\n",it->area);
+		printf("\tPG_Pins\n");
+        for (std::list<PG_PIN>::iterator pg=it->pg_pins.begin(); pg!=it->pg_pins.end(); ++pg)
+		{
+			printf("\t\t%s:\t%s\t%f\n",pg->name,pg->type,pg->volt_map->voltage);
+		}
         printf("\tCell Leakage Power: %f\n",it->cell_leakage_power);
         printf("\t\tWhen\tValue\n");
         for (std::list<LEAKAGE_POWER>::iterator lp=it->leakage_powers.begin(); lp!=it->leakage_powers.end(); ++lp)
         {
             printf("\t\t%s\t%f\n",lp->when,lp->value);
         }
-        printf("\t\tPG_Pins\n");
-        //for (std::list<PG_PIN>::iterator pg=it->pg_pins.begin(); pg!=it->ge_powers.end(); ++lp)
+		printf("\t\tInput Pins:\n");
+		for (std::list<INPUT_PIN>::iterator ip=it->input_pins.begin(); ip!=it->input_pins.end(); ++ip)
+        {
+			printf("\t\t%s\n",ip->name);
+            printf("\t\t\tCapacitance: %.2f Rise: %.2f Fall: %.2f\t\n",ip->capacitance,ip->rise_capacitance,ip->fall_capacitance);
+			printf("\t\t");
+			if(ip->related_power_pin>=0)
+				printf("\tPower Pin: %d",ip->related_power_pin);
+			if(ip->related_ground_pin>=0)
+				printf("\tGround Pin: %d",ip->related_ground_pin);
+			printf("\n");
+        }
+		printf("\t\tOutput Pins:\n");
+		for (std::list<OUTPUT_PIN>::iterator op=it->output_pins.begin(); op!=it->output_pins.end(); ++op)
+        {
+			printf("\t\t%s\n",op->name);
+            printf("\t\t\tMax Capacitance: %.2f\n",op->max_capacitance);
+			printf("\t\t\tFunction: %s\n",op->function);
+			printf("\t\t");
+			if(op->related_power_pin>=0)
+				printf("\tPower Pin: %d",op->related_power_pin);
+			if(op->related_ground_pin>=0)
+				printf("\tGround Pin: %d",op->related_ground_pin);
+			printf("\n");
+			printf("\t\tTiming Profiles:\n");
+			for (std::list<PIN_TIMING_PROFILE>::iterator tp=op->timing_profiles.begin(); tp!=op->timing_profiles.end(); ++tp)
+			{
+				printf("\t\t\t\t%s: %s\n",tp->related_pin,tp->timing_sense);
+				printf("\t\t\t\tCell Fall: %s: %.2f %.2f %.2f\n",tp->cell_fall.timing_lut,tp->cell_fall.index1,tp->cell_fall.index2,tp->cell_fall.values);
+				printf("\t\t\t\tCell Rise: %s: %.2f %.2f %.2f\n",tp->cell_rise.timing_lut,tp->cell_rise.index1,tp->cell_rise.index2,tp->cell_rise.values);
+				printf("\t\t\t\tFall Transition: %s: %.2f %.2f %.2f\n",tp->fall_transition.timing_lut,tp->fall_transition.index1,tp->fall_transition.index2,tp->fall_transition.values);
+				printf("\t\t\t\tRise Transition: %s: %.2f %.2f %.2f\n",tp->rise_transition.timing_lut,tp->rise_transition.index1,tp->rise_transition.index2,tp->rise_transition.values);
+			}
+			printf("\t\tPower Profiles:\n");
+			for (std::list<PIN_POWER_PROFILE>::iterator pp=op->power_profiles.begin(); pp!=op->power_profiles.end(); ++pp)
+			{
+				printf("\t\t\t\t%s\n",pp->related_pin);
+				printf("\t\t\t\tFall Power: %s: %.2f %.2f %.2f\n",pp->fall_power.power_lut,pp->fall_power.index1,pp->fall_power.index2,pp->fall_power.values);
+				printf("\t\t\t\tRise Power: %s: %.2f %.2f %.2f\n",pp->rise_power.power_lut,pp->rise_power.index1,pp->rise_power.index2,pp->rise_power.values);
+			}
+        }
+        
     }
         
 }
@@ -921,7 +1318,11 @@ void MBI::clean_lib()
 		free(it->ind1);
 		free(it->ind2);
 	}
-	
+	for (std::list<WIRE_LOAD>::iterator it=wire_loads.begin(); it!=wire_loads.end(); ++it)
+	{	
+		free(it->fanout);
+		free(it->length);
+	}
 }
 void MBI::estimate_delay()
 {
