@@ -63,6 +63,11 @@ MBI::~MBI()
 {
     free(vertices);
     free(edges);
+    free(paag_inputs);
+    free(paag_outputs);
+    clean_lib();
+    clean_sdc();
+    clean_paag();
 }
 void MBI::preallocate(unsigned src,unsigned tgt,bool signal)
 {
@@ -1451,7 +1456,7 @@ int main(int argc, char ** argv)
     nets.unit_delay = 0.001;
     nets.estimate_delay();
     nets.insert_buffers();
-	nets.print_lib();
+	//nets.print_lib();
     //nets.print();
     /*
     MBI nets(10,10);
