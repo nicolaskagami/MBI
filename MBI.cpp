@@ -12,10 +12,7 @@ MBI::MBI(char *paagFileName,char * sdcFileName,char * libFileName)
 {
     parse_paag(paagFileName);
     parse_sdc(sdcFileName);
-	if(clocks.size()!=0)
-		current_clock = clocks.front();
-	else
-		printf("NO CLOCKS");
+    set_clock();
     lib = new Liberty(libFileName);
 }
 
@@ -35,7 +32,7 @@ int MBI::allocate_memory(unsigned v, unsigned e)
     {
             vertices[i].num_srcs = 0;
             vertices[i].pre_delay = 0;
-            vertices[i].post_delay = -1;
+            vertices[i].post_delay = 0;
             vertices[i].positive_targets = 0;
             vertices[i].negative_targets = 0;
             vertices[i].position.x = -1;
@@ -109,15 +106,6 @@ void MBI::add_edge(unsigned src,unsigned tgt,bool signal)
     }
     edges[ind].target = tgt;    
 }
-/*void MBI::set_delay(unsigned vert,float delay)
-{
-    if(vert>=num_vertices)
-    {
-        printf("Invalid vertex\n");
-        exit(1);
-    }
-    vertices[vert].delay = delay;
-}*/
 void MBI::set_position(unsigned vert,unsigned x,unsigned y)
 {
     if(vert<num_vertices)
@@ -446,12 +434,24 @@ void MBI::clean_sdc()
 {
 	
 }
-
+void MBI::set_clock()
+{
+	if(clocks.size()!=0)
+    {
+		current_clock = clocks.front();
+    }
+	else
+    {
+		printf("SDC Error: No Clocks Set\n");
+    }
+}
 
 void MBI::estimate_delay()
 {
     unsigned i,vert;
     std::queue<unsigned> q;
+    float delay;
+    //Input Propagation
     for(i=0;i<I;i++)
     {
         vert = paag_inputs[i].index;
@@ -467,17 +467,25 @@ void MBI::estimate_delay()
         for(base = vertices[vert].pindex,ind=0;ind<(vertices[vert].positive_targets+vertices[vert].negative_targets);ind++)
         {
             tgt = edges[base+ind].target;
-            float delay = vertices[vert].pre_delay + unit_delay;
+            delay = vertices[vert].pre_delay + nodal_delay;
             if(vertices[tgt].pre_delay<delay)
                 vertices[tgt].pre_delay = delay;
             q.push(tgt);
         }
     }
+    //Output Propagation
     for(i=0;i<O;i++)
     {
         vert = paag_outputs[i].index;
-        if(vertices[vert].post_delay<paag_outputs[i].max_delay)
-            vertices[vert].post_delay = paag_outputs[i].max_delay;
+        if(paag_outputs[i].max_delay>current_clock.period)
+        {
+            printf("SDC Warning: Main Clock Period lower than an output's maximum delay\n");
+            printf("\tClock: %s \tPeriod: %f -> %f from output %s\n",current_clock.name, current_clock.period,paag_outputs[i].max_delay,paag_outputs[i].name);
+            current_clock.period = paag_outputs[i].max_delay;
+        }
+        delay = current_clock.period - paag_outputs[i].max_delay;
+        if(vertices[vert].post_delay<delay)
+            vertices[vert].post_delay = delay;
         q.push(vert);
     }
     while(!q.empty())
@@ -488,8 +496,8 @@ void MBI::estimate_delay()
         for(i=0;i<vertices[vert].num_srcs;i++)
         {
             src = vertices[vert].srcs[i];
-            float delay = vertices[vert].post_delay - unit_delay;// Minus if max delay, should be changed to plus if the value means the delay until the end 
-            if((vertices[src].post_delay>delay)||(vertices[src].post_delay<0))
+            delay = vertices[vert].post_delay + nodal_delay;
+            if(vertices[src].post_delay<delay)
                 vertices[src].post_delay = delay;
             q.push(src);
         }
@@ -497,6 +505,14 @@ void MBI::estimate_delay()
 }
 void MBI::insert_buffers()
 {
+}
+void MBI::set_nodal_delay(char * cellName)
+{
+	for (std::list<CELL>::iterator it=lib->cells.begin(); it!=lib->cells.end(); ++it)
+    {
+        if(strcmp(cellName,it->name)==0)
+            printf("Found it");
+    }
 }
 
 unsigned minHeight(unsigned posConsumers,unsigned negConsumers,unsigned fanout)
@@ -571,10 +587,11 @@ void MBI::option1(unsigned vert)
 
 int main(int argc, char ** argv)
 {
-    MBI nets("./input/example3.paag","./input/example.sdc","./input/simple-cells.lib");
-    nets.unit_delay = 0.001;
+    MBI nets("./input/example3.paag","./input/example3.sdc","./input/simple-cells.lib");
+    nets.set_nodal_delay("AND2_X1");
     nets.estimate_delay();
     nets.insert_buffers();
+    //nets.print();
 	//nets.lib->print();
     //nets.print();
     /*

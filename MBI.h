@@ -26,7 +26,7 @@ typedef struct
     unsigned num_srcs;
     unsigned srcs[MAX_SOURCES];
 
-    float pre_delay;//can be placed at the target vertex
+    float pre_delay;
     float post_delay;
 
     unsigned pindex;
@@ -38,11 +38,18 @@ typedef struct
 typedef struct 
 {
     unsigned target;
-
     float path_delay;
     unsigned level;
 }EDGE;
 
+typedef struct
+{
+    Point position;
+    //Consumers as indices? how about other inverters?
+    //More espace - Less time:
+    //  Inverter consumers separate from vertices
+        
+} INVERTER;
 typedef struct
 {
     unsigned vacant;
@@ -84,7 +91,7 @@ class MBI
 		//MBI data
         unsigned max_cell_fanout;
         unsigned max_inv_fanout;
-        float unit_delay;
+        float nodal_delay;
 
         MBI(char * paagFileName,char * sdcFileName,char * libFileName);
         ~MBI();
@@ -93,7 +100,6 @@ class MBI
         void indexify();
         void add_edge(unsigned src,unsigned tgt,bool signal);
         void set_position(unsigned vert,unsigned x,unsigned y);
-        //void set_delay(unsigned vert,float delay);
       
         void estimate_delay();
         void insert_buffers();
@@ -112,9 +118,11 @@ class MBI
 		CLOCK current_clock;
         void parse_sdc(char * sdcFileName);
 		void clean_sdc();
+        void set_clock();
 		
         //LIB
 		Liberty * lib;
+        void set_nodal_delay(char * cellName);
 		
 		//
         void option1(unsigned vert);
