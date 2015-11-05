@@ -3,13 +3,11 @@
 
 Liberty::Liberty(char * libFileName)
 {
-    FILE * libFile;
     default_wire_load = NULL;
     
     libFile = fopen(libFileName,"r");
     if(libFile)
     {
-        char line[MAX_LINE];
         char line_buffer[MAX_LINE];
         char * aux;
         //Header
@@ -56,7 +54,7 @@ Liberty::Liberty(char * libFileName)
 								aux = strtok(line," \t");
 								if(strcmp(aux,"index_1") == 0)
 								{									
-									for(i=0,aux=strtok(NULL,"()\"");aux!=NULL;i++,aux=strtok(NULL,",\")"))
+									for(i=0,aux=strtok(NULL,"(),\"");aux!=NULL;i++,aux=strtok(NULL,",\")"))
 									{
 										if(aux[0]==';')
 											break;
@@ -66,7 +64,7 @@ Liberty::Liberty(char * libFileName)
 									tlut.ind2 = (float*) malloc(sizeof(float)*i);
 									strcpy(line,line_buffer);
 									aux = strtok(line," \t");
-									for(i=0,aux=strtok(NULL,"()\"");aux!=NULL;i++,aux=strtok(NULL,",\")"))
+									for(i=0,aux=strtok(NULL,"(),\"");aux!=NULL;i++,aux=strtok(NULL,",\")"))
 									{
 										if(aux[0]==';')
 											break;
@@ -77,7 +75,7 @@ Liberty::Liberty(char * libFileName)
 								aux = strtok(line," \t");
 								if(strcmp(aux,"index_2") == 0)
 								{
-									for(i=0,aux=strtok(NULL,"()\"");(aux!=NULL)&&(i<tlut.num_indices);i++,aux=strtok(NULL,",\")"))
+									for(i=0,aux=strtok(NULL,"(),\"");(aux!=NULL)&&(i<tlut.num_indices);i++,aux=strtok(NULL,",\")"))
 									{
 										if(aux[0]==';')
 											break;
@@ -527,119 +525,21 @@ Liberty::Liberty(char * libFileName)
 															fgets(line,MAX_LINE,libFile);
 															aux = strtok(line," \t();:\"");
 															if(strcmp(aux,"cell_fall")==0)
-															{
-																aux = strtok(NULL," \t()\":;");
-																strcpy(ptp.cell_fall.timing_lut,aux);
-																fgets(line,MAX_LINE,libFile);
-																aux = strtok(line," \t();:\"");
-																if(strcmp(aux,"index_1")==0)
-																{
-																	aux = strtok(NULL," \t();:\"");
-																	ptp.cell_fall.index1 = strtof(aux,NULL);
-																}
-																fgets(line,MAX_LINE,libFile);
-																aux = strtok(line," \t();:\"");
-																if(strcmp(aux,"index_2")==0)
-																{
-																	aux = strtok(NULL," \t();:\"");
-																	ptp.cell_fall.index2 = strtof(aux,NULL);
-																}
-																fgets(line,MAX_LINE,libFile);
-																aux = strtok(line," \t();:\"");
-																if(strcmp(aux,"values")==0)
-																{
-																	aux = strtok(NULL," \t();:\"");
-																	ptp.cell_fall.values = strtof(aux,NULL);
-																}
-																fgets(line,MAX_LINE,libFile);
-															}
+																ptp.cell_fall = get_timing_character();
 															fgets(line,MAX_LINE,libFile);
 															aux = strtok(line," \t();:\"");
 															if(strcmp(aux,"cell_rise")==0)
-															{
-																aux = strtok(NULL," \t()\":;");
-																strcpy(ptp.cell_rise.timing_lut,aux);
-																fgets(line,MAX_LINE,libFile);
-																aux = strtok(line," \t();:\"");
-																if(strcmp(aux,"index_1")==0)
-																{
-																	aux = strtok(NULL," \t();:\"");
-																	ptp.cell_rise.index1 = strtof(aux,NULL);
-																}
-																fgets(line,MAX_LINE,libFile);
-																aux = strtok(line," \t();:\"");
-																if(strcmp(aux,"index_2")==0)
-																{
-																	aux = strtok(NULL," \t();:\"");
-																	ptp.cell_rise.index2 = strtof(aux,NULL);
-																}
-																fgets(line,MAX_LINE,libFile);
-																aux = strtok(line," \t();:\"");
-																if(strcmp(aux,"values")==0)
-																{
-																	aux = strtok(NULL," \t();:\"");
-																	ptp.cell_rise.values = strtof(aux,NULL);
-																}
-																fgets(line,MAX_LINE,libFile);
-															}
+																ptp.cell_rise = get_timing_character();
+															
 															fgets(line,MAX_LINE,libFile);
 															aux = strtok(line," \t();:\"");
 															if(strcmp(aux,"fall_transition")==0)
-															{
-																aux = strtok(NULL," \t()\":;");
-																strcpy(ptp.fall_transition.timing_lut,aux);
-																fgets(line,MAX_LINE,libFile);
-																aux = strtok(line," \t();:\"");
-																if(strcmp(aux,"index_1")==0)
-																{
-																	aux = strtok(NULL," \t();:\"");
-																	ptp.fall_transition.index1 = strtof(aux,NULL);
-																}
-																fgets(line,MAX_LINE,libFile);
-																aux = strtok(line," \t();:\"");
-																if(strcmp(aux,"index_2")==0)
-																{
-																	aux = strtok(NULL," \t();:\"");
-																	ptp.fall_transition.index2 = strtof(aux,NULL);
-																}
-																fgets(line,MAX_LINE,libFile);
-																aux = strtok(line," \t();:\"");
-																if(strcmp(aux,"values")==0)
-																{
-																	aux = strtok(NULL," \t();:\"");
-																	ptp.fall_transition.values = strtof(aux,NULL);
-																}
-																fgets(line,MAX_LINE,libFile);
-															}
+																ptp.fall_transition = get_timing_character();
+															
 															fgets(line,MAX_LINE,libFile);
 															aux = strtok(line," \t();:\"");
 															if(strcmp(aux,"rise_transition")==0)
-															{
-																aux = strtok(NULL," \t()\":;");
-																strcpy(ptp.rise_transition.timing_lut,aux);
-																fgets(line,MAX_LINE,libFile);
-																aux = strtok(line," \t();:\"");
-																if(strcmp(aux,"index_1")==0)
-																{
-																	aux = strtok(NULL," \t();:\"");
-																	ptp.rise_transition.index1 = strtof(aux,NULL);
-																}
-																fgets(line,MAX_LINE,libFile);
-																aux = strtok(line," \t();:\"");
-																if(strcmp(aux,"index_2")==0)
-																{
-																	aux = strtok(NULL," \t();:\"");
-																	ptp.rise_transition.index2 = strtof(aux,NULL);
-																}
-																fgets(line,MAX_LINE,libFile);
-																aux = strtok(line," \t();:\"");
-																if(strcmp(aux,"values")==0)
-																{
-																	aux = strtok(NULL," \t();:\"");
-																	ptp.rise_transition.values = strtof(aux,NULL);
-																}
-																fgets(line,MAX_LINE,libFile);
-															}
+																ptp.rise_transition = get_timing_character();
 															fgets(line,MAX_LINE,libFile);
 															output_pin.timing_profiles.push_back(ptp);
 														}else
@@ -736,6 +636,79 @@ Liberty::Liberty(char * libFileName)
         fclose(libFile);
     }
 }
+TIMING_CHARACTER Liberty::get_timing_character()
+{
+	TIMING_CHARACTER tc;
+	char line[MAX_LINE];
+	char * aux;
+	unsigned num_indices;
+	unsigned i,j;
+	aux = strtok(NULL," \t()\":;");
+	for (std::list<TIMING_LUT>::iterator it=time_luts.begin(); it!=time_luts.end(); ++it)
+	{
+		if(strcmp(aux,it->name)==0)
+		{
+			tc.timing_lut = &(*it);
+			break;
+		}
+	}
+
+	num_indices = tc.timing_lut->num_indices;
+	tc.index1 = (float*) malloc(sizeof(float)*num_indices);
+	tc.index2 = (float*) malloc(sizeof(float)*num_indices);
+	tc.values = (float*) malloc(sizeof(float)*num_indices*num_indices);
+	
+	fgets(line,MAX_LINE,libFile);
+	aux = strtok(line," \t();:\"");
+	if(strcmp(aux,"index_1")==0)
+	{
+		for(i=0,aux=strtok(NULL,"(),\"");(aux!=NULL)&&(i<num_indices);i++,aux=strtok(NULL,",\")"))
+		{
+			if(aux[0]==';')
+				break;
+			tc.index1[i] = strtof(aux,NULL);
+		}
+	}
+	fgets(line,MAX_LINE,libFile);
+	aux = strtok(line," \t();:\"");
+	if(strcmp(aux,"index_2")==0)
+	{
+		for(i=0,aux=strtok(NULL,"(),\"");(aux!=NULL)&&(i<num_indices);i++,aux=strtok(NULL,",\")"))
+		{
+			if(aux[0]==';')
+				break;
+			tc.index2[i] = strtof(aux,NULL);
+		}
+	}
+	fgets(line,MAX_LINE,libFile);
+	aux = strtok(line," \t();:\"");
+	if(strcmp(aux,"values")==0)
+	{
+		aux=strtok(NULL," \t(),\"");
+		for(i=0;(aux!=NULL)&&(i<num_indices);i++)
+		{
+			printf("---");
+			puts(aux);
+			for(j=0;(aux!=NULL)&&(j<num_indices);j++,aux=strtok(NULL," \t,\"()"))
+			{
+				puts(aux);
+				if((aux[0]=='\\')||(aux[0]==';'))
+					break;
+				tc.values[i*num_indices+j] = strtof(aux,NULL);
+			}
+			fgets(line,MAX_LINE,libFile);
+			aux = strtok(line," \t,();:\"");
+			if((aux!=NULL)&&(aux[0]=='}'))
+				return tc;
+			
+			if(aux[0]==';')
+				break;
+		}
+	}
+	fgets(line,MAX_LINE,libFile);
+	return tc;
+}
+	
 void Liberty::print()
 {
 	unsigned i;
@@ -830,10 +803,14 @@ void Liberty::print()
 			for (std::list<PIN_TIMING_PROFILE>::iterator tp=op->timing_profiles.begin(); tp!=op->timing_profiles.end(); ++tp)
 			{
 				printf("\t\t\t\t%s: %s\n",tp->related_pin,tp->timing_sense);
-				printf("\t\t\t\tCell Fall: %s: %.2f %.2f %.2f\n",tp->cell_fall.timing_lut,tp->cell_fall.index1,tp->cell_fall.index2,tp->cell_fall.values);
-				printf("\t\t\t\tCell Rise: %s: %.2f %.2f %.2f\n",tp->cell_rise.timing_lut,tp->cell_rise.index1,tp->cell_rise.index2,tp->cell_rise.values);
-				printf("\t\t\t\tFall Transition: %s: %.2f %.2f %.2f\n",tp->fall_transition.timing_lut,tp->fall_transition.index1,tp->fall_transition.index2,tp->fall_transition.values);
-				printf("\t\t\t\tRise Transition: %s: %.2f %.2f %.2f\n",tp->rise_transition.timing_lut,tp->rise_transition.index1,tp->rise_transition.index2,tp->rise_transition.values);
+				printf("Cell Fall:\n");
+				print_timing_character(&(tp->cell_fall));
+				printf("Cell Rise:\n");
+				print_timing_character(&(tp->cell_rise));
+				printf("Fall Transition:\n");
+				print_timing_character(&(tp->fall_transition));
+				printf("Rise Transition:\n");
+				print_timing_character(&(tp->rise_transition));
 			}
 			printf("\t\tPower Profiles:\n");
 			for (std::list<PIN_POWER_PROFILE>::iterator pp=op->power_profiles.begin(); pp!=op->power_profiles.end(); ++pp)
@@ -847,6 +824,26 @@ void Liberty::print()
     }
         
 }
+void Liberty::print_timing_character(TIMING_CHARACTER * tc)
+{
+	unsigned i,j;
+	unsigned num_indices = tc->timing_lut->num_indices;
+	printf("\tIndex1: ");
+	for(i=0;i<num_indices;i++)
+		printf("%.2f,",tc->index1[i]);
+	printf("\n\tIndex2: ");
+	for(i=0;i<num_indices;i++)
+		printf("%.2f,",tc->index2[i]);
+	printf("\n\tValues:");
+	for(i=0;i<num_indices;i++)
+	{
+		printf("\n\t\t");
+		for(j=0;j<num_indices;j++)
+			printf("%.2f,",tc->values[i*num_indices+j]);
+	}
+	printf("\n");
+}
+	
 Liberty::~Liberty()
 {
 	for (std::list<TIMING_LUT>::iterator it=time_luts.begin(); it!=time_luts.end(); ++it)

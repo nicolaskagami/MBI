@@ -63,10 +63,11 @@ typedef struct
 
 typedef struct
 {
-	char timing_lut[MAX_NAME];
-	float index1;
-	float index2;
-	float values;
+	//char timing_lut[MAX_NAME];]
+	TIMING_LUT * timing_lut;
+	float * index1;
+	float * index2;
+	float * values;
 } TIMING_CHARACTER;
 
 typedef struct
@@ -138,9 +139,16 @@ class Liberty
 		std::list<VOLT_MAP> voltage_maps;
 		std::list<WIRE_LOAD> wire_loads;
         WIRE_LOAD * default_wire_load;
-		float nom_process,nom_temperature, nom_voltage;
+		float nom_process;
+		float nom_temperature;
+		float nom_voltage;
 		
+		TIMING_CHARACTER get_timing_character();
+		void print_timing_character(TIMING_CHARACTER * tc);
         Liberty(char * libFileName);  
 		void print();
 		~Liberty();
+	private:
+		FILE * libFile;
+		char line[MAX_LINE];
 };

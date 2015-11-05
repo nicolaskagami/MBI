@@ -511,7 +511,9 @@ void MBI::set_nodal_delay(char * cellName)
 	for (std::list<CELL>::iterator it=lib->cells.begin(); it!=lib->cells.end(); ++it)
     {
         if(strcmp(cellName,it->name)==0)
-            printf("Found it");
+	{
+	    nodal_delay = 0.001;
+	}
     }
 }
 
@@ -592,38 +594,6 @@ int main(int argc, char ** argv)
     nets.estimate_delay();
     nets.insert_buffers();
     //nets.print();
-	//nets.lib->print();
+	nets.lib->print();
     //nets.print();
-    /*
-    MBI nets(10,10);
-    nets.preallocate(0,1,0);
-    nets.preallocate(0,2,1);
-    nets.preallocate(0,3,0);
-    nets.preallocate(0,4,1);
-    nets.preallocate(0,5,0);
-    nets.preallocate(0,6,1);
-    nets.preallocate(0,7,0);
-    nets.preallocate(0,8,1);
-    nets.preallocate(0,9,1);
-    nets.indexify();
-    nets.add_edge(0,1,0); 
-    nets.add_edge(0,2,1);
-    nets.add_edge(0,3,0);
-    nets.add_edge(0,4,1);
-    nets.add_edge(0,5,0);
-    nets.add_edge(0,6,1);
-    nets.add_edge(0,7,0);
-    nets.add_edge(0,8,1);
-    nets.add_edge(0,9,1);
-    nets.set_delay(1,1);
-    nets.set_delay(2,2);
-    nets.set_delay(3,3);
-    nets.set_delay(4,4);
-    nets.set_delay(5,5);
-    nets.set_delay(6,6);
-    nets.set_delay(7,7);
-    nets.set_delay(8,8);
-    nets.set_delay(9,9);
-    nets.print();
-    */
 }
