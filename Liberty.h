@@ -82,10 +82,11 @@ typedef struct
 
 typedef struct
 {
-	char power_lut[MAX_NAME];
-	float index1;
-	float index2;
-	float values;
+	//char power_lut[MAX_NAME];
+    POWER_LUT * power_lut;
+	float * index1;
+	float * index2;
+	float * values;
 } POWER_CHARACTER;
 
 typedef struct
@@ -144,7 +145,9 @@ class Liberty
 		float nom_voltage;
 		
 		TIMING_CHARACTER get_timing_character();
+		POWER_CHARACTER get_power_character();
 		void print_timing_character(TIMING_CHARACTER * tc);
+		void print_power_character(POWER_CHARACTER * pc);
         Liberty(char * libFileName);  
 		void print();
 		~Liberty();

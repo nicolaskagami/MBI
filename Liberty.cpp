@@ -130,7 +130,7 @@ Liberty::Liberty(char * libFileName)
 								aux = strtok(line," \t");
 								if(strcmp(aux,"index_1") == 0)
 								{									
-									for(i=0,aux=strtok(NULL,"()\"");aux!=NULL;i++,aux=strtok(NULL,",\")"))
+									for(i=0,aux=strtok(NULL,"()\",");aux!=NULL;i++,aux=strtok(NULL,",\")"))
 									{
 										if(aux[0]==';')
 											break;
@@ -140,7 +140,7 @@ Liberty::Liberty(char * libFileName)
 									plut.ind2 = (float*) malloc(sizeof(float)*i);
 									strcpy(line,line_buffer);
 									aux = strtok(line," \t");
-									for(i=0,aux=strtok(NULL,"()\"");aux!=NULL;i++,aux=strtok(NULL,",\")"))
+									for(i=0,aux=strtok(NULL,"(),\"");aux!=NULL;i++,aux=strtok(NULL,",\")"))
 									{
 										if(aux[0]==';')
 											break;
@@ -151,7 +151,7 @@ Liberty::Liberty(char * libFileName)
 								aux = strtok(line," \t");
 								if(strcmp(aux,"index_2") == 0)
 								{
-									for(i=0,aux=strtok(NULL,"()\"");(aux!=NULL)&&(i<plut.num_indices);i++,aux=strtok(NULL,",\")"))
+									for(i=0,aux=strtok(NULL,"(),\"");(aux!=NULL)&&(i<plut.num_indices);i++,aux=strtok(NULL,",\")"))
 									{
 										if(aux[0]==';')
 											break;
@@ -545,6 +545,7 @@ Liberty::Liberty(char * libFileName)
 														}else
 														if(strcmp(aux,"internal_power") == 0)
 														{
+
 															PIN_POWER_PROFILE ppp;
 															fgets(line,MAX_LINE,libFile);
 															fgets(line,MAX_LINE,libFile);
@@ -559,6 +560,8 @@ Liberty::Liberty(char * libFileName)
 															aux = strtok(line," \t();:\"");
 															if(strcmp(aux,"fall_power")==0)
 															{
+                                                                ppp.fall_power = get_power_character();
+                                                                /*
 																aux = strtok(NULL," \t()\":;");
 																strcpy(ppp.fall_power.power_lut,aux);
 																fgets(line,MAX_LINE,libFile);
@@ -583,11 +586,14 @@ Liberty::Liberty(char * libFileName)
 																	ppp.fall_power.values = strtof(aux,NULL);
 																}
 																fgets(line,MAX_LINE,libFile);
+                                                                */
 															}
 															fgets(line,MAX_LINE,libFile);
 															aux = strtok(line," \t();:\"");
 															if(strcmp(aux,"rise_power")==0)
 															{
+                                                                ppp.rise_power = get_power_character();
+                                                                /*
 																aux = strtok(NULL," \t()\":;");
 																strcpy(ppp.rise_power.power_lut,aux);
 																fgets(line,MAX_LINE,libFile);
@@ -612,6 +618,7 @@ Liberty::Liberty(char * libFileName)
 																	ppp.rise_power.values = strtof(aux,NULL);
 																}
 																fgets(line,MAX_LINE,libFile);
+                                                                */
 															}
 															output_pin.power_profiles.push_back(ppp);
 														}else
@@ -687,11 +694,8 @@ TIMING_CHARACTER Liberty::get_timing_character()
 		aux=strtok(NULL," \t(),\"");
 		for(i=0;(aux!=NULL)&&(i<num_indices);i++)
 		{
-			printf("---");
-			puts(aux);
 			for(j=0;(aux!=NULL)&&(j<num_indices);j++,aux=strtok(NULL," \t,\"()"))
 			{
-				puts(aux);
 				if((aux[0]=='\\')||(aux[0]==';'))
 					break;
 				tc.values[i*num_indices+j] = strtof(aux,NULL);
@@ -707,6 +711,78 @@ TIMING_CHARACTER Liberty::get_timing_character()
 	}
 	fgets(line,MAX_LINE,libFile);
 	return tc;
+}
+POWER_CHARACTER Liberty::get_power_character()
+{
+	POWER_CHARACTER pc;
+	char line[MAX_LINE];
+	char * aux;
+	unsigned num_indices;
+	unsigned i,j;
+	aux = strtok(NULL," \t()\":;");
+	for (std::list<POWER_LUT>::iterator it=power_luts.begin(); it!=power_luts.end(); ++it)
+	{
+		if(strcmp(aux,it->name)==0)
+		{
+			pc.power_lut = &(*it);
+			break;
+		}
+	}
+
+	num_indices = pc.power_lut->num_indices;
+	pc.index1 = (float*) malloc(sizeof(float)*num_indices);
+	pc.index2 = (float*) malloc(sizeof(float)*num_indices);
+	pc.values = (float*) malloc(sizeof(float)*num_indices*num_indices);
+	
+	fgets(line,MAX_LINE,libFile);
+	aux = strtok(line," \t();:\"");
+	if(strcmp(aux,"index_1")==0)
+	{
+		for(i=0,aux=strtok(NULL,"(),\"");(aux!=NULL)&&(i<num_indices);i++,aux=strtok(NULL,",\")"))
+		{
+			if(aux[0]==';')
+				break;
+			pc.index1[i] = strtof(aux,NULL);
+		}
+	}
+	fgets(line,MAX_LINE,libFile);
+	aux = strtok(line," \t();:\"");
+	if(strcmp(aux,"index_2")==0)
+	{
+		for(i=0,aux=strtok(NULL,"(),\"");(aux!=NULL)&&(i<num_indices);i++,aux=strtok(NULL,",\")"))
+		{
+			if(aux[0]==';')
+				break;
+			pc.index2[i] = strtof(aux,NULL);
+		}
+	}
+	fgets(line,MAX_LINE,libFile);
+	aux = strtok(line," \t();:\"");
+	if(strcmp(aux,"values")==0)
+	{
+		aux=strtok(NULL," \t(),\"");
+		for(i=0;(aux!=NULL)&&(i<num_indices);i++)
+		{
+			//printf("---");
+			//puts(aux);
+			for(j=0;(aux!=NULL)&&(j<num_indices);j++,aux=strtok(NULL," \t,\"()"))
+			{
+				//puts(aux);
+				if((aux[0]=='\\')||(aux[0]==';'))
+					break;
+				pc.values[i*num_indices+j] = strtof(aux,NULL);
+			}
+			fgets(line,MAX_LINE,libFile);
+			aux = strtok(line," \t,();:\"");
+			if((aux!=NULL)&&(aux[0]=='}'))
+				return pc;
+			
+			if(aux[0]==';')
+				break;
+		}
+	}
+	fgets(line,MAX_LINE,libFile);
+	return pc;
 }
 	
 void Liberty::print()
@@ -816,8 +892,10 @@ void Liberty::print()
 			for (std::list<PIN_POWER_PROFILE>::iterator pp=op->power_profiles.begin(); pp!=op->power_profiles.end(); ++pp)
 			{
 				printf("\t\t\t\t%s\n",pp->related_pin);
-				printf("\t\t\t\tFall Power: %s: %.2f %.2f %.2f\n",pp->fall_power.power_lut,pp->fall_power.index1,pp->fall_power.index2,pp->fall_power.values);
-				printf("\t\t\t\tRise Power: %s: %.2f %.2f %.2f\n",pp->rise_power.power_lut,pp->rise_power.index1,pp->rise_power.index2,pp->rise_power.values);
+                printf("Fall Power:\n");
+                print_power_character(&(pp->fall_power));
+                printf("Rise Power:\n");
+                print_power_character(&(pp->rise_power));
 			}
         }
         
@@ -840,6 +918,25 @@ void Liberty::print_timing_character(TIMING_CHARACTER * tc)
 		printf("\n\t\t");
 		for(j=0;j<num_indices;j++)
 			printf("%.2f,",tc->values[i*num_indices+j]);
+	}
+	printf("\n");
+}
+void Liberty::print_power_character(POWER_CHARACTER * pc)
+{
+	unsigned i,j;
+	unsigned num_indices = pc->power_lut->num_indices;
+	printf("\tIndex1: ");
+	for(i=0;i<num_indices;i++)
+		printf("%.2f,",pc->index1[i]);
+	printf("\n\tIndex2: ");
+	for(i=0;i<num_indices;i++)
+		printf("%.2f,",pc->index2[i]);
+	printf("\n\tValues:");
+	for(i=0;i<num_indices;i++)
+	{
+		printf("\n\t\t");
+		for(j=0;j<num_indices;j++)
+			printf("%.2f,",pc->values[i*num_indices+j]);
 	}
 	printf("\n");
 }
