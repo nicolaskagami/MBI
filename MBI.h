@@ -40,7 +40,7 @@ typedef struct
     unsigned target;
     float path_delay;
     unsigned level;
-}EDGE;
+} EDGE;
 
 typedef struct
 {
@@ -104,6 +104,10 @@ class MBI
         void estimate_delay();
         void insert_buffers();
         void print();
+        //Sorting
+        void sort_vert(unsigned vert);
+        void merge(EDGE * a,EDGE *aux,int left,int right,int rightEnd);
+        void mSort(EDGE * a,EDGE *aux,int left,int right);
 
         //Parsers
         //PAAG
@@ -136,3 +140,4 @@ class MBI
 
 
 };
+

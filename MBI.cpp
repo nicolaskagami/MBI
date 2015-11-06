@@ -511,6 +511,21 @@ void MBI::insert_buffers()
     //3: Propagate from outputs 
     //
     //sort the edges
+    for(unsigned i=0;i<num_vertices;i++)
+        sort_vert(i);
+}
+void MBI::sort_vert(unsigned vert)
+{
+    EDGE * paux;
+    EDGE * naux;
+
+    naux = (EDGE*) malloc(vertices[vert].negative_targets*sizeof(EDGE));
+    paux = (EDGE*) malloc(vertices[vert].positive_targets*sizeof(EDGE));
+    //Ready to parallelize
+    mSort(&(edges[vertices[vert].pindex]),paux,0,vertices[vert].positive_targets-1);
+    mSort(&(edges[vertices[vert].nindex]),naux,0,vertices[vert].negative_targets-1);
+    free(naux);
+    free(paux);
 }
 void MBI::set_nodal_delay(char * cellName)
 {
@@ -520,6 +535,40 @@ void MBI::set_nodal_delay(char * cellName)
 	    {
 	        nodal_delay = 0.001;
 	    }
+    }
+}
+
+void MBI::merge(EDGE * a,EDGE *aux,int left,int right,int rightEnd)
+{
+    int i,num,temp,leftEnd;
+    leftEnd = right - 1;
+    temp = left;
+    num = rightEnd - left + 1;
+    while((left<=leftEnd)&&(right<=rightEnd))
+    {
+        if(vertices[a[left].target].post_delay >= vertices[a[right].target].post_delay)
+           aux[temp++]=a[left++];
+        else
+            aux[temp++]=a[right++];
+    }
+    while(left <= leftEnd)
+        aux[temp++]=a[left++];
+
+    while(right <= rightEnd)
+        aux[temp++]=a[right++];
+
+    for(i=1;i<=num;i++,rightEnd--)
+        a[rightEnd] = aux[rightEnd];
+}
+void MBI::mSort(EDGE * a,EDGE *aux,int left,int right)
+{
+    int center;
+    if(left<right)
+    {
+        center=(left+right)/2;
+        mSort(a,aux,left,center);
+        mSort(a,aux,center+1,right);
+        merge(a,aux,left,center+1,right);
     }
 }
 
@@ -603,13 +652,12 @@ void MBI::option1(unsigned vert)
 //Start with all consumers in the min height and trade your way to optimality
 //Init: All with height = min height to represent all
 //Trades: Trade F positions in Nth layer for 1 position in (N-1)th layer
-
 int main(int argc, char ** argv)
 {
-    MBI nets("./input/example3.paag","./input/example3.sdc","./input/simple-cells.lib");
+    MBI nets("./input/example4.paag","./input/example4.sdc","./input/simple-cells.lib");
     nets.set_nodal_delay("AND2_X1");
-    nets.estimate_delay();
-    nets.insert_buffers();
-    //nets.print();
+    //nets.estimate_delay();//found a seg fault here
+    //nets.insert_buffers();
+    nets.print();
 	//nets.lib->print();
 }
