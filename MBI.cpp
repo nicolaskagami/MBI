@@ -329,7 +329,7 @@ void MBI::parse_sdc(char * sdcFileName)
         //Header
         while(fgets(line,MAX_LINE,sdcFile))
         {
-            aux = strtok(line," ");
+            aux = strtok(line," \t");
             if(strcmp(aux,"create_clock") == 0)
             {
                 CLOCK clk;
@@ -399,16 +399,16 @@ void MBI::parse_sdc(char * sdcFileName)
                 float delay;
                 bool delay_parsed = false;
                 char output_name[MAX_LINE];
-                for(aux=strtok(NULL," \n");aux!=NULL;aux=strtok(NULL," \n"))
+                for(aux=strtok(NULL," \t\n");aux!=NULL;aux=strtok(NULL," \t\n"))
                 {
                     if(strcmp(aux,"-to")==0)
                     {
-                        aux=strtok(NULL," \n");
+                        aux=strtok(NULL," \t\n");
                         if(aux)
                         {
                             unsigned i;
                             strcpy(output_name,aux);
-                            for(i=0;i<I;i++)
+                            for(i=0;i<O;i++)
                             {
                                 if(strcmp(output_name,paag_outputs[i].name)==0)
                                 {
@@ -655,7 +655,7 @@ void MBI::option1(unsigned vert)
 int main(int argc, char ** argv)
 {
     MBI nets("./input/example4.paag","./input/example4.sdc","./input/simple-cells.lib");
-    nets.set_nodal_delay("AND2_X1");
+    //nets.set_nodal_delay("AND2_X1");
     //nets.estimate_delay();//found a seg fault here
     //nets.insert_buffers();
     nets.print();
