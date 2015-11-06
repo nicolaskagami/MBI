@@ -505,15 +505,21 @@ void MBI::estimate_delay()
 }
 void MBI::insert_buffers()
 {
+    //Ways to run over all vertices:
+    //1: Iterate over the array
+    //2: Propagate from inputs 
+    //3: Propagate from outputs 
+    //
+    //sort the edges
 }
 void MBI::set_nodal_delay(char * cellName)
 {
 	for (std::list<CELL>::iterator it=lib->cells.begin(); it!=lib->cells.end(); ++it)
     {
         if(strcmp(cellName,it->name)==0)
-	{
-	    nodal_delay = 0.001;
-	}
+	    {
+	        nodal_delay = 0.001;
+	    }
     }
 }
 
@@ -522,24 +528,35 @@ unsigned minHeight(unsigned posConsumers,unsigned negConsumers,unsigned fanout)
     unsigned posAvailable = fanout;
     unsigned negAvailable = 0;
     unsigned height = 0;
+    unsigned leavesAvailable, leaves;
+    unsigned height1_branches;
     if((negConsumers == 0)&&(posConsumers<=fanout)) 
     {
-        return height; 
+        return 0; 
     }
-    while((negConsumers<negAvailable)&&(posConsumers<posAvailable)) 
+    do
     {
         height++;
         if(height%2)
         {
-            //New layer is even (positive)
-            posConsumers=negAvailable*fanout;
+            //New layer is odd (negative)
+            negAvailable=posAvailable*fanout;
+            leaves = negConsumers;
+            height1_branches = posConsumers;
+            leavesAvailable = negAvailable;
         }
         else
         {
-            //New layer is odd (negative)
-            negConsumers=posAvailable*fanout;
+            //New layer is even (positive)
+            posAvailable=negAvailable*fanout;
+            leaves = posConsumers;
+            height1_branches = negConsumers;
+            leavesAvailable = posAvailable;
         }
+        printf("Height:%d Available P %d, N %d \n",height,posAvailable,negAvailable);
+        getchar();
     }
+    while((leaves > leavesAvailable)||(height1_branches > ((leavesAvailable-leaves)/fanout))) ;
     return height;
 }
 
@@ -594,6 +611,5 @@ int main(int argc, char ** argv)
     nets.estimate_delay();
     nets.insert_buffers();
     //nets.print();
-	nets.lib->print();
-    //nets.print();
+	//nets.lib->print();
 }
