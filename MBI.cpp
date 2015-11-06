@@ -15,10 +15,8 @@ MBI::MBI(char *paagFileName,char * sdcFileName,char * libFileName)
     set_clock();
     lib = new Liberty(libFileName);
 }
-
 int MBI::allocate_memory(unsigned v, unsigned e)
 {
-
     edges = (EDGE*) malloc(sizeof(EDGE)*e);
     vertices = (VERT*) malloc(sizeof(VERT)*v);
     num_edges = e;
@@ -222,6 +220,11 @@ void MBI::parse_paag(char * paagFileName)
                 fgets(line,MAX_LINE,paagFile);
                 //outputs[i].ID =  strtol(line,NULL,10);
                 output = strtoul(line,&aux,10);
+				if(output > 2*num_vertices -1)
+				{
+					printf("PAAG Error: Floating Output\n");
+					exit(1);
+				}
                 aux = strtok(aux,"(,");
                 aux = strtok(NULL,"(,");
                 x = strtoul(aux,&aux,10);
@@ -445,7 +448,6 @@ void MBI::set_clock()
 		printf("SDC Error: No Clocks Set\n");
     }
 }
-
 void MBI::estimate_delay()
 {
     unsigned i,vert;
@@ -512,7 +514,23 @@ void MBI::insert_buffers()
     //
     //sort the edges
     for(unsigned i=0;i<num_vertices;i++)
-        sort_vert(i);
+		//sort_vert(i);
+        sort_vert(vertices[i]);
+}
+void MBI::sort_vert(VERT vert)
+{
+    EDGE * paux;
+    EDGE * naux;
+
+    naux = (EDGE*) malloc(vert.negative_targets*sizeof(EDGE));
+    paux = (EDGE*) malloc(vert.positive_targets*sizeof(EDGE));
+	
+    //Ready to parallelize
+    mSort(&(edges[vert.pindex]),paux,0,vert.positive_targets-1);
+    mSort(&(edges[vert.nindex]),naux,0,vert.negative_targets-1);
+	
+    free(naux);
+    free(paux);
 }
 void MBI::sort_vert(unsigned vert)
 {
@@ -546,7 +564,7 @@ void MBI::merge(EDGE * a,EDGE *aux,int left,int right,int rightEnd)
     num = rightEnd - left + 1;
     while((left<=leftEnd)&&(right<=rightEnd))
     {
-        if(vertices[a[left].target].post_delay >= vertices[a[right].target].post_delay)
+        if(vertices[a[left].target].post_delay > vertices[a[right].target].post_delay)
            aux[temp++]=a[left++];
         else
             aux[temp++]=a[right++];
@@ -579,6 +597,7 @@ unsigned minHeight(unsigned posConsumers,unsigned negConsumers,unsigned fanout)
     unsigned height = 0;
     unsigned leavesAvailable, leaves;
     unsigned height1_branches;
+	
     if((negConsumers == 0)&&(posConsumers<=fanout)) 
     {
         return 0; 
@@ -656,8 +675,9 @@ int main(int argc, char ** argv)
 {
     MBI nets("./input/example4.paag","./input/example4.sdc","./input/simple-cells.lib");
     //nets.set_nodal_delay("AND2_X1");
-    //nets.estimate_delay();//found a seg fault here
-    //nets.insert_buffers();
+	nets.print();
+    nets.estimate_delay();
+    nets.insert_buffers();
     nets.print();
 	//nets.lib->print();
 }

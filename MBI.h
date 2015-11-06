@@ -22,19 +22,22 @@ class Point
 };
 typedef struct
 {
+	//Vertex Position
     Point position;
     unsigned num_srcs;
     unsigned srcs[MAX_SOURCES];
 
+	//Vertex Delay Data
     float pre_delay;
     float post_delay;
 
+	//Vertex Edges
     unsigned pindex;
     unsigned positive_targets;
     unsigned nindex;
     unsigned negative_targets;
-
 }VERT;
+
 typedef struct 
 {
     unsigned target;
@@ -87,6 +90,12 @@ class MBI
         unsigned num_vertices;
         EDGE * edges;
         unsigned num_edges;
+		
+		int allocate_memory(unsigned v, unsigned e);
+        void preallocate(unsigned src,unsigned tgt,bool signal);
+        void indexify();
+        void add_edge(unsigned src,unsigned tgt,bool signal);
+        void set_position(unsigned vert,unsigned x,unsigned y);
 
 		//MBI data
         unsigned max_cell_fanout;
@@ -95,17 +104,14 @@ class MBI
 
         MBI(char * paagFileName,char * sdcFileName,char * libFileName);
         ~MBI();
-        int allocate_memory(unsigned v, unsigned e);
-        void preallocate(unsigned src,unsigned tgt,bool signal);
-        void indexify();
-        void add_edge(unsigned src,unsigned tgt,bool signal);
-        void set_position(unsigned vert,unsigned x,unsigned y);
-      
+        void print();
+        
         void estimate_delay();
         void insert_buffers();
-        void print();
+		
         //Sorting
-        void sort_vert(unsigned vert);
+        void sort_vert(VERT vert);
+		void sort_vert(unsigned vert);
         void merge(EDGE * a,EDGE *aux,int left,int right,int rightEnd);
         void mSort(EDGE * a,EDGE *aux,int left,int right);
 
