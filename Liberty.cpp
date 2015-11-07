@@ -958,5 +958,23 @@ Liberty::~Liberty()
 		free(it->fanout);
 		free(it->length);
 	}
+	for (std::list<CELL>::iterator it=cells.begin(); it!=cells.end(); ++it)
+	{
+		for (std::list<OUTPUT_PIN>::iterator op=it->output_pins.begin(); op!=it->output_pins.end(); ++op)
+		{
+			for (std::list<PIN_TIMING_PROFILE>::iterator tp=op->timing_profiles.begin(); tp!=op->timing_profiles.end(); ++tp)
+			{
+				free(tp->cell_fall.index1);free(tp->cell_fall.index2);free(tp->cell_fall.values);
+				free(tp->cell_rise.index1);free(tp->cell_rise.index2);free(tp->cell_rise.values);
+				free(tp->fall_transition.index1);free(tp->fall_transition.index2);free(tp->fall_transition.values);
+				free(tp->rise_transition.index1);free(tp->rise_transition.index2);free(tp->rise_transition.values);
+			}
+			for (std::list<PIN_POWER_PROFILE>::iterator pp=op->power_profiles.begin(); pp!=op->power_profiles.end(); ++pp)
+			{
+				free(pp->fall_power.index1);free(pp->fall_power.index2);free(pp->fall_power.values);
+				free(pp->rise_power.index1);free(pp->rise_power.index2);free(pp->rise_power.values);
+			}
+		}
+	}
 }
 
