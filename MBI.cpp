@@ -120,17 +120,19 @@ void MBI::print()
     printf("Clocks:\n");
     for (std::list<CLOCK>::iterator it=clocks.begin(); it!=clocks.end(); ++it)
        printf("%s: Period: %f\n",it->name,it->period); 
+    printf("----------------------------------------------------------------------\n");
     printf("Inputs\n");
     for(i=0;i<I;i++)
         printf("IN %d %s: %d Delay: %f\n",i,paag_inputs[i].name,paag_inputs[i].index,paag_inputs[i].delay);
     printf("Outputs\n");
     for(i=0;i<O;i++)
             printf("OUT %d %s: %d Max Delay: %f\n",i,paag_outputs[i].name,paag_outputs[i].index,paag_outputs[i].max_delay);
+    printf("----------------------------------------------------------------------\n");
     printf("Vertices: %d\n",num_vertices);
     printf("Edges: %d\n",num_edges);
     for(i = 0;i<num_vertices;i++)
     {
-        //if((vertices[i].positive_targets+vertices[i].negative_targets)>0)
+        if((vertices[i].positive_targets+vertices[i].negative_targets)>0)
         {
             printf("Vert %d (%u,%u)\n",i,vertices[i].position.x,vertices[i].position.y);
 			printf("Sources: ");
@@ -294,7 +296,7 @@ void MBI::parse_paag(char * paagFileName)
                 {
                     case 'i':
                                 index = strtoul(&line[1],&aux,10);
-                                name = strtok(aux," \n");
+                                name = strtok(aux," \r\n");
                                 if(index<I)
                                 {
                                         strcpy(paag_inputs[index].name,name);
@@ -303,7 +305,7 @@ void MBI::parse_paag(char * paagFileName)
                                 break;
                     case 'o':
                                 index = strtoul(&line[1],&aux,10);
-                                name = strtok(aux," \n");
+                                name = strtok(aux," \r\n");
                                 if(index<O)
                                 {
                                         strcpy(paag_outputs[index].name,name);
@@ -460,6 +462,7 @@ void MBI::set_clock()
 		printf("SDC Error: No Clocks Set\n");
     }
 }
+//
 void MBI::estimate_delay()
 {
     unsigned i,vert;
@@ -579,6 +582,7 @@ void MBI::select_critical(unsigned vert)
 		return;
 
 	//Paralellizable
+    vertices[vert].num_positive_critical = vertices[vert].positive_targets;//In case all are critical...
 	for( unsigned i=0;i<vertices[vert].positive_targets;i++)
 	{
 		if(vertices[edges[pbase+i].target].post_delay<highest_delay*CRITICAL_THRESHOLD)
@@ -588,6 +592,7 @@ void MBI::select_critical(unsigned vert)
 		}
 	}
 	
+    vertices[vert].num_negative_critical = vertices[vert].negative_targets;//In case all are critical...
 	for( unsigned i=0;i<vertices[vert].negative_targets;i++)
 	{
 		if(vertices[edges[nbase+i].target].post_delay<highest_delay*CRITICAL_THRESHOLD)

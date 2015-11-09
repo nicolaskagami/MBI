@@ -7,7 +7,7 @@
 #include<queue>
 #include "Liberty.h"
 
-#define CRITICAL_THRESHOLD 0.9 //Up to 10% 
+#define CRITICAL_THRESHOLD 0.5 //Up to 10% 
 
 #define MAX_LINE 255
 #define MAX_NAME 255
