@@ -145,22 +145,22 @@ library (SimpleCells) {
 			cell_fall(Timing_1_1) {
 				index_1 ("1.0");
 				index_2 ("1.0");
-				values ("1.0");
+				values ("0.005");
 			}
 			cell_rise(Timing_1_1) {
 				index_1 ("1.0");
 				index_2 ("1.0");
-				values ("1.0");
+				values ("0.005");
 			}
 			fall_transition(Timing_1_1) {
 				index_1 ("1.0");
 				index_2 ("1.0");
-				values ("1.0");
+				values ("0.005");
 			}
 			rise_transition(Timing_1_1) {
 				index_1 ("1.0");
 				index_2 ("1.0");
-				values ("1.0");
+				values ("0.005");
 			}
 		}
 
@@ -172,22 +172,22 @@ library (SimpleCells) {
 			cell_fall(Timing_1_1) {
 				index_1 ("1.0");
 				index_2 ("1.0");
-				values ("1.0");
+				values ("0.005");
 			}
 			cell_rise(Timing_1_1) {
 				index_1 ("2.3");
 				index_2 ("0.0123123");
-				values ("4.44444");
+				values ("0.005");
 			}
 			fall_transition(Timing_1_1) {
 				index_1 ("1.0");
 				index_2 ("1.0");
-				values ("1.0");
+				values ("0.005");
 			}
 			rise_transition(Timing_1_1) {
 				index_1 ("1.0");
 				index_2 ("1.0");
-				values ("1.0");
+				values ("0.005");
 			}
 		}
 
@@ -197,12 +197,12 @@ library (SimpleCells) {
 			fall_power(Power_1_1) {
 				index_1 ("1.0");
 				index_2 ("1.0");
-				values ("1.0");
+				values ("0.005");
 			}
 			rise_power(Power_1_1) {
 				index_1 ("1.0");
 				index_2 ("1.0");
-				values ("1.0");
+				values ("0.005");
 			}
 		}
 

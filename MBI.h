@@ -7,6 +7,8 @@
 #include<queue>
 #include "Liberty.h"
 
+#define CRITICAL_THRESHOLD 0.9 //Up to 10% 
+
 #define MAX_LINE 255
 #define MAX_NAME 255
 #define MAX_SOURCES 2 
@@ -36,6 +38,8 @@ typedef struct
     unsigned positive_targets;
     unsigned nindex;
     unsigned negative_targets;
+	unsigned num_positive_critical;
+	unsigned num_negative_critical;
 }VERT;
 
 typedef struct 
@@ -48,6 +52,11 @@ typedef struct
 typedef struct
 {
     Point position;
+	unsigned * targets; //Both invs and verts
+	unsigned num_inv_targets;
+	unsigned num_vert_targets;
+	
+	//Needs edge super malloc
     //Consumers as indices? how about other inverters?
     //More espace - Less time:
     //  Inverter consumers separate from vertices
@@ -101,6 +110,7 @@ class MBI
         unsigned max_cell_fanout;
         unsigned max_inv_fanout;
         float nodal_delay;
+		float inv_delay;
 
         MBI(char * paagFileName,char * sdcFileName,char * libFileName);
         ~MBI();
@@ -108,6 +118,7 @@ class MBI
         
         void estimate_delay();
         void insert_buffers();
+		void select_critical(unsigned vert);
 		
         //Sorting
         void sort_vert(VERT vert);
@@ -132,7 +143,7 @@ class MBI
 		
         //LIB
 		Liberty * lib;
-        void set_nodal_delay(char * cellName);
+        void set_nodal_delay(char * cellName,char * invName);
 		
 		//
         void option1(unsigned vert);

@@ -35,6 +35,8 @@ int MBI::allocate_memory(unsigned v, unsigned e)
             vertices[i].negative_targets = 0;
             vertices[i].position.x = -1;
             vertices[i].position.y = -1;
+			vertices[i].num_positive_critical = 0;
+			vertices[i].num_negative_critical = 0;
     }
 }
 MBI::~MBI()
@@ -131,16 +133,26 @@ void MBI::print()
         //if((vertices[i].positive_targets+vertices[i].negative_targets)>0)
         {
             printf("Vert %d (%u,%u)\n",i,vertices[i].position.x,vertices[i].position.y);
-          printf("Sources: ");
-          for(unsigned srcs = 0; srcs < vertices[i].num_srcs;srcs++)
+			printf("Sources: ");
+			for(unsigned srcs = 0; srcs < vertices[i].num_srcs;srcs++)
                 printf("%u ",vertices[i].srcs[srcs]);
             printf("\nEstimated Delay: %f %f\n",vertices[i].pre_delay,vertices[i].post_delay);
             printf("Positive Consumers: ");
             for(unsigned b = vertices[i].pindex,j=0;j<vertices[i].positive_targets;j++)
-                printf("%d ",edges[b+j].target);
+			{
+				if(j<vertices[i].num_positive_critical)
+					printf("[%d] ",edges[b+j].target);
+				else
+					printf("%d ",edges[b+j].target);
+			}
             printf("\nNegative Consumers: ");
             for(unsigned b = vertices[i].nindex,j=0;j<vertices[i].negative_targets;j++)
-                printf("%d ",edges[b+j].target);
+			{
+                if(j<vertices[i].num_negative_critical)
+					printf("[%d] ",edges[b+j].target);
+				else
+					printf("%d ",edges[b+j].target);
+			}
             printf("\n");
         }
     }
@@ -514,8 +526,14 @@ void MBI::insert_buffers()
     //
     //sort the edges
     for(unsigned i=0;i<num_vertices;i++)
+	{
+		//Sort the targets
 		//sort_vert(i);
         sort_vert(vertices[i]);
+		//Determine the critical ones (a number of how many of the first positive and negative are critical)
+		select_critical(i);
+		//Allocate
+	}
 }
 void MBI::sort_vert(VERT vert)
 {
@@ -542,16 +560,54 @@ void MBI::sort_vert(unsigned vert)
     //Ready to parallelize
     mSort(&(edges[vertices[vert].pindex]),paux,0,vertices[vert].positive_targets-1);
     mSort(&(edges[vertices[vert].nindex]),naux,0,vertices[vert].negative_targets-1);
+	
     free(naux);
     free(paux);
 }
-void MBI::set_nodal_delay(char * cellName)
+void MBI::select_critical(unsigned vert)
+{
+	unsigned pbase = vertices[vert].pindex;
+	unsigned nbase = vertices[vert].nindex;
+	float highest_delay = 0;
+	
+	if(vertices[vert].positive_targets!=0)
+		highest_delay = vertices[edges[pbase].target].post_delay;
+	if((vertices[vert].negative_targets!=0)&&(vertices[edges[nbase].target].post_delay>highest_delay))
+		highest_delay = vertices[edges[nbase].target].post_delay;
+		
+	if(highest_delay==0)
+		return;
+
+	//Paralellizable
+	for( unsigned i=0;i<vertices[vert].positive_targets;i++)
+	{
+		if(vertices[edges[pbase+i].target].post_delay<highest_delay*CRITICAL_THRESHOLD)
+		{
+			vertices[vert].num_positive_critical = i;
+			break;
+		}
+	}
+	
+	for( unsigned i=0;i<vertices[vert].negative_targets;i++)
+	{
+		if(vertices[edges[nbase+i].target].post_delay<highest_delay*CRITICAL_THRESHOLD)
+		{
+			vertices[vert].num_negative_critical = i;
+			break;
+		}
+	}
+}
+void MBI::set_nodal_delay(char * cellName,char * invName)
 {
 	for (std::list<CELL>::iterator it=lib->cells.begin(); it!=lib->cells.end(); ++it)
     {
         if(strcmp(cellName,it->name)==0)
 	    {
-	        nodal_delay = 0.001;
+	        nodal_delay = 0.005;
+	    }else
+		if(strcmp(invName,it->name)==0)
+	    {
+	        inv_delay = 0.001;
 	    }
     }
 }
@@ -674,7 +730,7 @@ void MBI::option1(unsigned vert)
 int main(int argc, char ** argv)
 {
     MBI nets("./input/example4.paag","./input/example4.sdc","./input/simple-cells.lib");
-    //nets.set_nodal_delay("AND2_X1");
+    nets.set_nodal_delay("AND2_X1","INV_X1");
 	nets.print();
     nets.estimate_delay();
     nets.insert_buffers();
