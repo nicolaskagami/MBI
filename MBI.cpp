@@ -544,8 +544,8 @@ void MBI::insert_buffers()
         vertices[i].inverter_tree = new InverterTree(min_height(vertices[i].positive_targets,vertices[i].negative_targets),max_cell_fanout,max_inv_fanout,inv_delay,vertices[i].position);
 		//
 		add_criticals(i);
-		//vertices[i].inverter_tree->expand();
-		//add_non_criticals(i);
+		vertices[i].inverter_tree->expand();
+		add_non_criticals(i);
 	}
 }
 void MBI::sort_vert(VERT vert)

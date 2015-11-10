@@ -17,10 +17,12 @@ typedef struct
     unsigned num_inv_targets;
     unsigned num_vert_targets;
     
+    
     //Needs edge super malloc
     //Consumers as indices? how about other inverters?
     //More espace - Less time:
     //  Inverter consumers separate from vertices
+    //  unsigned * vert_targets = &targets[num_inv_targets];
         
 } INVERTER;
 
@@ -30,6 +32,12 @@ typedef struct
     unsigned inv_taken;
     unsigned signal_taken;
 } LEVEL;
+
+typedef struct
+{
+    Point position;
+    unsigned target;
+} TARGET;
 
 class InverterTree
 {
