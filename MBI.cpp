@@ -37,7 +37,10 @@ int MBI::allocate_memory(unsigned v, unsigned e)
 MBI::~MBI()
 {
 	for(unsigned i=0;i<num_vertices;i++)
-		delete(vertices[i].inverter_tree);
+    {
+        if(vertices[i].inverter_tree)
+            delete(vertices[i].inverter_tree);
+    }
 	
     free(vertices);
     free(edges);
@@ -45,6 +48,8 @@ MBI::~MBI()
     free(paag_outputs);
     clean_sdc();
     clean_paag();
+    if(lib)
+        delete(lib);
 }
 void MBI::preallocate(unsigned src,unsigned tgt,bool signal)
 {
@@ -539,8 +544,8 @@ void MBI::insert_buffers()
         vertices[i].inverter_tree = new InverterTree(min_height(vertices[i].positive_targets,vertices[i].negative_targets),max_cell_fanout,max_inv_fanout,inv_delay,vertices[i].position);
 		//
 		add_criticals(i);
-		vertices[i].inverter_tree->expand();
-		add_non_criticals(i);
+		//vertices[i].inverter_tree->expand();
+		//add_non_criticals(i);
 	}
 }
 void MBI::sort_vert(VERT vert)

@@ -93,7 +93,7 @@ void InverterTree::add_critical_target(unsigned target,bool signal,float delay)
 	}
 	//If code reaches this point, we need more levels!
 	add_levels(2);
-	i+=3;
+	i++;
 	levels[i].vacant--;
 	levels[i].signal_taken++;
 	//printf("3Added Target %u to level %u\n",target,i);
