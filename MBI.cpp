@@ -1,13 +1,7 @@
 
 #include "MBI.h"
 
-bool Point::operator== (Point b)
-{ 
-    if((x == b.x)&&(y == b.y))
-        return true; 
-    else 
-        return false;
-}
+
 MBI::MBI(char *paagFileName,char * sdcFileName,char * libFileName)
 {
     parse_paag(paagFileName);
@@ -35,12 +29,16 @@ int MBI::allocate_memory(unsigned v, unsigned e)
             vertices[i].negative_targets = 0;
             vertices[i].position.x = -1;
             vertices[i].position.y = -1;
-			vertices[i].num_positive_critical = 0;
-			vertices[i].num_negative_critical = 0;
+            vertices[i].num_positive_critical = 0;
+            vertices[i].num_negative_critical = 0;
+			vertices[i].inverter_tree = NULL;
     }
 }
 MBI::~MBI()
 {
+	for(unsigned i=0;i<num_vertices;i++)
+		delete(vertices[i].inverter_tree);
+	
     free(vertices);
     free(edges);
     free(paag_inputs);
@@ -135,27 +133,29 @@ void MBI::print()
         if((vertices[i].positive_targets+vertices[i].negative_targets)>0)
         {
             printf("Vert %d (%u,%u)\n",i,vertices[i].position.x,vertices[i].position.y);
-			printf("Sources: ");
-			for(unsigned srcs = 0; srcs < vertices[i].num_srcs;srcs++)
+            printf("Sources: ");
+            for(unsigned srcs = 0; srcs < vertices[i].num_srcs;srcs++)
                 printf("%u ",vertices[i].srcs[srcs]);
             printf("\nEstimated Delay: %f %f\n",vertices[i].pre_delay,vertices[i].post_delay);
             printf("Positive Consumers: ");
             for(unsigned b = vertices[i].pindex,j=0;j<vertices[i].positive_targets;j++)
-			{
-				if(j<vertices[i].num_positive_critical)
-					printf("[%d] ",edges[b+j].target);
-				else
-					printf("%d ",edges[b+j].target);
-			}
+            {
+                if(j<vertices[i].num_positive_critical)
+                    printf("[%d] ",edges[b+j].target);
+                else
+                    printf("%d ",edges[b+j].target);
+            }
             printf("\nNegative Consumers: ");
             for(unsigned b = vertices[i].nindex,j=0;j<vertices[i].negative_targets;j++)
-			{
+            {
                 if(j<vertices[i].num_negative_critical)
-					printf("[%d] ",edges[b+j].target);
-				else
-					printf("%d ",edges[b+j].target);
-			}
+                    printf("[%d] ",edges[b+j].target);
+                else
+                    printf("%d ",edges[b+j].target);
+            }
             printf("\n");
+			if(vertices[i].inverter_tree)
+			vertices[i].inverter_tree->print();
         }
     }
 }
@@ -234,11 +234,11 @@ void MBI::parse_paag(char * paagFileName)
                 fgets(line,MAX_LINE,paagFile);
                 //outputs[i].ID =  strtol(line,NULL,10);
                 output = strtoul(line,&aux,10);
-				if(output > 2*num_vertices -1)
-				{
-					printf("PAAG Error: Floating Output\n");
-					exit(1);
-				}
+                if(output > 2*num_vertices -1)
+                {
+                    printf("PAAG Error: Floating Output\n");
+                    exit(1);
+                }
                 aux = strtok(aux,"(,");
                 aux = strtok(NULL,"(,");
                 x = strtoul(aux,&aux,10);
@@ -332,7 +332,7 @@ void MBI::parse_paag(char * paagFileName)
 }
 void MBI::clean_paag()
 {
-	
+    
 }
 void MBI::parse_sdc(char * sdcFileName)
 {
@@ -449,17 +449,17 @@ void MBI::parse_sdc(char * sdcFileName)
 }
 void MBI::clean_sdc()
 {
-	
+    
 }
 void MBI::set_clock()
 {
-	if(clocks.size()!=0)
+    if(clocks.size()!=0)
     {
-		current_clock = clocks.front();
+        current_clock = clocks.front();
     }
-	else
+    else
     {
-		printf("SDC Error: No Clocks Set\n");
+        printf("SDC Error: No Clocks Set\n");
     }
 }
 //
@@ -529,13 +529,18 @@ void MBI::insert_buffers()
     //
     //sort the edges
     for(unsigned i=0;i<num_vertices;i++)
-	{
-		//Sort the targets
-		//sort_vert(i);
+    {
+        //Sort the targets
+        //sort_vert(i);
         sort_vert(vertices[i]);
-		//Determine the critical ones (a number of how many of the first positive and negative are critical)
-		select_critical(i);
-		//Allocate
+        //Determine the critical ones (a number of how many of the first positive and negative are critical)
+        select_criticals(i);
+        //Allocate
+        vertices[i].inverter_tree = new InverterTree(min_height(vertices[i].positive_targets,vertices[i].negative_targets),max_cell_fanout,max_inv_fanout,inv_delay,vertices[i].position);
+		//
+		add_criticals(i);
+		vertices[i].inverter_tree->expand();
+		add_non_criticals(i);
 	}
 }
 void MBI::sort_vert(VERT vert)
@@ -545,11 +550,11 @@ void MBI::sort_vert(VERT vert)
 
     naux = (EDGE*) malloc(vert.negative_targets*sizeof(EDGE));
     paux = (EDGE*) malloc(vert.positive_targets*sizeof(EDGE));
-	
+    
     //Ready to parallelize
     mSort(&(edges[vert.pindex]),paux,0,vert.positive_targets-1);
     mSort(&(edges[vert.nindex]),naux,0,vert.negative_targets-1);
-	
+    
     free(naux);
     free(paux);
 }
@@ -563,57 +568,91 @@ void MBI::sort_vert(unsigned vert)
     //Ready to parallelize
     mSort(&(edges[vertices[vert].pindex]),paux,0,vertices[vert].positive_targets-1);
     mSort(&(edges[vertices[vert].nindex]),naux,0,vertices[vert].negative_targets-1);
-	
+    
     free(naux);
     free(paux);
 }
-void MBI::select_critical(unsigned vert)
+void MBI::select_criticals(unsigned vert)
 {
-	unsigned pbase = vertices[vert].pindex;
-	unsigned nbase = vertices[vert].nindex;
-	float highest_delay = 0;
-	
-	if(vertices[vert].positive_targets!=0)
-		highest_delay = vertices[edges[pbase].target].post_delay;
-	if((vertices[vert].negative_targets!=0)&&(vertices[edges[nbase].target].post_delay>highest_delay))
-		highest_delay = vertices[edges[nbase].target].post_delay;
-		
-	if(highest_delay==0)
-		return;
+    unsigned pbase = vertices[vert].pindex;
+    unsigned nbase = vertices[vert].nindex;
+    float highest_delay = 0;
+    
+    if(vertices[vert].positive_targets!=0)
+        highest_delay = vertices[edges[pbase].target].post_delay;
+    if((vertices[vert].negative_targets!=0)&&(vertices[edges[nbase].target].post_delay>highest_delay))
+        highest_delay = vertices[edges[nbase].target].post_delay;
+        
+    if(highest_delay==0)
+        return;
 
-	//Paralellizable
+    //Paralellizable
     vertices[vert].num_positive_critical = vertices[vert].positive_targets;//In case all are critical...
-	for( unsigned i=0;i<vertices[vert].positive_targets;i++)
-	{
-		if(vertices[edges[pbase+i].target].post_delay<highest_delay*CRITICAL_THRESHOLD)
-		{
-			vertices[vert].num_positive_critical = i;
-			break;
-		}
-	}
-	
+    for( unsigned i=0;i<vertices[vert].positive_targets;i++)
+    {
+        if(vertices[edges[pbase+i].target].post_delay<highest_delay*CRITICAL_THRESHOLD)
+        {
+            vertices[vert].num_positive_critical = i;
+            break;
+        }
+    }
+    
     vertices[vert].num_negative_critical = vertices[vert].negative_targets;//In case all are critical...
-	for( unsigned i=0;i<vertices[vert].negative_targets;i++)
-	{
-		if(vertices[edges[nbase+i].target].post_delay<highest_delay*CRITICAL_THRESHOLD)
-		{
-			vertices[vert].num_negative_critical = i;
-			break;
-		}
-	}
+    for( unsigned i=0;i<vertices[vert].negative_targets;i++)
+    {
+        if(vertices[edges[nbase+i].target].post_delay<highest_delay*CRITICAL_THRESHOLD)
+        {
+            vertices[vert].num_negative_critical = i;
+            break;
+        }
+    }
+}
+void MBI::add_criticals(unsigned vert)
+{
+    unsigned pbase = vertices[vert].pindex;
+    unsigned nbase = vertices[vert].nindex;
+
+    //Paralellizable
+	
+    for( unsigned i=0;i<vertices[vert].num_positive_critical;i++)
+    {
+		vertices[vert].inverter_tree->add_critical_target(edges[pbase+i].target,false,vertices[edges[pbase+i].target].post_delay);
+    }
+    
+    for( unsigned i=0;i<vertices[vert].num_negative_critical;i++)
+    {
+		vertices[vert].inverter_tree->add_critical_target(edges[nbase+i].target,true,vertices[edges[nbase+i].target].post_delay);
+    }
+}
+void MBI::add_non_criticals(unsigned vert)
+{
+    unsigned pbase = vertices[vert].pindex;
+    unsigned nbase = vertices[vert].nindex;
+
+    //Paralellizable
+	
+    for( unsigned i=vertices[vert].num_positive_critical;i<vertices[vert].positive_targets;i++)
+    {
+		vertices[vert].inverter_tree->add_non_critical_target(edges[pbase+i].target,false,vertices[edges[pbase+i].target].post_delay,vertices[edges[pbase+i].target].position);
+    }
+    
+    for( unsigned i=vertices[vert].num_negative_critical;i<vertices[vert].negative_targets;i++)
+    {
+		vertices[vert].inverter_tree->add_non_critical_target(edges[nbase+i].target,true,vertices[edges[nbase+i].target].post_delay,vertices[edges[nbase+i].target].position);
+    }
 }
 void MBI::set_nodal_delay(char * cellName,char * invName)
 {
-	for (std::list<CELL>::iterator it=lib->cells.begin(); it!=lib->cells.end(); ++it)
+    for (std::list<CELL>::iterator it=lib->cells.begin(); it!=lib->cells.end(); ++it)
     {
         if(strcmp(cellName,it->name)==0)
-	    {
-	        nodal_delay = 0.005;
-	    }else
-		if(strcmp(invName,it->name)==0)
-	    {
-	        inv_delay = 0.001;
-	    }
+        {
+            nodal_delay = 0.005;
+        }else
+        if(strcmp(invName,it->name)==0)
+        {
+            inv_delay = 0.001;
+        }
     }
 }
 
@@ -651,15 +690,15 @@ void MBI::mSort(EDGE * a,EDGE *aux,int left,int right)
     }
 }
 
-unsigned minHeight(unsigned posConsumers,unsigned negConsumers,unsigned fanout)
+unsigned MBI::min_height(unsigned posConsumers,unsigned negConsumers)
 {
-    unsigned posAvailable = fanout;
+    unsigned posAvailable = max_cell_fanout;
     unsigned negAvailable = 0;
     unsigned height = 0;
     unsigned leavesAvailable, leaves;
     unsigned height1_branches;
-	
-    if((negConsumers == 0)&&(posConsumers<=fanout)) 
+    
+    if((negConsumers == 0)&&(posConsumers<=max_inv_fanout)) 
     {
         return 0; 
     }
@@ -669,7 +708,7 @@ unsigned minHeight(unsigned posConsumers,unsigned negConsumers,unsigned fanout)
         if(height%2)
         {
             //New layer is odd (negative)
-            negAvailable=posAvailable*fanout;
+            negAvailable=posAvailable*max_inv_fanout;
             leaves = negConsumers;
             height1_branches = posConsumers;
             leavesAvailable = negAvailable;
@@ -677,15 +716,14 @@ unsigned minHeight(unsigned posConsumers,unsigned negConsumers,unsigned fanout)
         else
         {
             //New layer is even (positive)
-            posAvailable=negAvailable*fanout;
+            posAvailable=negAvailable*max_inv_fanout;
             leaves = posConsumers;
             height1_branches = negConsumers;
             leavesAvailable = posAvailable;
         }
-        printf("Height:%d Available P %d, N %d \n",height,posAvailable,negAvailable);
-        getchar();
+        //printf("Height:%d Available P %d, N %d \n",height,posAvailable,negAvailable);
     }
-    while((leaves > leavesAvailable)||(height1_branches > ((leavesAvailable-leaves)/fanout))) ;
+    while((leaves > leavesAvailable)||(height1_branches > ((leavesAvailable-leaves)/max_inv_fanout))) ;
     return height;
 }
 
@@ -698,11 +736,12 @@ unsigned minHeight(unsigned posConsumers,unsigned negConsumers,unsigned fanout)
 //      add it there
 //  else
 //      add it in the next layer
+/*
 void MBI::option1(unsigned vert)
 {
     max_inv_fanout = 2;
     max_cell_fanout = 2;
-    unsigned height = minHeight(vertices[vert].positive_targets,vertices[vert].negative_targets,max_inv_fanout);
+    unsigned height = min_height(vertices[vert].positive_targets,vertices[vert].negative_targets,max_inv_fanout);
     unsigned maximum_delay = 0;
     LEVEL * levels = (LEVEL*) malloc(sizeof(LEVEL)*height);
     for(unsigned i=1;i<height;i++)
@@ -726,7 +765,7 @@ void MBI::option1(unsigned vert)
             }
         }        
     }
-}
+}*/
 
 //Option 2:
 //Start with all consumers in the min height and trade your way to optimality
@@ -735,10 +774,12 @@ void MBI::option1(unsigned vert)
 int main(int argc, char ** argv)
 {
     MBI nets("./input/example4.paag","./input/example4.sdc","./input/simple-cells.lib");
+	nets.max_inv_fanout = 2;
+	nets.max_cell_fanout = 2;
     nets.set_nodal_delay("AND2_X1","INV_X1");
-	nets.print();
+    //nets.print();
     nets.estimate_delay();
     nets.insert_buffers();
     nets.print();
-	//nets.lib->print();
+    //nets.lib->print();
 }
