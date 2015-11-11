@@ -22,16 +22,16 @@ int MBI::allocate_memory(unsigned v, unsigned e)
     }
     for(unsigned i=0;i<num_vertices;i++)
     {
-            vertices[i].num_srcs = 0;
-            vertices[i].pre_delay = 0;
-            vertices[i].post_delay = 0;
-            vertices[i].positive_targets = 0;
-            vertices[i].negative_targets = 0;
-            vertices[i].position.x = -1;
-            vertices[i].position.y = -1;
-            vertices[i].num_positive_critical = 0;
-            vertices[i].num_negative_critical = 0;
-			vertices[i].inverter_tree = NULL;
+		vertices[i].num_srcs = 0;
+		vertices[i].pre_delay = 0;
+		vertices[i].post_delay = 0;
+		vertices[i].positive_targets = 0;
+		vertices[i].negative_targets = 0;
+		vertices[i].position.x = -1;
+		vertices[i].position.y = -1;
+		vertices[i].num_positive_critical = 0;
+		vertices[i].num_negative_critical = 0;
+		vertices[i].inverter_tree = NULL;
     }
 }
 MBI::~MBI()
@@ -331,7 +331,7 @@ void MBI::parse_paag(char * paagFileName)
         else
         {
             printf("Number of Signals doesn't match\n");
-          exit(1);
+			exit(1);
         }
     }
 
@@ -536,18 +536,25 @@ void MBI::insert_buffers()
     //sort the edges
     for(unsigned i=0;i<num_vertices;i++)
     {
-        //Sort the targets
-        //sort_vert(i);
-        sort_vert(vertices[i]);
-        //Determine the critical ones (a number of how many of the first positive and negative are critical)
-        select_criticals(i);
-        //Allocate
-        vertices[i].inverter_tree = new InverterTree(vertices[i].positive_targets,vertices[i].negative_targets,max_cell_fanout,max_inv_fanout,inv_delay,vertices[i].position);
-		//
-		add_criticals(i);
-		vertices[i].inverter_tree->expand();
-		add_non_criticals(i);
-		vertices[i].inverter_tree->connect_positioned_targets();
+
+		if(min_height(vertices[i].positive_targets,vertices[i].negative_targets)>0)
+		{
+			//Sort the targets
+			//sort_vert(i);
+			sort_vert(vertices[i]);
+			//Determine the critical ones (a number of how many of the first positive and negative are critical)
+			select_criticals(i);
+			//Allocate
+			vertices[i].inverter_tree = new InverterTree(vertices[i].positive_targets,vertices[i].negative_targets,max_cell_fanout,max_inv_fanout,inv_delay,vertices[i].position);
+			//
+			add_criticals(i);
+			vertices[i].inverter_tree->expand();
+			
+			//
+			add_non_criticals(i);
+			vertices[i].inverter_tree->connect_positioned_targets();
+			vertices[i].inverter_tree->print_inverters();
+		}
 	}
 }
 void MBI::sort_vert(VERT vert)
@@ -696,7 +703,43 @@ void MBI::mSort(EDGE * a,EDGE *aux,int left,int right)
         merge(a,aux,left,center+1,right);
     }
 }
-
+unsigned MBI::min_height(unsigned posConsumers,unsigned negConsumers)
+{
+    unsigned posAvailable = max_cell_fanout;
+    unsigned negAvailable = 0;
+    unsigned minHeight = 0;
+    unsigned leavesAvailable, leaves;
+    unsigned height1_branches;
+    
+    if((negConsumers == 0)&&(posConsumers<=max_inv_fanout)) 
+    {
+        return 0; 
+    }
+    do
+    {
+        minHeight++;
+        if(minHeight%2)
+        {
+            //New layer is odd (negative)
+            negAvailable=posAvailable*max_inv_fanout;
+            leaves = negConsumers;
+            height1_branches = posConsumers;
+            leavesAvailable = negAvailable;
+        }
+        else
+        {
+            //New layer is even (positive)
+            posAvailable=negAvailable*max_inv_fanout;
+            leaves = posConsumers;
+            height1_branches = negConsumers;
+            leavesAvailable = posAvailable;
+        }
+        //printf("Height:%d Available P %d, N %d \n",minHeight,posAvailable,negAvailable);
+    }
+    while((leaves > leavesAvailable)||(height1_branches > ((leavesAvailable-leaves)/max_inv_fanout)));
+	
+    return minHeight;
+}
 
 
 //Fanout limitation algorithms:
@@ -746,7 +789,7 @@ void MBI::option1(unsigned vert)
 int main(int argc, char ** argv)
 {
     MBI nets("./input/example4.paag","./input/example4.sdc","./input/simple-cells.lib");
-	nets.max_inv_fanout = 2;
+	nets.max_inv_fanout = 4;
 	nets.max_cell_fanout = 2;
     nets.set_nodal_delay("AND2_X1","INV_X1");
     //nets.print();

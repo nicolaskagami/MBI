@@ -125,7 +125,7 @@ class MBI
         void set_nodal_delay(char * cellName,char * invName);
         
         //
-		//unsigned min_height(unsigned posConsumers,unsigned negConsumers);
+		unsigned min_height(unsigned posConsumers,unsigned negConsumers);
         //void option1(unsigned vert);
         
     private:

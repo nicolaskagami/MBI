@@ -8,6 +8,10 @@ bool Point::operator== (Point b)
     else 
         return false;
 }
+float Point::manhattanDistance(Point b)
+{
+	return abs(x-b.x) + abs(y-b.y);
+}
 InverterTree::InverterTree(unsigned posTargets,unsigned negTargets,unsigned maxCellFanout,unsigned maxInvFanout,float invDelay,Point srcPosition)
 {
 	sourcePosition = srcPosition;
@@ -17,6 +21,9 @@ InverterTree::InverterTree(unsigned posTargets,unsigned negTargets,unsigned maxC
 	
 	degree = maxInvFanout;
 	maximumCellFanout = maxCellFanout;
+	
+	positiveTargetsLeft = posTargets;
+	negativeTargetsLeft = negTargets;
 	
 	numTargets = posTargets+negTargets;
 	positionedTargets = (TARGET*) malloc(numTargets*sizeof(TARGET));
@@ -62,13 +69,16 @@ void InverterTree::add_critical_target(unsigned target,bool signal,float delay)
 	//Allocate as close to the source as possible, always leaving a space to deliver the rest of the signals
 	unsigned i;
 	
+	
 	if(signal)
 	{
 		i=1; //Negative levels
+		negativeTargetsLeft--;
 	}
 	else
 	{
 		i=0;// Positive levels
+		positiveTargetsLeft--;
 	}
 	//printf("Height: %u\n",height);
 	for(;i<height;i+=2)
@@ -84,7 +94,7 @@ void InverterTree::add_critical_target(unsigned target,bool signal,float delay)
 	}
 	
 	//If code reaches this point, we need more inverters!
-	//First let's look at the lower levels, to see if we can propagate some space!
+	//First let's look at the lower levels, to see if we can propagate some space
 	//This is possible due to different target signals
 	//Inverted signal
 	
@@ -116,18 +126,58 @@ void InverterTree::add_critical_target(unsigned target,bool signal,float delay)
 }
 void InverterTree::expand()
 {
+	//Expand until there is space for the rest, as determined by the targetLeft variables
+	unsigned positiveAvailable =0;
+	unsigned negativeAvailable =0;
 	unsigned expanded;
-	for(unsigned i=0;(i+2)<height;i++)//Expand to next to last level, last level will add inverters
+	unsigned i;
+	//Expand to provide for non criticals
+	for(i=0;(positiveAvailable<positiveTargetsLeft)||(negativeAvailable<negativeTargetsLeft);i++)
 	{
+		if((i+1)>=height)
+			add_levels(1);
+		
 		expanded = levels[i].vacant;
 		if(expanded>0)
 		{
-			levels[i].vacant = 0;
+			if(i%2)
+			{
+				//Next level (i+1) is positive
+				
+				positiveAvailable=levels[i+1].vacant+(expanded*degree);
+				if(positiveAvailable>=positiveTargetsLeft)
+				{
+					negativeAvailable=(positiveAvailable-positiveTargetsLeft)/degree;
+					
+					if(negativeAvailable<expanded)
+						expanded -=negativeAvailable;
+					else
+						expanded = 0;
+				}
+			}
+			else
+			{
+				negativeAvailable=levels[i+1].vacant+(expanded*degree);
+				if(negativeAvailable>=negativeTargetsLeft)
+				{
+					positiveAvailable=(negativeAvailable-negativeTargetsLeft)/degree;
+					
+					if(positiveAvailable<expanded)//Just in case there are several unpropagated available at the next layer
+						expanded -=positiveAvailable;
+					else
+						expanded = 0;
+				}
+			}
+			//printf("Expanded: %u\n",expanded);
+			levels[i].vacant -= expanded;
 			levels[i].inv_taken+=expanded;
 			levels[i+1].vacant+=degree*expanded;
 		}
 	}
-		
+	
+	//printf("\tEnd of expansion\n");
+	//printf("\tLeft/Available: (+): %u/%u (-) %u/%u\n",positiveTargetsLeft,positiveAvailable,negativeTargetsLeft,negativeAvailable);
+
 }
 void InverterTree::add_non_critical_target(unsigned target,bool signal,float delay,Point position)
 {
@@ -170,16 +220,32 @@ unsigned InverterTree::min_height(unsigned posConsumers,unsigned negConsumers)
         }
         //printf("Height:%d Available P %d, N %d \n",minHeight,posAvailable,negAvailable);
     }
-    while((leaves > leavesAvailable)||(height1_branches > ((leavesAvailable-leaves)/degree))) ;
+    while((leaves > leavesAvailable)||(height1_branches > ((leavesAvailable-leaves)/degree)));
+	
     return minHeight;
 }
 void InverterTree::connect_positioned_targets()
 {
+	float closest=positionedTargets[0].position.manhattanDistance(positionedTargets[1].position)+1;
+	unsigned closesta,closestb; // closest pair
 	for(unsigned i=0;i<numPositionedTargets;i++)
 	{
 		printf("Target(%c): %u (%.2f,%.2f)\n",positionedTargets[i].signal ? '-' : '+',positionedTargets[i].target,positionedTargets[i].position.x,positionedTargets[i].position.y);
-		
+		for(unsigned j=0;j<numPositionedTargets;j++)
+		{//Change to j=i+1 eventually
+			if(i!=j)
+			{
+				if(positionedTargets[i].position.manhattanDistance(positionedTargets[j].position)<closest)
+				{
+					closest = positionedTargets[i].position.manhattanDistance(positionedTargets[j].position);
+					closesta = positionedTargets[i].target;
+					closestb = positionedTargets[j].target;
+				}
+				printf("Distance to %u: %f\n",positionedTargets[j].target,positionedTargets[i].position.manhattanDistance(positionedTargets[j].position));
+			}
+		}
 	}
+	printf("Closest: %u - %u, distance: %f\n",closesta,closestb,closest);
 }
 void InverterTree::print()
 {
@@ -190,13 +256,26 @@ void InverterTree::print()
 		printf("Vacant: %u Inverters Fed: %u Signals Fed: %u\n",levels[i].vacant,levels[i].inv_taken,levels[i].signal_taken);
 	}
 }
-
-int InverterTree::add_inverter()
+void InverterTree::print_inverters()
+{
+	unsigned i=0,j;
+	for (std::vector<INVERTER>::iterator it = inverters.begin() ; it != inverters.end(); ++it,i++)
+	{
+		printf("Inverter: %u: Inverters Fed: ",i);
+		for(j=0;j<it->num_inv_targets;j++)
+			printf("%u ",it->targets[j]);
+		printf("Signals Fed: ");
+		for(j=0;j<it->num_inv_targets;j++)
+			printf("%u ",it->targets[degree-j]);
+	}
+}
+int InverterTree::add_inverter(unsigned level)
 {
 	INVERTER inv;
 	inv.targets = (unsigned*) malloc(degree*sizeof(unsigned));
 	inv.num_inv_targets = 0;
 	inv.num_vert_targets = 0;
+	inv.level = level;
 	inverters.push_back(inv);
 }
 int InverterTree::add_vert_target_to_inverter(unsigned target,unsigned inverter)

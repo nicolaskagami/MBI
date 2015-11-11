@@ -10,7 +10,17 @@ class Point
         float y;
 
         bool operator== (Point b);
+		float manhattanDistance(Point b);
 };
+
+typedef struct
+{
+	float minx;
+	float miny;
+	float maxx;
+	float maxy;
+	
+} BOUNDING_BOX;
 
 typedef struct
 {
@@ -18,6 +28,7 @@ typedef struct
     unsigned * targets; //Both invs and verts
     unsigned num_inv_targets;
     unsigned num_vert_targets;
+	unsigned level;
     
     //Needs edge super malloc
     //Consumers as indices? how about other inverters?
@@ -54,6 +65,9 @@ class InverterTree
 		unsigned degree;
 		unsigned maximumCellFanout;
 		
+		unsigned positiveTargetsLeft;
+		unsigned negativeTargetsLeft;
+		
 		TARGET * positionedTargets;
 		unsigned numPositionedTargets;
 		unsigned numTargets;
@@ -72,9 +86,10 @@ class InverterTree
 		unsigned min_height(unsigned posConsumers,unsigned negConsumers);
 		void connect_positioned_targets();
 		
-		int add_inverter();
+		int add_inverter(unsigned level);
 		int add_vert_target_to_inverter(unsigned target,unsigned inverter);
 		int add_inv_target_to_inverter(unsigned target,unsigned inverter);
+		void print_inverters();
 		void print();
 
 };
