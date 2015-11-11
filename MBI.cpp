@@ -109,7 +109,7 @@ void MBI::add_edge(unsigned src,unsigned tgt,bool signal)
     }
     edges[ind].target = tgt;    
 }
-void MBI::set_position(unsigned vert,unsigned x,unsigned y)
+void MBI::set_position(unsigned vert,float x,float y)
 {
     if(vert<num_vertices)
     {
@@ -137,7 +137,7 @@ void MBI::print()
     {
         if((vertices[i].positive_targets+vertices[i].negative_targets)>0)
         {
-            printf("Vert %d (%u,%u)\n",i,vertices[i].position.x,vertices[i].position.y);
+            printf("Vert %d (%.2f,%.2f)\n",i,vertices[i].position.x,vertices[i].position.y);
             printf("Sources: ");
             for(unsigned srcs = 0; srcs < vertices[i].num_srcs;srcs++)
                 printf("%u ",vertices[i].srcs[srcs]);
@@ -200,7 +200,7 @@ void MBI::parse_paag(char * paagFileName)
             char line[MAX_LINE];
             char * aux;
             unsigned i;
-            unsigned x,y;
+            float x,y;
             allocate_memory(M+1,A*2);
             //printf("M %d, I %d, L %d, O %d, A %d, X %d, Y %d\n",M,I,L,O,A,X,Y);
             //Inputs
@@ -215,16 +215,17 @@ void MBI::parse_paag(char * paagFileName)
                 input = strtoul(line,&aux,10);
                 aux = strtok(aux,"(,");
                 aux = strtok(NULL,"(,");
-                x = strtoul(aux,&aux,10);
+                x = strtof(aux,NULL);
                 aux = strtok(NULL,")");
-                y = strtoul (aux,&aux,10);
+                y = strtof(aux,NULL);
 
                 paag_inputs[i].name[0] = '\0';
                 paag_inputs[i].index = input/2;
                 paag_inputs[i].delay = 0;
+				
                 set_position(input/2,x,y);
                 //Add vertex
-                //printf("IN: %u (%u,%u)\n",input,x,y);
+                //printf("IN: %u (%.2f,%.2f)\n",input,x,y);
             }
             //Latches
             for(i=0;i<L;i++)
@@ -246,9 +247,9 @@ void MBI::parse_paag(char * paagFileName)
                 }
                 aux = strtok(aux,"(,");
                 aux = strtok(NULL,"(,");
-                x = strtoul(aux,&aux,10);
+                x = strtof(aux,NULL);
                 aux = strtok(NULL,")");
-                y = strtoul (aux,&aux,10);
+				y = strtof(aux,NULL);
 
                 paag_outputs[i].name[0] = '\0';
                 paag_outputs[i].index = output/2;
@@ -281,9 +282,9 @@ void MBI::parse_paag(char * paagFileName)
                 srcb = strtoul(aux,&aux,10);
                 aux = strtok(aux,"(,");
                 aux = strtok(NULL,"(,");
-                x = strtoul(aux,&aux,10);
+                x = strtof(aux,NULL);
                 aux = strtok(NULL,")");
-                y = strtoul (aux,&aux,10);
+                y = strtof(aux,NULL);
 
                 set_position(signal/2,x,y);
                 add_edge(srca/2,signal/2,srca%2);
@@ -541,11 +542,12 @@ void MBI::insert_buffers()
         //Determine the critical ones (a number of how many of the first positive and negative are critical)
         select_criticals(i);
         //Allocate
-        vertices[i].inverter_tree = new InverterTree(min_height(vertices[i].positive_targets,vertices[i].negative_targets),max_cell_fanout,max_inv_fanout,inv_delay,vertices[i].position);
+        vertices[i].inverter_tree = new InverterTree(vertices[i].positive_targets,vertices[i].negative_targets,max_cell_fanout,max_inv_fanout,inv_delay,vertices[i].position);
 		//
 		add_criticals(i);
 		vertices[i].inverter_tree->expand();
 		add_non_criticals(i);
+		vertices[i].inverter_tree->connect_positioned_targets();
 	}
 }
 void MBI::sort_vert(VERT vert)
@@ -695,42 +697,7 @@ void MBI::mSort(EDGE * a,EDGE *aux,int left,int right)
     }
 }
 
-unsigned MBI::min_height(unsigned posConsumers,unsigned negConsumers)
-{
-    unsigned posAvailable = max_cell_fanout;
-    unsigned negAvailable = 0;
-    unsigned height = 0;
-    unsigned leavesAvailable, leaves;
-    unsigned height1_branches;
-    
-    if((negConsumers == 0)&&(posConsumers<=max_inv_fanout)) 
-    {
-        return 0; 
-    }
-    do
-    {
-        height++;
-        if(height%2)
-        {
-            //New layer is odd (negative)
-            negAvailable=posAvailable*max_inv_fanout;
-            leaves = negConsumers;
-            height1_branches = posConsumers;
-            leavesAvailable = negAvailable;
-        }
-        else
-        {
-            //New layer is even (positive)
-            posAvailable=negAvailable*max_inv_fanout;
-            leaves = posConsumers;
-            height1_branches = negConsumers;
-            leavesAvailable = posAvailable;
-        }
-        //printf("Height:%d Available P %d, N %d \n",height,posAvailable,negAvailable);
-    }
-    while((leaves > leavesAvailable)||(height1_branches > ((leavesAvailable-leaves)/max_inv_fanout))) ;
-    return height;
-}
+
 
 //Fanout limitation algorithms:
 //Option 1:

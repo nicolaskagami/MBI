@@ -8,18 +8,26 @@ bool Point::operator== (Point b)
     else 
         return false;
 }
-InverterTree::InverterTree(unsigned minHeight,unsigned maxCellFanout,unsigned maxInvFanout,float invDelay,Point srcPosition)
+InverterTree::InverterTree(unsigned posTargets,unsigned negTargets,unsigned maxCellFanout,unsigned maxInvFanout,float invDelay,Point srcPosition)
 {
 	sourcePosition = srcPosition;
+	
 	inverterDelay = invDelay;
-	degree = maxInvFanout;
-	height = minHeight;
-	if(height == 0)
-		height = 1;
 	maxDelay = 0;
 	
-	levels=(LEVEL*) malloc(minHeight*sizeof(LEVEL));
-	printf("Height: %u,min: %u\n",height,minHeight);
+	degree = maxInvFanout;
+	maximumCellFanout = maxCellFanout;
+	
+	numTargets = posTargets+negTargets;
+	positionedTargets = (TARGET*) malloc(numTargets*sizeof(TARGET));
+	numPositionedTargets = 0;
+	
+	height = min_height(posTargets,negTargets);
+	if(height == 0)
+		height = 1;
+	
+	
+	levels=(LEVEL*) malloc(height*sizeof(LEVEL));
 	for(unsigned i=0;i<height;i++)
 	{
 		levels[i].vacant = degree - 1;
@@ -29,7 +37,13 @@ InverterTree::InverterTree(unsigned minHeight,unsigned maxCellFanout,unsigned ma
 }
 InverterTree::~InverterTree()
 {
+	for (std::vector<INVERTER>::iterator it = inverters.begin() ; it != inverters.end(); ++it)
+	{
+		if(it->targets)
+			free(it->targets);
+	}
 	free(levels);
+	free(positionedTargets);
 }
 void InverterTree::add_levels(unsigned newLevels)
 {
@@ -119,12 +133,53 @@ void InverterTree::add_non_critical_target(unsigned target,bool signal,float del
 {
 	//Allocate according to position
 	//Make a list of all non critical targets that need to be reached and then determine which inverters feed which targets
-	//if(signal)
-		//negative
-	//else
-		//Positive
-	
-	//if(.
+	positionedTargets[numPositionedTargets].target = target;
+	positionedTargets[numPositionedTargets].signal = signal;
+	positionedTargets[numPositionedTargets++].position = position;
+}
+unsigned InverterTree::min_height(unsigned posConsumers,unsigned negConsumers)
+{
+    unsigned posAvailable = maximumCellFanout;
+    unsigned negAvailable = 0;
+    unsigned minHeight = 0;
+    unsigned leavesAvailable, leaves;
+    unsigned height1_branches;
+    
+    if((negConsumers == 0)&&(posConsumers<=degree)) 
+    {
+        return 0; 
+    }
+    do
+    {
+        minHeight++;
+        if(minHeight%2)
+        {
+            //New layer is odd (negative)
+            negAvailable=posAvailable*degree;
+            leaves = negConsumers;
+            height1_branches = posConsumers;
+            leavesAvailable = negAvailable;
+        }
+        else
+        {
+            //New layer is even (positive)
+            posAvailable=negAvailable*degree;
+            leaves = posConsumers;
+            height1_branches = negConsumers;
+            leavesAvailable = posAvailable;
+        }
+        //printf("Height:%d Available P %d, N %d \n",minHeight,posAvailable,negAvailable);
+    }
+    while((leaves > leavesAvailable)||(height1_branches > ((leavesAvailable-leaves)/degree))) ;
+    return minHeight;
+}
+void InverterTree::connect_positioned_targets()
+{
+	for(unsigned i=0;i<numPositionedTargets;i++)
+	{
+		printf("Target(%c): %u (%.2f,%.2f)\n",positionedTargets[i].signal ? '-' : '+',positionedTargets[i].target,positionedTargets[i].position.x,positionedTargets[i].position.y);
+		
+	}
 }
 void InverterTree::print()
 {
@@ -133,5 +188,32 @@ void InverterTree::print()
 	for(unsigned i=0;i<height;i++)
 	{
 		printf("Vacant: %u Inverters Fed: %u Signals Fed: %u\n",levels[i].vacant,levels[i].inv_taken,levels[i].signal_taken);
+	}
+}
+
+int InverterTree::add_inverter()
+{
+	INVERTER inv;
+	inv.targets = (unsigned*) malloc(degree*sizeof(unsigned));
+	inv.num_inv_targets = 0;
+	inv.num_vert_targets = 0;
+	inverters.push_back(inv);
+}
+int InverterTree::add_vert_target_to_inverter(unsigned target,unsigned inverter)
+{
+	INVERTER * inv;
+	inv = &(inverters[inverter]);
+	if((inv->num_vert_targets+inv->num_inv_targets)<degree)
+	{
+		inv->targets[inv->num_vert_targets++] = target;
+	}
+}
+int InverterTree::add_inv_target_to_inverter(unsigned target,unsigned inverter)
+{
+	INVERTER * inv;
+	inv = &(inverters[inverter]);
+	if((inv->num_vert_targets+inv->num_inv_targets)<degree)
+	{
+		inv->targets[degree-inv->num_vert_targets++] = target;
 	}
 }

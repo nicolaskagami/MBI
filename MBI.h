@@ -81,7 +81,7 @@ class MBI
         void preallocate(unsigned src,unsigned tgt,bool signal);
         void indexify();
         void add_edge(unsigned src,unsigned tgt,bool signal);
-        void set_position(unsigned vert,unsigned x,unsigned y);
+        void set_position(unsigned vert,float x,float y);
 
         //MBI data
         unsigned max_cell_fanout;
@@ -125,7 +125,7 @@ class MBI
         void set_nodal_delay(char * cellName,char * invName);
         
         //
-		unsigned min_height(unsigned posConsumers,unsigned negConsumers);
+		//unsigned min_height(unsigned posConsumers,unsigned negConsumers);
         //void option1(unsigned vert);
         
     private:
