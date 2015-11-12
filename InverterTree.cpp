@@ -35,7 +35,10 @@ InverterTree::InverterTree(unsigned posTargets,unsigned negTargets,unsigned maxC
 	
 	
 	levels=(LEVEL*) malloc(height*sizeof(LEVEL));
-	for(unsigned i=0;i<height;i++)
+    levels[0].vacant = maxCellFanout - 1;
+    levels[0].inv_taken = 1;
+    levels[0].signal_taken = 0;
+	for(unsigned i=1;i<height;i++)
 	{
 		levels[i].vacant = degree - 1;
 		levels[i].inv_taken = 1;
@@ -138,40 +141,43 @@ void InverterTree::expand()
 			add_levels(1);
 		
 		expanded = levels[i].vacant;
-		if(expanded>0)
+		if(expanded > 0)
 		{
-			if(i%2)
+			if(i % 2)
 			{
 				//Next level (i+1) is positive
-				
-				positiveAvailable=levels[i+1].vacant+(expanded*degree);
-				if(positiveAvailable>=positiveTargetsLeft)
+                //Remember that we allocated an extra slot for an inverter at the last level
+				positiveAvailable = levels[i+1].vacant + (expanded*degree);
+				if(positiveAvailable >= positiveTargetsLeft)
 				{
-					negativeAvailable=(positiveAvailable-positiveTargetsLeft)/degree;
+					negativeAvailable = (positiveAvailable-positiveTargetsLeft)/degree;
 					
-					if(negativeAvailable<expanded)
-						expanded -=negativeAvailable;
+					if(negativeAvailable < expanded)
+						expanded -= negativeAvailable;
 					else
 						expanded = 0;
 				}
 			}
 			else
 			{
-				negativeAvailable=levels[i+1].vacant+(expanded*degree);
-				if(negativeAvailable>=negativeTargetsLeft)
+				//Next level (i+1) is negative
+                //Remember that we allocated an extra slot for an inverter at the last level
+                //We also need to change it so that we expand as much as possible if the next layer is supplied, but not enough will remain for the current layer anyway
+				negativeAvailable = levels[i+1].vacant+(expanded*degree);
+				if(negativeAvailable >= negativeTargetsLeft)
 				{
-					positiveAvailable=(negativeAvailable-negativeTargetsLeft)/degree;
+					positiveAvailable = (negativeAvailable-negativeTargetsLeft)/degree;
 					
-					if(positiveAvailable<expanded)//Just in case there are several unpropagated available at the next layer
-						expanded -=positiveAvailable;
+					if(positiveAvailable < expanded)//Just in case there are several unpropagated available at the next layer
+						expanded -= positiveAvailable;
 					else
 						expanded = 0;
 				}
 			}
 			//printf("Expanded: %u\n",expanded);
 			levels[i].vacant -= expanded;
-			levels[i].inv_taken+=expanded;
-			levels[i+1].vacant+=degree*expanded;
+			levels[i].inv_taken += expanded;
+			levels[i+1].vacant += degree*expanded;
 		}
 	}
 	
