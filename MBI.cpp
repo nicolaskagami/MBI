@@ -647,12 +647,12 @@ void MBI::add_non_criticals(unsigned vert)
 	
     for( unsigned i=vertices[vert].num_positive_critical;i<vertices[vert].positive_targets;i++)
     {
-		vertices[vert].inverter_tree->add_non_critical_target(edges[pbase+i].target,false,vertices[edges[pbase+i].target].post_delay,vertices[edges[pbase+i].target].position);
+		vertices[vert].inverter_tree->add_positive_target(edges[pbase+i].target,true,vertices[edges[pbase+i].target].post_delay,vertices[edges[pbase+i].target].position);
     }
     
     for( unsigned i=vertices[vert].num_negative_critical;i<vertices[vert].negative_targets;i++)
     {
-		vertices[vert].inverter_tree->add_non_critical_target(edges[nbase+i].target,true,vertices[edges[nbase+i].target].post_delay,vertices[edges[nbase+i].target].position);
+		vertices[vert].inverter_tree->add_negative_target(edges[nbase+i].target,true,vertices[edges[nbase+i].target].post_delay,vertices[edges[nbase+i].target].position);
     }
 }
 void MBI::set_nodal_delay(char * cellName,char * invName)

@@ -22,12 +22,14 @@ InverterTree::InverterTree(unsigned posTargets,unsigned negTargets,unsigned maxC
 	degree = maxInvFanout;
 	maximumCellFanout = maxCellFanout;
 	
-	positiveTargetsLeft = posTargets;
-	negativeTargetsLeft = negTargets;
+	positiveConsumersLeft = posTargets;
+	negativeConsumersLeft = negTargets;
 	
 	numTargets = posTargets+negTargets;
-	positionedTargets = (TARGET*) malloc(numTargets*sizeof(TARGET));
-	numPositionedTargets = 0;
+	positiveTargets = (TARGET*) malloc(numTargets*sizeof(TARGET));//Careful here, it may be bigger...
+	negativeTargets = (TARGET*) malloc(numTargets*sizeof(TARGET));
+	numPositiveTargets = 0;
+	numNegativeTargets = 0;
 	
 	height = min_height(posTargets,negTargets);
 	if(height == 0)
@@ -53,7 +55,7 @@ InverterTree::~InverterTree()
 			free(it->targets);
 	}
 	free(levels);
-	free(positionedTargets);
+	free(positiveTargets);
 }
 void InverterTree::add_levels(unsigned newLevels)
 {
@@ -76,12 +78,12 @@ void InverterTree::add_critical_target(unsigned target,bool signal,float delay)
 	if(signal)
 	{
 		i=1; //Negative levels
-		negativeTargetsLeft--;
+		negativeConsumersLeft--;
 	}
 	else
 	{
 		i=0;// Positive levels
-		positiveTargetsLeft--;
+		positiveConsumersLeft--;
 	}
 	//printf("Height: %u\n",height);
 	for(;i<height;i+=2)
@@ -135,7 +137,7 @@ void InverterTree::expand()
 	unsigned expanded;
 	unsigned i;
 	//Expand to provide for non criticals
-	for(i=0;(positiveAvailable<positiveTargetsLeft)||(negativeAvailable<negativeTargetsLeft);i++)
+	for(i=0;(positiveAvailable<positiveConsumersLeft)||(negativeAvailable<negativeConsumersLeft);i++)
 	{
 		if((i+1)>=height)
 			add_levels(1);
@@ -149,11 +151,11 @@ void InverterTree::expand()
 				//Next level (i+1) is positive
                 //Remember that we allocated an extra slot for an inverter at the last level
 				positiveAvailable = levels[i+1].vacant + (expanded*degree) + 1; //+1 for the inverter that was alloted
-				if(positiveAvailable >= positiveTargetsLeft)
+				if(positiveAvailable >= positiveConsumersLeft)
 				{
-					negativeAvailable = (positiveAvailable-positiveTargetsLeft)/degree;
+					negativeAvailable = (positiveAvailable-positiveConsumersLeft)/degree;
 
-				    if(negativeAvailable >= negativeTargetsLeft) //If this is not enough, these won't be the final layers and we should expand all
+				    if(negativeAvailable >= negativeConsumersLeft) //If this is not enough, these won't be the final layers and we should expand all
                     {
                         levels[i+1].inv_taken--;
                         levels[i+1].vacant++;
@@ -170,11 +172,11 @@ void InverterTree::expand()
 				//Next level (i+1) is negative
                 //Remember that we allocated an extra slot for an inverter at the last level
 				negativeAvailable = levels[i+1].vacant + (expanded*degree) + 1;
-				if(negativeAvailable >= negativeTargetsLeft)
+				if(negativeAvailable >= negativeConsumersLeft)
 				{
-					positiveAvailable = (negativeAvailable-negativeTargetsLeft)/degree;
+					positiveAvailable = (negativeAvailable-negativeConsumersLeft)/degree;
 					
-				    if(positiveAvailable >= positiveTargetsLeft) //If this is not enough, these won't be the final layers and we should expand all
+				    if(positiveAvailable >= positiveConsumersLeft) //If this is not enough, these won't be the final layers and we should expand all
                     {
                         levels[i+1].inv_taken--;
                         levels[i+1].vacant++;
@@ -193,16 +195,26 @@ void InverterTree::expand()
 	}
 	
 	//printf("\tEnd of expansion\n");
-	//printf("\tLeft/Available: (+): %u/%u (-) %u/%u\n",positiveTargetsLeft,positiveAvailable,negativeTargetsLeft,negativeAvailable);
+	//printf("\tLeft/Available: (+): %u/%u (-) %u/%u\n",positiveConsumersLeft,positiveAvailable,negativeConsumersLeft,negativeAvailable);
 
 }
-void InverterTree::add_non_critical_target(unsigned target,bool signal,float delay,Point position)
+void InverterTree::add_negative_target(unsigned target,bool signal,float delay,Point position)
 {
 	//Allocate according to position
 	//Make a list of all non critical targets that need to be reached and then determine which inverters feed which targets
-	positionedTargets[numPositionedTargets].target = target;
-	positionedTargets[numPositionedTargets].signal = signal;
-	positionedTargets[numPositionedTargets++].position = position;
+    //Make one for positive and one for negative targets, send through parameters if the target is inverter or vertex
+	negativeTargets[numNegativeTargets].target = target;
+	negativeTargets[numNegativeTargets].isVertex = true;
+	negativeTargets[numNegativeTargets++].position = position;
+}
+void InverterTree::add_positive_target(unsigned target,bool signal,float delay,Point position)
+{
+	//Allocate according to position
+	//Make a list of all non critical targets that need to be reached and then determine which inverters feed which targets
+    //Make one for positive and one for negative targets, send through parameters if the target is inverter or vertex
+	positiveTargets[numPositiveTargets].target = target;
+	positiveTargets[numPositiveTargets].isVertex = true;
+	positiveTargets[numPositiveTargets++].position = position;
 }
 unsigned InverterTree::min_height(unsigned posConsumers,unsigned negConsumers)
 {
@@ -243,22 +255,22 @@ unsigned InverterTree::min_height(unsigned posConsumers,unsigned negConsumers)
 }
 void InverterTree::connect_positioned_targets()
 {
-	float closest=positionedTargets[0].position.manhattanDistance(positionedTargets[1].position)+1;
+	float closest=positiveTargets[0].position.manhattanDistance(positiveTargets[1].position)+1;
 	unsigned closesta,closestb; // closest pair
-	for(unsigned i=0;i<numPositionedTargets;i++)
+	for(unsigned i=0;i<numPositiveTargets;i++)
 	{
-		printf("Target(%c): %u (%.2f,%.2f)\n",positionedTargets[i].signal ? '-' : '+',positionedTargets[i].target,positionedTargets[i].position.x,positionedTargets[i].position.y);
-		for(unsigned j=0;j<numPositionedTargets;j++)
+		printf("Target(+): %u (%.2f,%.2f)\n",positiveTargets[i].target,positiveTargets[i].position.x,positiveTargets[i].position.y);
+		for(unsigned j=0;j<numPositiveTargets;j++)
 		{//Change to j=i+1 eventually
 			if(i!=j)
 			{
-				if(positionedTargets[i].position.manhattanDistance(positionedTargets[j].position)<closest)
+				if(positiveTargets[i].position.manhattanDistance(positiveTargets[j].position)<closest)
 				{
-					closest = positionedTargets[i].position.manhattanDistance(positionedTargets[j].position);
-					closesta = positionedTargets[i].target;
-					closestb = positionedTargets[j].target;
+					closest = positiveTargets[i].position.manhattanDistance(positiveTargets[j].position);
+					closesta = positiveTargets[i].target;
+					closestb = positiveTargets[j].target;
 				}
-				printf("Distance to %u: %f\n",positionedTargets[j].target,positionedTargets[i].position.manhattanDistance(positionedTargets[j].position));
+				printf("Distance to %u: %f\n",positiveTargets[j].target,positiveTargets[i].position.manhattanDistance(positiveTargets[j].position));
 			}
 		}
 	}

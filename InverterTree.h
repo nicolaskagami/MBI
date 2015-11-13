@@ -51,38 +51,48 @@ typedef struct
 typedef struct
 {
     Point position;
-	bool signal;
+    bool isVertex;//If true, this target is a vertex, otherwise it is an inv
     unsigned target;
 } TARGET;
 
 class InverterTree
 {
 	public:
+        //InverterTree Data
 		Point sourcePosition;
 		float inverterDelay;
 		float maxDelay;
-		
 		unsigned degree;
 		unsigned maximumCellFanout;
-		
-		unsigned positiveTargetsLeft;
-		unsigned negativeTargetsLeft;
-		
-		TARGET * positionedTargets;
-		unsigned numPositionedTargets;
 		unsigned numTargets;
-		
-		unsigned height;
+	    //We keep the number of consumers left so as to allocate memory precisely	
+		unsigned positiveConsumersLeft;
+		unsigned negativeConsumersLeft;
+
+        //First Inverter Tree Abstraction:
+        //An array of levels, modelling the availability and occupation of signals
 		LEVEL * levels;
+		unsigned height;
 		
+        //Second Inverter Tree Abstraction:
+        //Arrays of targets to attend according to location
+		TARGET * positiveTargets;
+		unsigned numPositiveTargets;
+		TARGET * negativeTargets;
+		unsigned numNegativeTargets;
+		
+	    //Third Inverter Tree Abstraction:
+        //A vector of inverters
 		std::vector<INVERTER> inverters;
 		
-		InverterTree(unsigned positiveTargets,unsigned negativeTargets,unsigned maxCellFanout,unsigned maxInvFanout,float invDelay,Point srcPosition);
+        //Functions
+		InverterTree(unsigned positiveConsumers,unsigned negativeConsumers,unsigned maxCellFanout,unsigned maxInvFanout,float invDelay,Point srcPosition);
 		~InverterTree();
 		void add_levels(unsigned newLevels);
 		void add_critical_target(unsigned target,bool signal,float delay);
 		void expand();
-		void add_non_critical_target(unsigned target,bool signal,float delay,Point position);
+        void add_negative_target(unsigned target,bool isVertex,float delay,Point position);
+        void add_positive_target(unsigned target,bool isVertex,float delay,Point position);
 		unsigned min_height(unsigned posConsumers,unsigned negConsumers);
 		void connect_positioned_targets();
 		
