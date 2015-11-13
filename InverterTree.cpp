@@ -145,33 +145,44 @@ void InverterTree::expand()
 		{
 			if(i % 2)
 			{
+                //Current Level (i) is negative
 				//Next level (i+1) is positive
                 //Remember that we allocated an extra slot for an inverter at the last level
-				positiveAvailable = levels[i+1].vacant + (expanded*degree);
+				positiveAvailable = levels[i+1].vacant + (expanded*degree) + 1; //+1 for the inverter that was alloted
 				if(positiveAvailable >= positiveTargetsLeft)
 				{
 					negativeAvailable = (positiveAvailable-positiveTargetsLeft)/degree;
-					
-					if(negativeAvailable < expanded)
-						expanded -= negativeAvailable;
-					else
-						expanded = 0;
+
+				    if(negativeAvailable >= negativeTargetsLeft) //If this is not enough, these won't be the final layers and we should expand all
+                    {
+                        levels[i+1].inv_taken--;
+                        levels[i+1].vacant++;
+                        if(negativeAvailable < expanded)
+                            expanded -= negativeAvailable;
+                        else
+                            expanded = 0;
+                    }
 				}
 			}
 			else
 			{
+                //Current Level (i) is positive
 				//Next level (i+1) is negative
                 //Remember that we allocated an extra slot for an inverter at the last level
-                //We also need to change it so that we expand as much as possible if the next layer is supplied, but not enough will remain for the current layer anyway
-				negativeAvailable = levels[i+1].vacant+(expanded*degree);
+				negativeAvailable = levels[i+1].vacant + (expanded*degree) + 1;
 				if(negativeAvailable >= negativeTargetsLeft)
 				{
 					positiveAvailable = (negativeAvailable-negativeTargetsLeft)/degree;
 					
-					if(positiveAvailable < expanded)//Just in case there are several unpropagated available at the next layer
-						expanded -= positiveAvailable;
-					else
-						expanded = 0;
+				    if(positiveAvailable >= positiveTargetsLeft) //If this is not enough, these won't be the final layers and we should expand all
+                    {
+                        levels[i+1].inv_taken--;
+                        levels[i+1].vacant++;
+                        if(positiveAvailable < expanded)//Just in case there are several unpropagated available at the next layer
+                            expanded -= positiveAvailable;
+                        else
+                            expanded = 0;
+                    }
 				}
 			}
 			//printf("Expanded: %u\n",expanded);
