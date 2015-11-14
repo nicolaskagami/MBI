@@ -8,9 +8,9 @@ bool Point::operator== (Point b)
     else 
         return false;
 }
-float Point::manhattanDistance(Point b)
-{
-	return abs(x-b.x) + abs(y-b.y);
+float Point::distance(Point b)
+{//Manhattan Distance
+	return fabs((float)x-b.x) + fabs((float)y-b.y);
 }
 InverterTree::InverterTree(unsigned posTargets,unsigned negTargets,unsigned maxCellFanout,unsigned maxInvFanout,float invDelay,Point srcPosition)
 {
@@ -25,9 +25,8 @@ InverterTree::InverterTree(unsigned posTargets,unsigned negTargets,unsigned maxC
 	positiveConsumersLeft = posTargets;
 	negativeConsumersLeft = negTargets;
 	
-	numTargets = posTargets+negTargets;
-	positiveTargets = (TARGET*) malloc(numTargets*sizeof(TARGET));//Careful here, it may be bigger...
-	negativeTargets = (TARGET*) malloc(numTargets*sizeof(TARGET));
+	positiveTargets = (TARGET*) malloc((posTargets+negTargets)*sizeof(TARGET));//Careful here, it may be bigger than positiveConsumers...
+	negativeTargets = (TARGET*) malloc((posTargets+negTargets)*sizeof(TARGET));
 	numPositiveTargets = 0;
 	numNegativeTargets = 0;
 	
@@ -49,7 +48,7 @@ InverterTree::InverterTree(unsigned posTargets,unsigned negTargets,unsigned maxC
 }
 InverterTree::~InverterTree()
 {
-	for (std::vector<INVERTER>::iterator it = inverters.begin() ; it != inverters.end(); ++it)
+	for (std::vector<INVERTER>::iterator it = positionedInverters.begin() ; it != positionedInverters.end(); ++it)
 	{
 		if(it->targets)
 			free(it->targets);
@@ -198,22 +197,22 @@ void InverterTree::expand()
 	//printf("\tLeft/Available: (+): %u/%u (-) %u/%u\n",positiveConsumersLeft,positiveAvailable,negativeConsumersLeft,negativeAvailable);
 
 }
-void InverterTree::add_negative_target(unsigned target,bool signal,float delay,Point position)
+void InverterTree::add_negative_target(unsigned target,bool isVertex,float delay,Point position)
 {
 	//Allocate according to position
 	//Make a list of all non critical targets that need to be reached and then determine which inverters feed which targets
     //Make one for positive and one for negative targets, send through parameters if the target is inverter or vertex
 	negativeTargets[numNegativeTargets].target = target;
-	negativeTargets[numNegativeTargets].isVertex = true;
+	negativeTargets[numNegativeTargets].isVertex = isVertex;
 	negativeTargets[numNegativeTargets++].position = position;
 }
-void InverterTree::add_positive_target(unsigned target,bool signal,float delay,Point position)
+void InverterTree::add_positive_target(unsigned target,bool isVertex,float delay,Point position)
 {
 	//Allocate according to position
 	//Make a list of all non critical targets that need to be reached and then determine which inverters feed which targets
     //Make one for positive and one for negative targets, send through parameters if the target is inverter or vertex
 	positiveTargets[numPositiveTargets].target = target;
-	positiveTargets[numPositiveTargets].isVertex = true;
+	positiveTargets[numPositiveTargets].isVertex = isVertex;
 	positiveTargets[numPositiveTargets++].position = position;
 }
 unsigned InverterTree::min_height(unsigned posConsumers,unsigned negConsumers)
@@ -255,7 +254,132 @@ unsigned InverterTree::min_height(unsigned posConsumers,unsigned negConsumers)
 }
 void InverterTree::connect_positioned_targets()
 {
+	
+	unsigned currentLayer = height-1;//Starts at last layer
+	TARGET * targets;
+	unsigned numTargets;
+	TEMP_INVERTER * inverters;
+	unsigned numInverters;
+	unsigned sizeInvertersArray=0;
+	
+	srand(time(NULL));
+	
+	//Determine the maximum size for Inverters Array
+	for(unsigned h=0;h<height;h++)
+		if(sizeInvertersArray < levels[h].inv_taken)
+			sizeInvertersArray = levels[h].inv_taken;
+	
+	//Allocated reusable space
+	inverters = (TEMP_INVERTER*) malloc(sizeInvertersArray*sizeof(TEMP_INVERTER));
+	for(unsigned i=0;i<sizeInvertersArray;i++)
+		inverters[i].targets_indexes = (unsigned*) malloc(degree*sizeof(unsigned));
+	
+	for(currentLayer = height-1;currentLayer>0;currentLayer--)
+	{
+		if(currentLayer%2)
+		{
+			targets = negativeTargets;
+			numTargets = numNegativeTargets;
+		}
+		else
+		{
+			targets = positiveTargets;
+			numTargets = numPositiveTargets;
+		}
+		
+		numInverters = ((numTargets-1) / degree)+1;
+		if(numInverters>sizeInvertersArray)
+		{
+			printf("More inverters than calculated %u > %u\n",numInverters,sizeInvertersArray);//This should never happen
+			exit(1);
+		}
+		//printf("Current Layer is %u (%c) %u targets, %u inverters\n",currentLayer,(currentLayer%2)? '-' : '+',numTargets,numInverters);
+		
+		//Randomly seed inverters
+		for(unsigned i=0;i<numInverters;i++) // Starting position
+			inverters[i].position = targets[rand()%numTargets].position;
+		
+		
+		//Repeat until....
+		for(unsigned iterations=0;iterations<3;iterations++)
+		{
+			for(unsigned i=0;i<numInverters;i++)
+				inverters[i].num_targets = 0;
+			
+			for(unsigned t=0;t<numTargets;t++)
+			{
+				//For each target, choose the closest inverter
+				int closest_inverter=-1;//Cant start with the first because it may be full
+				float closest_distance;//targets[t].position.distance(inverters[0].position);
+				for(unsigned i=0;i<numInverters;i++)
+				{
+					if(inverters[i].num_targets<degree)
+					{
+						float current_distance = targets[t].position.distance(inverters[i].position);
+						if((current_distance<closest_distance)||(closest_inverter<0))
+						{
+							closest_distance = current_distance;
+							closest_inverter = i;
+						}
+					}
+				}
+				//if(inverters[closest_inverter].num_targets<degree)
+				inverters[closest_inverter].targets_indexes[inverters[closest_inverter].num_targets++] = t;
+			}
+			
+			for(unsigned i=0;i<numInverters;i++)
+			{
+				//Reposition each inverter according to its targets
+				float x = 0;
+				float y = 0;
+				for(unsigned t=0;t<inverters[i].num_targets;t++)
+				{
+					x+=targets[inverters[i].targets_indexes[t]].position.x;
+					y+=targets[inverters[i].targets_indexes[t]].position.y;
+				}
+				//Repositioning via average, could change
+				inverters[i].position.x = x/inverters[i].num_targets;
+				inverters[i].position.y = y/inverters[i].num_targets;
+			}
+			//For tests
+			float totalDistance = 0;
+			for(unsigned i=0;i<numInverters;i++)
+				for(unsigned t=0;t<inverters[i].num_targets;t++)
+				{
+					totalDistance+=inverters[i].position.distance(targets[inverters[i].targets_indexes[t]].position);
+				}
+			//printf("Total Distance: %.2f\n",totalDistance);
+		}
+		for(unsigned i=0;i<numInverters;i++)
+		{
+			unsigned inv_index = consolidate_inverter(targets,inverters[i]);
+			if(currentLayer%2)
+			{
+				//Current layer is negative, these inverters will be targets in the positive layer
+				add_positive_target(inv_index,false,0,inverters[i].position);
+			}
+			else
+			{
+				//Current layer is positive, these inverters will be targets in the negative layer
+				add_negative_target(inv_index,false,0,inverters[i].position);
+			}
+		}
+		//Zero out current layer occupation
+		if(currentLayer%2)
+			numNegativeTargets = 0;
+		else
+			numPositiveTargets = 0;
+	}
+	
+	//Deallocate reused space
+	free(inverters);
+	for(unsigned i=0;i<sizeInvertersArray;i++)
+		free(inverters[i].targets_indexes);
+
+	
+	/* Old One, just gets the closest pair
 	float closest=positiveTargets[0].position.manhattanDistance(positiveTargets[1].position)+1;
+	
 	unsigned closesta,closestb; // closest pair
 	for(unsigned i=0;i<numPositiveTargets;i++)
 	{
@@ -275,6 +399,7 @@ void InverterTree::connect_positioned_targets()
 		}
 	}
 	printf("Closest: %u - %u, distance: %f\n",closesta,closestb,closest);
+	*/
 }
 void InverterTree::print()
 {
@@ -288,40 +413,37 @@ void InverterTree::print()
 void InverterTree::print_inverters()
 {
 	unsigned i=0,j;
-	for (std::vector<INVERTER>::iterator it = inverters.begin() ; it != inverters.end(); ++it,i++)
+	for (std::vector<INVERTER>::iterator it = positionedInverters.begin() ; it != positionedInverters.end(); ++it,i++)
 	{
-		printf("Inverter: %u: Inverters Fed: ",i);
-		for(j=0;j<it->num_inv_targets;j++)
+		printf("Inverter: %u (%.2f,%.2f): Signals Fed: (%u)",i,it->position.x,it->position.y,it->num_vert_targets);
+		for(j=0;j<it->num_vert_targets;j++)
 			printf("%u ",it->targets[j]);
-		printf("Signals Fed: ");
+		printf("Inverters Fed: (%u)",it->num_inv_targets);
 		for(j=0;j<it->num_inv_targets;j++)
 			printf("%u ",it->targets[degree-j]);
+		printf("\n");
 	}
 }
-int InverterTree::add_inverter(unsigned level)
+
+unsigned InverterTree::consolidate_inverter(TARGET * target_list,TEMP_INVERTER temp_inv)
 {
+	//Depends on the temporary inverters and the TARGET array
 	INVERTER inv;
 	inv.targets = (unsigned*) malloc(degree*sizeof(unsigned));
 	inv.num_inv_targets = 0;
 	inv.num_vert_targets = 0;
-	inv.level = level;
-	inverters.push_back(inv);
-}
-int InverterTree::add_vert_target_to_inverter(unsigned target,unsigned inverter)
-{
-	INVERTER * inv;
-	inv = &(inverters[inverter]);
-	if((inv->num_vert_targets+inv->num_inv_targets)<degree)
-	{
-		inv->targets[inv->num_vert_targets++] = target;
+	inv.position = temp_inv.position;
+	for(unsigned i=0;i<temp_inv.num_targets;i++)
+	{//For better performance: Iterate over "temp_inv.targets_indexes[i]"
+		
+		if(target_list[temp_inv.targets_indexes[i]].isVertex)
+			inv.targets[inv.num_vert_targets++]=target_list[temp_inv.targets_indexes[i]].target;
+		else
+			inv.targets[degree-(inv.num_inv_targets++)]=target_list[temp_inv.targets_indexes[i]].target;
 	}
-}
-int InverterTree::add_inv_target_to_inverter(unsigned target,unsigned inverter)
-{
-	INVERTER * inv;
-	inv = &(inverters[inverter]);
-	if((inv->num_vert_targets+inv->num_inv_targets)<degree)
-	{
-		inv->targets[degree-inv->num_vert_targets++] = target;
-	}
+	//printf("Consolidating inverter: %u,%u targets \n",inv.num_inv_targets,inv.num_vert_targets);
+	
+	positionedInverters.push_back(inv);
+	positionedInverters.push_back(inv);
+	return positionedInverters.size()-1;
 }

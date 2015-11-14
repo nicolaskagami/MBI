@@ -789,8 +789,8 @@ void MBI::option1(unsigned vert)
 int main(int argc, char ** argv)
 {
     MBI nets("./input/example4.paag","./input/example4.sdc","./input/simple-cells.lib");
-	nets.max_inv_fanout = 4;
-	nets.max_cell_fanout = 2;
+	nets.max_inv_fanout = 2;
+	nets.max_cell_fanout = 1;
     nets.set_nodal_delay("AND2_X1","INV_X1");
     //nets.print();
     nets.estimate_delay();

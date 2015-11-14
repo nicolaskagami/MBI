@@ -1,6 +1,8 @@
 
 #include<stdlib.h>
 #include<stdio.h>
+#include<time.h>//For rand seed
+#include<cmath>
 #include<vector>
 
 class Point
@@ -10,17 +12,8 @@ class Point
         float y;
 
         bool operator== (Point b);
-		float manhattanDistance(Point b);
+		float distance(Point b);
 };
-
-typedef struct
-{
-	float minx;
-	float miny;
-	float maxx;
-	float maxy;
-	
-} BOUNDING_BOX;
 
 typedef struct
 {
@@ -28,18 +21,22 @@ typedef struct
     unsigned * targets; //Both invs and verts
     unsigned num_inv_targets;
     unsigned num_vert_targets;
-	unsigned level;
     
-    //Needs edge super malloc
-    //Consumers as indices? how about other inverters?
     //More espace - Less time:
-    //  Inverter consumers separate from vertices
+    //  Inverter consumers separate from vertices, could be two dynamically alloc'd arrays, (double the memory)
     //  unsigned * vert_targets = &targets[num_inv_targets];
-	//One contiguous block
+	//One contiguous block (better spatial locality
 	//	Targets ->
 	//  <- Inverters
         
 } INVERTER;
+
+typedef struct
+{
+	Point position;
+	unsigned * targets_indexes;
+	unsigned num_targets;
+} TEMP_INVERTER; //Structure to increase performance when building inverters
 
 typedef struct
 {
@@ -64,7 +61,6 @@ class InverterTree
 		float maxDelay;
 		unsigned degree;
 		unsigned maximumCellFanout;
-		unsigned numTargets;
 	    //We keep the number of consumers left so as to allocate memory precisely	
 		unsigned positiveConsumersLeft;
 		unsigned negativeConsumersLeft;
@@ -83,7 +79,7 @@ class InverterTree
 		
 	    //Third Inverter Tree Abstraction:
         //A vector of inverters
-		std::vector<INVERTER> inverters;
+		std::vector<INVERTER> positionedInverters;
 		
         //Functions
 		InverterTree(unsigned positiveConsumers,unsigned negativeConsumers,unsigned maxCellFanout,unsigned maxInvFanout,float invDelay,Point srcPosition);
@@ -96,9 +92,7 @@ class InverterTree
 		unsigned min_height(unsigned posConsumers,unsigned negConsumers);
 		void connect_positioned_targets();
 		
-		int add_inverter(unsigned level);
-		int add_vert_target_to_inverter(unsigned target,unsigned inverter);
-		int add_inv_target_to_inverter(unsigned target,unsigned inverter);
+		unsigned consolidate_inverter(TARGET * target_list,TEMP_INVERTER temp_inv);
 		void print_inverters();
 		void print();
 
