@@ -54,7 +54,8 @@ InverterTree::~InverterTree()
 			free(it->targets);
 	}
 	free(levels);
-	free(positiveTargets);
+    free(positiveTargets);
+    free(negativeTargets);
 }
 void InverterTree::add_levels(unsigned newLevels)
 {
@@ -255,7 +256,7 @@ unsigned InverterTree::min_height(unsigned posConsumers,unsigned negConsumers)
 void InverterTree::connect_positioned_targets()
 {
 	
-	unsigned currentLayer = height-1;//Starts at last layer
+	unsigned currentLayer;//Starts at last layer
 	TARGET * targets;
 	unsigned numTargets;
 	TEMP_INVERTER * inverters;
@@ -372,9 +373,9 @@ void InverterTree::connect_positioned_targets()
 	}
 	
 	//Deallocate reused space
-	free(inverters);
 	for(unsigned i=0;i<sizeInvertersArray;i++)
 		free(inverters[i].targets_indexes);
+	free(inverters);
 
 	
 	/* Old One, just gets the closest pair
@@ -443,7 +444,6 @@ unsigned InverterTree::consolidate_inverter(TARGET * target_list,TEMP_INVERTER t
 	}
 	//printf("Consolidating inverter: %u,%u targets \n",inv.num_inv_targets,inv.num_vert_targets);
 	
-	positionedInverters.push_back(inv);
 	positionedInverters.push_back(inv);
 	return positionedInverters.size()-1;
 }
