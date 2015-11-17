@@ -61,6 +61,7 @@ void InverterTree::add_levels(unsigned newLevels)
 {
 	height+=newLevels;
 	levels=(LEVEL*) realloc(levels,height*sizeof(LEVEL));
+    
 	for(unsigned i=height-newLevels;i<height;i++)
 	{
 		levels[i].vacant = degree - 1;
@@ -273,7 +274,16 @@ void InverterTree::connect_positioned_targets()
 	//Allocated reusable space
 	inverters = (TEMP_INVERTER*) malloc(sizeInvertersArray*sizeof(TEMP_INVERTER));
 	for(unsigned i=0;i<sizeInvertersArray;i++)
+    {
 		inverters[i].targets_indexes = (unsigned*) malloc(degree*sizeof(unsigned));
+        inverters[i].num_targets = 0;
+        inverters[i].position.x =0;
+        inverters[i].position.y =0;
+        for(unsigned j = 0;j<degree;j++)
+        {
+            inverters[i].targets_indexes[j]=0;
+        }
+    }
 	
 	for(currentLayer = height-1;currentLayer>0;currentLayer--)
 	{
@@ -302,7 +312,7 @@ void InverterTree::connect_positioned_targets()
 		
 		
 		//Repeat until....
-		for(unsigned iterations=0;iterations<3;iterations++)
+		for(unsigned iterations=0;iterations<1;iterations++)
 		{
 			for(unsigned i=0;i<numInverters;i++)
 				inverters[i].num_targets = 0;
@@ -311,7 +321,7 @@ void InverterTree::connect_positioned_targets()
 			{
 				//For each target, choose the closest inverter
 				int closest_inverter=-1;//Cant start with the first because it may be full
-				float closest_distance;//targets[t].position.distance(inverters[0].position);
+				float closest_distance = 0;//targets[t].position.distance(inverters[0].position); //Go home valgrind, you're drunk
 				for(unsigned i=0;i<numInverters;i++)
 				{
 					if(inverters[i].num_targets<degree)
@@ -421,7 +431,7 @@ void InverterTree::print_inverters()
 			printf("%u ",it->targets[j]);
 		printf("Inverters Fed: (%u)",it->num_inv_targets);
 		for(j=0;j<it->num_inv_targets;j++)
-			printf("%u ",it->targets[degree-j]);
+			printf("%u ",it->targets[degree-j-1]);
 		printf("\n");
 	}
 }
@@ -440,7 +450,7 @@ unsigned InverterTree::consolidate_inverter(TARGET * target_list,TEMP_INVERTER t
 		if(target_list[temp_inv.targets_indexes[i]].isVertex)
 			inv.targets[inv.num_vert_targets++]=target_list[temp_inv.targets_indexes[i]].target;
 		else
-			inv.targets[degree-(inv.num_inv_targets++)]=target_list[temp_inv.targets_indexes[i]].target;
+			inv.targets[degree-1-(inv.num_inv_targets++)]=target_list[temp_inv.targets_indexes[i]].target;
 	}
 	//printf("Consolidating inverter: %u,%u targets \n",inv.num_inv_targets,inv.num_vert_targets);
 	
