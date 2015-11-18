@@ -2,8 +2,13 @@
 #include<stdlib.h>
 #include<stdio.h>
 #include<time.h>//For rand seed
-#include<cmath>
+#include<cmath>//For abs
 #include<vector>
+
+#ifndef NON_CRIT_ALG
+#define NON_CRIT_ALG 0
+#endif
+
 
 class Point
 {
@@ -80,6 +85,14 @@ class InverterTree
 	    //Third Inverter Tree Abstraction:
         //A vector of inverters
 		std::vector<INVERTER> positionedInverters;
+
+        //Temporary Variables
+        unsigned currentLayer;
+        TARGET * targets;
+        unsigned numTargets;
+        TEMP_INVERTER * inverters;
+        unsigned numInverters;
+        unsigned sizeInvertersArray;
 		
         //Functions
 		InverterTree(unsigned positiveConsumers,unsigned negativeConsumers,unsigned maxCellFanout,unsigned maxInvFanout,float invDelay,Point srcPosition);
@@ -95,5 +108,8 @@ class InverterTree
 		unsigned consolidate_inverter(TARGET * target_list,TEMP_INVERTER temp_inv);
 		void print_inverters();
 		void print();
-
+        //Non Critical Allocation
+        void non_critical_allocation();
+        void non_critical_allocation_kmeans();
+        void non_critical_allocation_worstFirst();
 };

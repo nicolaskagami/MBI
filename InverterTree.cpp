@@ -256,16 +256,9 @@ unsigned InverterTree::min_height(unsigned posConsumers,unsigned negConsumers)
 }
 void InverterTree::connect_positioned_targets()
 {
-	
-	unsigned currentLayer;//Starts at last layer
-	TARGET * targets;
-	unsigned numTargets;
-	TEMP_INVERTER * inverters;
-	unsigned numInverters;
-	unsigned sizeInvertersArray=0;
-	
 	srand(time(NULL));
 	
+    sizeInvertersArray = 0;
 	//Determine the maximum size for Inverters Array
 	for(unsigned h=0;h<height;h++)
 		if(sizeInvertersArray < levels[h].inv_taken)
@@ -305,62 +298,14 @@ void InverterTree::connect_positioned_targets()
 			exit(1);
 		}
 		//printf("Current Layer is %u (%c) %u targets, %u inverters\n",currentLayer,(currentLayer%2)? '-' : '+',numTargets,numInverters);
-		
+
+        //Introduce here the Non-Critical allocation
+        non_critical_allocation(); 
 		//Randomly seed inverters
 		for(unsigned i=0;i<numInverters;i++) // Starting position
 			inverters[i].position = targets[rand()%numTargets].position;
-		
-		
-		//Repeat until....
-		for(unsigned iterations=0;iterations<1;iterations++)
-		{
-			for(unsigned i=0;i<numInverters;i++)
-				inverters[i].num_targets = 0;
-			
-			for(unsigned t=0;t<numTargets;t++)
-			{
-				//For each target, choose the closest inverter
-				int closest_inverter=-1;//Cant start with the first because it may be full
-				float closest_distance = 0;//targets[t].position.distance(inverters[0].position); //Go home valgrind, you're drunk
-				for(unsigned i=0;i<numInverters;i++)
-				{
-					if(inverters[i].num_targets<degree)
-					{
-						float current_distance = targets[t].position.distance(inverters[i].position);
-						if((current_distance<closest_distance)||(closest_inverter<0))
-						{
-							closest_distance = current_distance;
-							closest_inverter = i;
-						}
-					}
-				}
-				//if(inverters[closest_inverter].num_targets<degree)
-				inverters[closest_inverter].targets_indexes[inverters[closest_inverter].num_targets++] = t;
-			}
-			
-			for(unsigned i=0;i<numInverters;i++)
-			{
-				//Reposition each inverter according to its targets
-				float x = 0;
-				float y = 0;
-				for(unsigned t=0;t<inverters[i].num_targets;t++)
-				{
-					x+=targets[inverters[i].targets_indexes[t]].position.x;
-					y+=targets[inverters[i].targets_indexes[t]].position.y;
-				}
-				//Repositioning via average, could change
-				inverters[i].position.x = x/inverters[i].num_targets;
-				inverters[i].position.y = y/inverters[i].num_targets;
-			}
-			//For tests
-			float totalDistance = 0;
-			for(unsigned i=0;i<numInverters;i++)
-				for(unsigned t=0;t<inverters[i].num_targets;t++)
-				{
-					totalDistance+=inverters[i].position.distance(targets[inverters[i].targets_indexes[t]].position);
-				}
-			//printf("Total Distance: %.2f\n",totalDistance);
-		}
+
+        //Temporary Inverters are ready, let's consolidate them
 		for(unsigned i=0;i<numInverters;i++)
 		{
 			unsigned inv_index = consolidate_inverter(targets,inverters[i]);
@@ -411,6 +356,81 @@ void InverterTree::connect_positioned_targets()
 	}
 	printf("Closest: %u - %u, distance: %f\n",closesta,closestb,closest);
 	*/
+}
+void InverterTree::non_critical_allocation() 
+{
+    switch(NON_CRIT_ALG)
+    {
+        case 0: 
+            non_critical_allocation_kmeans();
+            break;
+        case 1: 
+            non_critical_allocation_worstFirst();
+            break;
+    }
+}
+void InverterTree::non_critical_allocation_worstFirst()
+{
+    //bool allocd_targets;
+    //for()
+   // sourcePosition 
+    //Escolhe o ponto mais longe da origem
+    //Poe um inversor neste ponto
+    //Este inversor busca os pontos mais proximos ate preencher
+    //Remove estes pontos do problema
+}
+void InverterTree::non_critical_allocation_kmeans() 
+{ 
+    //K Means
+    for(unsigned iterations=0;iterations<1;iterations++)
+    {
+        for(unsigned i=0;i<numInverters;i++)
+            inverters[i].num_targets = 0;
+        
+        for(unsigned t=0;t<numTargets;t++)
+        {
+            //For each target, choose the closest inverter
+            int closest_inverter=-1;//Cant start with the first because it may be full
+            float closest_distance = 0;//targets[t].position.distance(inverters[0].position); //Go home valgrind, you're drunk
+            for(unsigned i=0;i<numInverters;i++)
+            {
+                if(inverters[i].num_targets<degree)
+                {
+                    float current_distance = targets[t].position.distance(inverters[i].position);
+                    if((current_distance<closest_distance)||(closest_inverter<0))
+                    {
+                        closest_distance = current_distance;
+                        closest_inverter = i;
+                    }
+                }
+            }
+            //if(inverters[closest_inverter].num_targets<degree)
+            inverters[closest_inverter].targets_indexes[inverters[closest_inverter].num_targets++] = t;
+        }
+        
+        for(unsigned i=0;i<numInverters;i++)
+        {
+            //Reposition each inverter according to its targets
+            float x = 0;
+            float y = 0;
+            for(unsigned t=0;t<inverters[i].num_targets;t++)
+            {
+                x+=targets[inverters[i].targets_indexes[t]].position.x;
+                y+=targets[inverters[i].targets_indexes[t]].position.y;
+            }
+            //Repositioning via average, could change
+            inverters[i].position.x = x/inverters[i].num_targets;
+            inverters[i].position.y = y/inverters[i].num_targets;
+        }
+        //For tests
+        float totalDistance = 0;
+        for(unsigned i=0;i<numInverters;i++)
+            for(unsigned t=0;t<inverters[i].num_targets;t++)
+            {
+                totalDistance+=inverters[i].position.distance(targets[inverters[i].targets_indexes[t]].position);
+            }
+        //printf("Total Distance: %.2f\n",totalDistance);
+    }
 }
 void InverterTree::print()
 {
