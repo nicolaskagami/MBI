@@ -301,10 +301,7 @@ void InverterTree::connect_positioned_targets()
 
         //Introduce here the Non-Critical allocation
         non_critical_allocation(); 
-		//Randomly seed inverters
-		for(unsigned i=0;i<numInverters;i++) // Starting position
-			inverters[i].position = targets[rand()%numTargets].position;
-
+		
         //Temporary Inverters are ready, let's consolidate them
 		for(unsigned i=0;i<numInverters;i++)
 		{
@@ -332,30 +329,6 @@ void InverterTree::connect_positioned_targets()
 		free(inverters[i].targets_indexes);
 	free(inverters);
 
-	
-	/* Old One, just gets the closest pair
-	float closest=positiveTargets[0].position.manhattanDistance(positiveTargets[1].position)+1;
-	
-	unsigned closesta,closestb; // closest pair
-	for(unsigned i=0;i<numPositiveTargets;i++)
-	{
-		printf("Target(+): %u (%.2f,%.2f)\n",positiveTargets[i].target,positiveTargets[i].position.x,positiveTargets[i].position.y);
-		for(unsigned j=0;j<numPositiveTargets;j++)
-		{//Change to j=i+1 eventually
-			if(i!=j)
-			{
-				if(positiveTargets[i].position.manhattanDistance(positiveTargets[j].position)<closest)
-				{
-					closest = positiveTargets[i].position.manhattanDistance(positiveTargets[j].position);
-					closesta = positiveTargets[i].target;
-					closestb = positiveTargets[j].target;
-				}
-				printf("Distance to %u: %f\n",positiveTargets[j].target,positiveTargets[i].position.manhattanDistance(positiveTargets[j].position));
-			}
-		}
-	}
-	printf("Closest: %u - %u, distance: %f\n",closesta,closestb,closest);
-	*/
 }
 void InverterTree::non_critical_allocation() 
 {
@@ -371,7 +344,80 @@ void InverterTree::non_critical_allocation()
 }
 void InverterTree::non_critical_allocation_worstFirst()
 {
-    //bool allocd_targets;
+    float furthest_distance;
+	Point furthestPoint;
+	unsigned furthest;
+	
+	bool * supplied_targets = (bool*) malloc(numTargets*sizeof(bool));
+	float * distances = (float*) malloc(degree*sizeof(float));
+	
+	for(unsigned i =0;i<numTargets;i++)
+		supplied_targets[i] = false;
+	
+	for(unsigned inv=0;inv<numInverters;inv++)
+	{
+		furthest = 0;
+		furthest_distance = -1;
+		for(unsigned i =0;i<numTargets;i++)
+		{
+			if((!supplied_targets[i])&&(targets[i].position.distance(sourcePosition)>furthest_distance))
+			{
+				furthest_distance = targets[i].position.distance(sourcePosition);
+				furthestPoint = targets[i].position;
+				furthest = i;
+			}
+		}
+		inverters[inv].targets_indexes[0] = furthest;
+		inverters[inv].num_targets=1;
+		supplied_targets[furthest] = true;
+		
+		if(furthest_distance>0)
+		{
+			for(unsigned i =0;i<numTargets;i++)
+			{
+				float worst_distance = 0;//worst distance from the inverter to it's targets
+				unsigned worstIndex = 0;
+				if(!supplied_targets[i])
+				{	
+					float distance = targets[i].position.distance(furthestPoint);
+					if(inverters[inv].num_targets < degree)
+					{
+						
+						distances[inverters[inv].num_targets] = distance;
+						inverters[inv].targets_indexes[inverters[inv].num_targets++] = i;
+						if(distance>worst_distance)
+						{
+							worstIndex = i;
+							worst_distance = distance;
+						}
+					}
+					else
+					{
+						if(distance < worst_distance)//If we found a good one
+						{
+							distances[worstIndex] = distance;
+							inverters[inv].targets_indexes[worstIndex] = i;
+							for(unsigned j=0;j<degree;j++) //Rediscover worst distance
+							{
+								if(distances[j]>worst_distance)
+								{
+									worstIndex = j;
+									worst_distance = distances[j];
+								}
+							}
+						}
+					}
+				}
+			}
+			inverters[inv].position = furthestPoint;
+			for(unsigned j=0;j<degree;j++)
+				supplied_targets[inverters[inv].targets_indexes[j]] = true;
+				
+		}
+	}
+	
+	free(supplied_targets);
+	free(distances);
     //for()
    // sourcePosition 
     //Escolhe o ponto mais longe da origem
@@ -381,6 +427,9 @@ void InverterTree::non_critical_allocation_worstFirst()
 }
 void InverterTree::non_critical_allocation_kmeans() 
 { 
+	//Randomly seed inverters
+	for(unsigned i=0;i<numInverters;i++) // Starting position
+		inverters[i].position = targets[rand()%numTargets].position;
     //K Means
     for(unsigned iterations=0;iterations<1;iterations++)
     {

@@ -6,7 +6,7 @@
 #include<vector>
 
 #ifndef NON_CRIT_ALG
-#define NON_CRIT_ALG 0
+#define NON_CRIT_ALG 1
 #endif
 
 
