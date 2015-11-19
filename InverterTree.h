@@ -6,7 +6,7 @@
 #include<vector>
 
 #ifndef NON_CRIT_ALG
-#define NON_CRIT_ALG 1
+#define NON_CRIT_ALG 0 
 #endif
 
 
@@ -112,4 +112,6 @@ class InverterTree
         void non_critical_allocation();
         void non_critical_allocation_kmeans();
         void non_critical_allocation_worstFirst();
+        //Inverter Positioning
+        void position_inverter(TEMP_INVERTER * inv);
 };

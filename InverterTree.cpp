@@ -302,6 +302,13 @@ void InverterTree::connect_positioned_targets()
         //Introduce here the Non-Critical allocation
         non_critical_allocation(); 
 		
+        float totalDistance = 0;
+        for(unsigned i=0;i<numInverters;i++)
+            for(unsigned t=0;t<inverters[i].num_targets;t++)
+            {
+                totalDistance+=inverters[i].position.distance(targets[inverters[i].targets_indexes[t]].position);
+            }
+        printf("Total Distance: %.2f\n",totalDistance);
         //Temporary Inverters are ready, let's consolidate them
 		for(unsigned i=0;i<numInverters;i++)
 		{
@@ -431,7 +438,7 @@ void InverterTree::non_critical_allocation_kmeans()
 	for(unsigned i=0;i<numInverters;i++) // Starting position
 		inverters[i].position = targets[rand()%numTargets].position;
     //K Means
-    for(unsigned iterations=0;iterations<1;iterations++)
+    for(unsigned iterations=0;iterations<5;iterations++)
     {
         for(unsigned i=0;i<numInverters;i++)
             inverters[i].num_targets = 0;
@@ -460,16 +467,7 @@ void InverterTree::non_critical_allocation_kmeans()
         for(unsigned i=0;i<numInverters;i++)
         {
             //Reposition each inverter according to its targets
-            float x = 0;
-            float y = 0;
-            for(unsigned t=0;t<inverters[i].num_targets;t++)
-            {
-                x+=targets[inverters[i].targets_indexes[t]].position.x;
-                y+=targets[inverters[i].targets_indexes[t]].position.y;
-            }
-            //Repositioning via average, could change
-            inverters[i].position.x = x/inverters[i].num_targets;
-            inverters[i].position.y = y/inverters[i].num_targets;
+            position_inverter(&inverters[i]);
         }
         //For tests
         float totalDistance = 0;
@@ -503,6 +501,18 @@ void InverterTree::print_inverters()
 			printf("%u ",it->targets[degree-j-1]);
 		printf("\n");
 	}
+}
+void InverterTree::position_inverter(TEMP_INVERTER * inv)
+{
+    float x = 0;
+    float y = 0;
+    for(unsigned i=0;i<inv->num_targets;i++)
+    {
+        x += targets[inv->targets_indexes[i]].position.x;
+        y += targets[inv->targets_indexes[i]].position.y;
+    }
+    inv->position.x = x/inv->num_targets;
+    inv->position.y = y/inv->num_targets;
 }
 
 unsigned InverterTree::consolidate_inverter(TARGET * target_list,TEMP_INVERTER temp_inv)
