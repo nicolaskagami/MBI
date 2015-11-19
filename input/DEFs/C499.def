@@ -1,0 +1,2089 @@
+#
+# Created by Encounter(R) RTL Compiler RC12.24 - v12.20-s034_1 on Nov 19 2015  05:22:50 am
+#
+VERSION 5.7 ;
+DIVIDERCHAR "/" ;
+BUSBITCHARS "[]" ;
+DESIGN C499 ;
+UNITS DISTANCE MICRONS 2000 ;
+PROPERTYDEFINITIONS
+   COMPONENTPIN designRuleWidth REAL ;
+   DESIGN FE_CORE_BOX_LL_X REAL 0.000 ;
+   DESIGN FE_CORE_BOX_UR_X REAL 28.09 ;
+   DESIGN FE_CORE_BOX_LL_Y REAL 0.000 ;
+   DESIGN FE_CORE_BOX_UR_Y REAL 26.6 ;
+   DESIGN RC_DEF STRING "/designs/C499" ;
+END PROPERTYDEFINITIONS
+
+DIEAREA ( 0 0 ) ( 56180 53200 ) ;
+
+ROW CORE_ROW_0 FreePDK45_38x28_10R_NP_162NW_34O 0 0 FS DO 147 BY 1 STEP 380 0 ;
+ROW CORE_ROW_1 FreePDK45_38x28_10R_NP_162NW_34O 0 2800 N DO 147 BY 1 STEP 380 0 ;
+ROW CORE_ROW_2 FreePDK45_38x28_10R_NP_162NW_34O 0 5600 FS DO 147 BY 1 STEP 380 0 ;
+ROW CORE_ROW_3 FreePDK45_38x28_10R_NP_162NW_34O 0 8400 N DO 147 BY 1 STEP 380 0 ;
+ROW CORE_ROW_4 FreePDK45_38x28_10R_NP_162NW_34O 0 11200 FS DO 147 BY 1 STEP 380 0 ;
+ROW CORE_ROW_5 FreePDK45_38x28_10R_NP_162NW_34O 0 14000 N DO 147 BY 1 STEP 380 0 ;
+ROW CORE_ROW_6 FreePDK45_38x28_10R_NP_162NW_34O 0 16800 FS DO 147 BY 1 STEP 380 0 ;
+ROW CORE_ROW_7 FreePDK45_38x28_10R_NP_162NW_34O 0 19600 N DO 147 BY 1 STEP 380 0 ;
+ROW CORE_ROW_8 FreePDK45_38x28_10R_NP_162NW_34O 0 22400 FS DO 147 BY 1 STEP 380 0 ;
+ROW CORE_ROW_9 FreePDK45_38x28_10R_NP_162NW_34O 0 25200 N DO 147 BY 1 STEP 380 0 ;
+ROW CORE_ROW_10 FreePDK45_38x28_10R_NP_162NW_34O 0 28000 FS DO 147 BY 1 STEP 380 0 ;
+ROW CORE_ROW_11 FreePDK45_38x28_10R_NP_162NW_34O 0 30800 N DO 147 BY 1 STEP 380 0 ;
+ROW CORE_ROW_12 FreePDK45_38x28_10R_NP_162NW_34O 0 33600 FS DO 147 BY 1 STEP 380 0 ;
+ROW CORE_ROW_13 FreePDK45_38x28_10R_NP_162NW_34O 0 36400 N DO 147 BY 1 STEP 380 0 ;
+ROW CORE_ROW_14 FreePDK45_38x28_10R_NP_162NW_34O 0 39200 FS DO 147 BY 1 STEP 380 0 ;
+ROW CORE_ROW_15 FreePDK45_38x28_10R_NP_162NW_34O 0 42000 N DO 147 BY 1 STEP 380 0 ;
+ROW CORE_ROW_16 FreePDK45_38x28_10R_NP_162NW_34O 0 44800 FS DO 147 BY 1 STEP 380 0 ;
+ROW CORE_ROW_17 FreePDK45_38x28_10R_NP_162NW_34O 0 47600 N DO 147 BY 1 STEP 380 0 ;
+ROW CORE_ROW_18 FreePDK45_38x28_10R_NP_162NW_34O 0 50400 FS DO 147 BY 1 STEP 380 0 ;
+
+TRACKS Y 3340 DO 16 STEP 3200 LAYER metal10 ;
+TRACKS X 3550 DO 16 STEP 3360 LAYER metal10 ;
+TRACKS X 1870 DO 33 STEP 1680 LAYER metal9 ;
+TRACKS Y 3340 DO 16 STEP 3200 LAYER metal9 ;
+TRACKS Y 1820 DO 31 STEP 1680 LAYER metal8 ;
+TRACKS X 1870 DO 33 STEP 1680 LAYER metal8 ;
+TRACKS X 750 DO 99 STEP 560 LAYER metal7 ;
+TRACKS Y 1820 DO 31 STEP 1680 LAYER metal7 ;
+TRACKS Y 700 DO 94 STEP 560 LAYER metal6 ;
+TRACKS X 750 DO 99 STEP 560 LAYER metal6 ;
+TRACKS X 750 DO 99 STEP 560 LAYER metal5 ;
+TRACKS Y 700 DO 94 STEP 560 LAYER metal5 ;
+TRACKS Y 140 DO 190 STEP 280 LAYER metal4 ;
+TRACKS X 750 DO 99 STEP 560 LAYER metal4 ;
+TRACKS X 190 DO 148 STEP 380 LAYER metal3 ;
+TRACKS Y 140 DO 190 STEP 280 LAYER metal3 ;
+TRACKS Y 140 DO 190 STEP 280 LAYER metal2 ;
+TRACKS X 190 DO 148 STEP 380 LAYER metal2 ;
+TRACKS X 190 DO 148 STEP 380 LAYER metal1 ;
+TRACKS Y 140 DO 190 STEP 280 LAYER metal1 ;
+
+GCELLGRID X 53390 DO 2 STEP 2790 ;
+GCELLGRID X 190 DO 15 STEP 3800 ;
+GCELLGRID X 0 DO 2 STEP 190 ;
+GCELLGRID Y 50540 DO 2 STEP 2660 ;
+GCELLGRID Y 140 DO 19 STEP 2800 ;
+GCELLGRID Y 0 DO 2 STEP 140 ;
+
+COMPONENTS 788 ;
+   - g2867 INV_X1 
+      + PLACED ( 54720 14000 ) N ;
+   - g2869 INV_X1 
+      + PLACED ( 54340 19600 ) N ;
+   - g2873 INV_X1 
+      + PLACED ( 380 19600 ) N ;
+   - g2881 INV_X1 
+      + PLACED ( 5320 0 ) FS ;
+   - g2875 INV_X1 
+      + PLACED ( 39520 0 ) FS ;
+   - g2871 INV_X1 
+      + PLACED ( 3800 22400 ) FS ;
+   - g2877 INV_X1 
+      + PLACED ( 28120 0 ) FS ;
+   - g2879 INV_X1 
+      + PLACED ( 5700 2800 ) N ;
+   - g2868 AND2_X1 
+      + PLACED ( 53580 14000 ) N ;
+   - g2876 AND2_X1 
+      + PLACED ( 40280 0 ) FS ;
+   - g2872 AND2_X1 
+      + PLACED ( 4560 22400 ) FS ;
+   - g2870 AND2_X1 
+      + PLACED ( 53580 16800 ) FS ;
+   - g2878 AND2_X1 
+      + PLACED ( 28880 0 ) FS ;
+   - g2874 AND2_X1 
+      + PLACED ( 1140 19600 ) N ;
+   - g2880 AND2_X1 
+      + PLACED ( 7220 2800 ) N ;
+   - g2882 AND2_X1 
+      + PLACED ( 6080 0 ) FS ;
+   - g2897 INV_X1 
+      + PLACED ( 380 5600 ) FS ;
+   - g2883 INV_X1 
+      + PLACED ( 54340 5600 ) FS ;
+   - g2885 INV_X1 
+      + PLACED ( 44460 0 ) FS ;
+   - g2887 INV_X1 
+      + PLACED ( 21660 2800 ) N ;
+   - g2889 INV_X1 
+      + PLACED ( 21280 0 ) FS ;
+   - g2891 INV_X1 
+      + PLACED ( 41040 8400 ) N ;
+   - g2893 INV_X1 
+      + PLACED ( 26220 8400 ) N ;
+   - g2895 INV_X1 
+      + PLACED ( 380 11200 ) FS ;
+   - g2899 INV_X1 
+      + PLACED ( 53960 11200 ) FS ;
+   - g2884 AND2_X1 
+      + PLACED ( 53200 5600 ) FS ;
+   - g2901 INV_X1 
+      + PLACED ( 52820 19600 ) N ;
+   - g2903 INV_X1 
+      + PLACED ( 5700 22400 ) FS ;
+   - g2886 AND2_X1 
+      + PLACED ( 44080 2800 ) N ;
+   - g2905 INV_X1 
+      + PLACED ( 1520 22400 ) FS ;
+   - g2907 INV_X1 
+      + PLACED ( 38760 0 ) FS ;
+   - g2888 AND2_X1 
+      + PLACED ( 21280 5600 ) FS ;
+   - g2909 INV_X1 
+      + PLACED ( 30020 0 ) FS ;
+   - g2911 INV_X1 
+      + PLACED ( 9120 2800 ) N ;
+   - g2890 AND2_X1 
+      + PLACED ( 20140 0 ) FS ;
+   - g2913 INV_X1 
+      + PLACED ( 7980 0 ) FS ;
+   - g2892 AND2_X1 
+      + PLACED ( 39900 8400 ) N ;
+   - g2894 AND2_X1 
+      + PLACED ( 26980 8400 ) N ;
+   - g2896 AND2_X1 
+      + PLACED ( 380 14000 ) N ;
+   - g2898 AND2_X1 
+      + PLACED ( 1140 5600 ) FS ;
+   - g2900 AND2_X1 
+      + PLACED ( 50540 11200 ) FS ;
+   - g2902 AND2_X1 
+      + PLACED ( 50920 19600 ) N ;
+   - g2904 AND2_X1 
+      + PLACED ( 6460 22400 ) FS ;
+   - g2906 AND2_X1 
+      + PLACED ( 3800 19600 ) N ;
+   - g2908 AND2_X1 
+      + PLACED ( 37240 0 ) FS ;
+   - g2910 AND2_X1 
+      + PLACED ( 31920 2800 ) N ;
+   - g2912 AND2_X1 
+      + PLACED ( 10260 2800 ) N ;
+   - g2914 AND2_X1 
+      + PLACED ( 8740 0 ) FS ;
+   - g2915 INV_X1 
+      + PLACED ( 52820 14000 ) N ;
+   - g2917 INV_X1 
+      + PLACED ( 52820 16800 ) FS ;
+   - g2919 INV_X1 
+      + PLACED ( 4940 19600 ) N ;
+   - g2921 INV_X1 
+      + PLACED ( 2280 16800 ) FS ;
+   - g2923 INV_X1 
+      + PLACED ( 40660 2800 ) N ;
+   - g2925 INV_X1 
+      + PLACED ( 28500 2800 ) N ;
+   - g2927 INV_X1 
+      + PLACED ( 8360 2800 ) N ;
+   - g2929 INV_X1 
+      + PLACED ( 7220 0 ) FS ;
+   - g2931 INV_X1 
+      + PLACED ( 44460 5600 ) FS ;
+   - g2933 INV_X1 
+      + PLACED ( 54340 8400 ) N ;
+   - g2935 INV_X1 
+      + PLACED ( 20520 5600 ) FS ;
+   - g2937 INV_X1 
+      + PLACED ( 19000 0 ) FS ;
+   - g2939 INV_X1 
+      + PLACED ( 39900 11200 ) FS ;
+   - g2941 INV_X1 
+      + PLACED ( 1140 16800 ) FS ;
+   - g2943 INV_X1 
+      + PLACED ( 28500 8400 ) N ;
+   - g2945 INV_X1 
+      + PLACED ( 760 8400 ) N ;
+   - g2916 AND2_X1 
+      + PLACED ( 51300 14000 ) N ;
+   - g2918 AND2_X1 
+      + PLACED ( 50160 16800 ) FS ;
+   - g2920 AND2_X1 
+      + PLACED ( 6840 19600 ) N ;
+   - g2922 AND2_X1 
+      + PLACED ( 4180 14000 ) N ;
+   - g2924 AND2_X1 
+      + PLACED ( 38000 2800 ) N ;
+   - g2926 AND2_X1 
+      + PLACED ( 30780 2800 ) N ;
+   - g2928 AND2_X1 
+      + PLACED ( 9500 5600 ) FS ;
+   - g2930 AND2_X1 
+      + PLACED ( 10640 0 ) FS ;
+   - g2932 AND2_X1 
+      + PLACED ( 45220 8400 ) N ;
+   - g2934 AND2_X1 
+      + PLACED ( 52440 8400 ) N ;
+   - g2936 AND2_X1 
+      + PLACED ( 18240 5600 ) FS ;
+   - g2938 AND2_X1 
+      + PLACED ( 17860 0 ) FS ;
+   - g2940 AND2_X1 
+      + PLACED ( 39140 5600 ) FS ;
+   - g2942 AND2_X1 
+      + PLACED ( 1520 14000 ) N ;
+   - g2944 AND2_X1 
+      + PLACED ( 29260 8400 ) N ;
+   - g2946 AND2_X1 
+      + PLACED ( 2280 8400 ) N ;
+   - g2947 INV_X1 
+      + PLACED ( 52440 5600 ) FS ;
+   - g2949 INV_X1 
+      + PLACED ( 43700 8400 ) N ;
+   - g2951 INV_X1 
+      + PLACED ( 20900 8400 ) N ;
+   - g2953 INV_X1 
+      + PLACED ( 20900 2800 ) N ;
+   - g2955 INV_X1 
+      + PLACED ( 38760 8400 ) N ;
+   - g2957 INV_X1 
+      + PLACED ( 26980 11200 ) FS ;
+   - g2959 INV_X1 
+      + PLACED ( 1140 11200 ) FS ;
+   - g2961 INV_X1 
+      + PLACED ( 2660 5600 ) FS ;
+   - g2963 INV_X1 
+      + PLACED ( 50540 14000 ) N ;
+   - g2965 INV_X1 
+      + PLACED ( 50160 19600 ) N ;
+   - g2967 INV_X1 
+      + PLACED ( 7600 22400 ) FS ;
+   - g2969 INV_X1 
+      + PLACED ( 4560 16800 ) FS ;
+   - g2971 INV_X1 
+      + PLACED ( 37240 2800 ) N ;
+   - g2973 INV_X1 
+      + PLACED ( 30020 2800 ) N ;
+   - g2975 INV_X1 
+      + PLACED ( 10640 5600 ) FS ;
+   - g2977 INV_X1 
+      + PLACED ( 9880 0 ) FS ;
+   - g2948 AND2_X1 
+      + PLACED ( 50540 5600 ) FS ;
+   - g2950 AND2_X1 
+      + PLACED ( 44080 11200 ) FS ;
+   - g2952 AND2_X1 
+      + PLACED ( 17860 8400 ) N ;
+   - g2954 AND2_X1 
+      + PLACED ( 19380 5600 ) FS ;
+   - g2956 AND2_X1 
+      + PLACED ( 37620 8400 ) N ;
+   - g2958 AND2_X1 
+      + PLACED ( 28500 11200 ) FS ;
+   - g2960 AND2_X1 
+      + PLACED ( 2660 11200 ) FS ;
+   - g2962 AND2_X1 
+      + PLACED ( 3800 5600 ) FS ;
+   - g2964 AND2_X1 
+      + PLACED ( 43700 14000 ) N ;
+   - g2966 AND2_X1 
+      + PLACED ( 42560 14000 ) N ;
+   - g2968 AND2_X1 
+      + PLACED ( 10640 19600 ) N ;
+   - g2970 AND2_X1 
+      + PLACED ( 10260 16800 ) FS ;
+   - g2972 AND2_X1 
+      + PLACED ( 36480 8400 ) N ;
+   - g2974 AND2_X1 
+      + PLACED ( 30400 8400 ) N ;
+   - g2976 AND2_X1 
+      + PLACED ( 10640 11200 ) FS ;
+   - g2978 AND2_X1 
+      + PLACED ( 10260 8400 ) N ;
+   - g2995 INV_X1 
+      + PLACED ( 39140 11200 ) FS ;
+   - g2980 INV_X1 
+      + PLACED ( 51680 8400 ) N ;
+   - g2982 INV_X1 
+      + PLACED ( 44460 8400 ) N ;
+   - g2984 INV_X1 
+      + PLACED ( 19000 8400 ) N ;
+   - g2986 INV_X1 
+      + PLACED ( 19380 2800 ) N ;
+   - g2988 INV_X1 
+      + PLACED ( 29640 11200 ) FS ;
+   - g2991 INV_X1 
+      + PLACED ( 2660 14000 ) N ;
+   - g2993 INV_X1 
+      + PLACED ( 3420 8400 ) N ;
+   - g2994 AND2_X1 
+      + PLACED ( 9120 8400 ) N ;
+   - g2996 AND2_X1 
+      + PLACED ( 33440 11200 ) FS ;
+   - g2997 INV_X1 
+      + PLACED ( 54340 22400 ) FS ;
+   - g2999 INV_X1 
+      + PLACED ( 54720 42000 ) N ;
+   - g3001 INV_X1 
+      + PLACED ( 47120 50400 ) FS ;
+   - g3003 INV_X1 
+      + PLACED ( 32300 50400 ) FS ;
+   - g3005 INV_X1 
+      + PLACED ( 51300 22400 ) FS ;
+   - g3007 INV_X1 
+      + PLACED ( 55100 25200 ) N ;
+   - g3009 INV_X1 
+      + PLACED ( 14440 50400 ) FS ;
+   - g3011 INV_X1 
+      + PLACED ( 3800 42000 ) N ;
+   - g3013 INV_X1 
+      + PLACED ( 54720 44800 ) FS ;
+   - g3015 INV_X1 
+      + PLACED ( 13300 36400 ) N ;
+   - g3017 INV_X1 
+      + PLACED ( 39140 50400 ) FS ;
+   - g3019 INV_X1 
+      + PLACED ( 8740 22400 ) FS ;
+   - g3021 INV_X1 
+      + PLACED ( 380 28000 ) FS ;
+   - g3023 INV_X1 
+      + PLACED ( 760 30800 ) N ;
+   - g3025 INV_X1 
+      + PLACED ( 5700 50400 ) FS ;
+   - g3027 INV_X1 
+      + PLACED ( 3800 25200 ) N ;
+   - g2979 AND2_X1 
+      + PLACED ( 35340 19600 ) N ;
+   - g2981 AND2_X1 
+      + PLACED ( 42180 8400 ) N ;
+   - g2983 AND2_X1 
+      + PLACED ( 42180 11200 ) FS ;
+   - g2985 AND2_X1 
+      + PLACED ( 18240 11200 ) FS ;
+   - g2987 AND2_X1 
+      + PLACED ( 19380 11200 ) FS ;
+   - g2989 AND2_X1 
+      + PLACED ( 28880 14000 ) N ;
+   - g2990 AND2_X1 
+      + PLACED ( 33060 19600 ) N ;
+   - g2992 AND2_X1 
+      + PLACED ( 10640 14000 ) N ;
+   - g2998 AND2_X1 
+      + PLACED ( 53200 22400 ) FS ;
+   - g3000 AND2_X1 
+      + PLACED ( 53580 42000 ) N ;
+   - g3002 AND2_X1 
+      + PLACED ( 45980 50400 ) FS ;
+   - g3004 AND2_X1 
+      + PLACED ( 32300 47600 ) N ;
+   - g3006 AND2_X1 
+      + PLACED ( 50160 22400 ) FS ;
+   - g3008 AND2_X1 
+      + PLACED ( 54340 28000 ) FS ;
+   - g3010 AND2_X1 
+      + PLACED ( 15200 50400 ) FS ;
+   - g3012 AND2_X1 
+      + PLACED ( 3800 44800 ) FS ;
+   - g3014 AND2_X1 
+      + PLACED ( 53580 44800 ) FS ;
+   - g3016 AND2_X1 
+      + PLACED ( 15960 36400 ) N ;
+   - g3018 AND2_X1 
+      + PLACED ( 39900 50400 ) FS ;
+   - g3020 AND2_X1 
+      + PLACED ( 10260 22400 ) FS ;
+   - g3022 AND2_X1 
+      + PLACED ( 1140 28000 ) FS ;
+   - g3024 AND2_X1 
+      + PLACED ( 0 33600 ) FS ;
+   - g3026 AND2_X1 
+      + PLACED ( 6460 50400 ) FS ;
+   - g3028 AND2_X1 
+      + PLACED ( 4560 25200 ) N ;
+   - g3029 AND2_X1 
+      + PLACED ( 35340 22400 ) FS ;
+   - g3030 AND2_X1 
+      + PLACED ( 36860 16800 ) FS ;
+   - g3031 AND2_X1 
+      + PLACED ( 34580 25200 ) N ;
+   - g3032 AND2_X1 
+      + PLACED ( 29640 16800 ) FS ;
+   - g3033 INV_X1 
+      + PLACED ( 52820 47600 ) N ;
+   - g3035 INV_X1 
+      + PLACED ( 40280 47600 ) N ;
+   - g3037 INV_X1 
+      + PLACED ( 54340 25200 ) N ;
+   - g3039 INV_X1 
+      + PLACED ( 54340 39200 ) FS ;
+   - g3041 INV_X1 
+      + PLACED ( 45220 50400 ) FS ;
+   - g3043 INV_X1 
+      + PLACED ( 33820 50400 ) FS ;
+   - g3045 INV_X1 
+      + PLACED ( 48260 22400 ) FS ;
+   - g3047 INV_X1 
+      + PLACED ( 54340 30800 ) N ;
+   - g3049 INV_X1 
+      + PLACED ( 15200 47600 ) N ;
+   - g3051 INV_X1 
+      + PLACED ( 1900 30800 ) N ;
+   - g3053 INV_X1 
+      + PLACED ( 4180 47600 ) N ;
+   - g3055 INV_X1 
+      + PLACED ( 0 36400 ) N ;
+   - g3057 INV_X1 
+      + PLACED ( 15200 36400 ) N ;
+   - g3059 INV_X1 
+      + PLACED ( 7600 50400 ) FS ;
+   - g3061 INV_X1 
+      + PLACED ( 9500 22400 ) FS ;
+   - g3063 INV_X1 
+      + PLACED ( 4180 28000 ) FS ;
+   - g3034 AND2_X1 
+      + PLACED ( 50920 50400 ) FS ;
+   - g3036 AND2_X1 
+      + PLACED ( 39520 44800 ) FS ;
+   - g3038 AND2_X1 
+      + PLACED ( 52820 25200 ) N ;
+   - g3040 AND2_X1 
+      + PLACED ( 52440 39200 ) FS ;
+   - g3042 AND2_X1 
+      + PLACED ( 44080 50400 ) FS ;
+   - g3044 AND2_X1 
+      + PLACED ( 34960 50400 ) FS ;
+   - g3046 AND2_X1 
+      + PLACED ( 47120 25200 ) N ;
+   - g3048 AND2_X1 
+      + PLACED ( 52820 30800 ) N ;
+   - g3050 AND2_X1 
+      + PLACED ( 12540 50400 ) FS ;
+   - g3052 AND2_X1 
+      + PLACED ( 4180 30800 ) N ;
+   - g3054 AND2_X1 
+      + PLACED ( 5700 47600 ) N ;
+   - g3056 AND2_X1 
+      + PLACED ( 760 36400 ) N ;
+   - g3058 AND2_X1 
+      + PLACED ( 14060 36400 ) N ;
+   - g3060 AND2_X1 
+      + PLACED ( 8740 50400 ) FS ;
+   - g3062 AND2_X1 
+      + PLACED ( 9120 25200 ) N ;
+   - g3064 AND2_X1 
+      + PLACED ( 6840 28000 ) FS ;
+   - g3065 INV_X1 
+      + PLACED ( 52820 44800 ) FS ;
+   - g3067 INV_X1 
+      + PLACED ( 39520 47600 ) N ;
+   - g3069 INV_X1 
+      + PLACED ( 52820 42000 ) N ;
+   - g3071 INV_X1 
+      + PLACED ( 52440 22400 ) FS ;
+   - g3073 INV_X1 
+      + PLACED ( 46740 47600 ) N ;
+   - g3075 INV_X1 
+      + PLACED ( 31540 47600 ) N ;
+   - g3077 INV_X1 
+      + PLACED ( 49400 22400 ) FS ;
+   - g3079 INV_X1 
+      + PLACED ( 52820 28000 ) FS ;
+   - g3081 INV_X1 
+      + PLACED ( 16340 50400 ) FS ;
+   - g3083 INV_X1 
+      + PLACED ( 5320 44800 ) FS ;
+   - g3085 INV_X1 
+      + PLACED ( 2280 28000 ) FS ;
+   - g3087 INV_X1 
+      + PLACED ( 1140 33600 ) FS ;
+   - g3089 INV_X1 
+      + PLACED ( 15960 39200 ) FS ;
+   - g3091 INV_X1 
+      + PLACED ( 6840 47600 ) N ;
+   - g3093 INV_X1 
+      + PLACED ( 11020 25200 ) N ;
+   - g3095 INV_X1 
+      + PLACED ( 5700 25200 ) N ;
+   - g3097 AND2_X1 
+      + PLACED ( 36480 22400 ) FS ;
+   - g3098 AND2_X1 
+      + PLACED ( 36480 19600 ) N ;
+   - g3099 AND2_X1 
+      + PLACED ( 33440 25200 ) N ;
+   - g3100 AND2_X1 
+      + PLACED ( 30780 16800 ) FS ;
+   - g3066 AND2_X1 
+      + PLACED ( 51300 44800 ) FS ;
+   - g3068 AND2_X1 
+      + PLACED ( 37620 47600 ) N ;
+   - g3070 AND2_X1 
+      + PLACED ( 51300 36400 ) N ;
+   - g3072 AND2_X1 
+      + PLACED ( 51680 25200 ) N ;
+   - g3074 AND2_X1 
+      + PLACED ( 45600 47600 ) N ;
+   - g3076 AND2_X1 
+      + PLACED ( 34200 47600 ) N ;
+   - g3078 AND2_X1 
+      + PLACED ( 49020 25200 ) N ;
+   - g3080 AND2_X1 
+      + PLACED ( 50920 28000 ) FS ;
+   - g3082 AND2_X1 
+      + PLACED ( 15200 44800 ) FS ;
+   - g3084 AND2_X1 
+      + PLACED ( 7220 44800 ) FS ;
+   - g3086 AND2_X1 
+      + PLACED ( 4940 28000 ) FS ;
+   - g3088 AND2_X1 
+      + PLACED ( 1900 33600 ) FS ;
+   - g3090 AND2_X1 
+      + PLACED ( 16720 39200 ) FS ;
+   - g3092 AND2_X1 
+      + PLACED ( 10640 50400 ) FS ;
+   - g3094 AND2_X1 
+      + PLACED ( 11020 28000 ) FS ;
+   - g3096 AND2_X1 
+      + PLACED ( 6460 25200 ) N ;
+   - g3117 INV_X1 
+      + PLACED ( 10260 25200 ) N ;
+   - g3119 INV_X1 
+      + PLACED ( 38760 44800 ) FS ;
+   - g3121 INV_X1 
+      + PLACED ( 51300 47600 ) N ;
+   - g3123 INV_X1 
+      + PLACED ( 44080 47600 ) N ;
+   - g3125 INV_X1 
+      + PLACED ( 35340 47600 ) N ;
+   - g3127 INV_X1 
+      + PLACED ( 15960 47600 ) N ;
+   - g3129 INV_X1 
+      + PLACED ( 6460 44800 ) FS ;
+   - g3131 INV_X1 
+      + PLACED ( 15200 39200 ) FS ;
+   - g3133 INV_X1 
+      + PLACED ( 9880 50400 ) FS ;
+   - g3101 AND2_X1 
+      + PLACED ( 30400 19600 ) N ;
+   - g3102 AND2_X1 
+      + PLACED ( 34200 19600 ) N ;
+   - g3103 INV_X1 
+      + PLACED ( 52440 36400 ) N ;
+   - g3105 INV_X1 
+      + PLACED ( 50160 30800 ) N ;
+   - g3107 INV_X1 
+      + PLACED ( 1900 36400 ) N ;
+   - g3109 INV_X1 
+      + PLACED ( 7600 25200 ) N ;
+   - g3111 INV_X1 
+      + PLACED ( 50920 25200 ) N ;
+   - g3113 INV_X1 
+      + PLACED ( 45980 25200 ) N ;
+   - g3115 INV_X1 
+      + PLACED ( 5320 30800 ) N ;
+   - g3118 AND2_X1 
+      + PLACED ( 13680 25200 ) N ;
+   - g3120 AND2_X1 
+      + PLACED ( 36480 44800 ) FS ;
+   - g3122 AND2_X1 
+      + PLACED ( 43700 42000 ) N ;
+   - g3124 AND2_X1 
+      + PLACED ( 43320 44800 ) FS ;
+   - g3126 AND2_X1 
+      + PLACED ( 33820 44800 ) FS ;
+   - g3128 AND2_X1 
+      + PLACED ( 17860 47600 ) N ;
+   - g3130 AND2_X1 
+      + PLACED ( 13300 44800 ) FS ;
+   - g3132 AND2_X1 
+      + PLACED ( 17860 39200 ) FS ;
+   - g3134 AND2_X1 
+      + PLACED ( 13300 39200 ) FS ;
+   - g3104 AND2_X1 
+      + PLACED ( 42180 36400 ) N ;
+   - g3106 AND2_X1 
+      + PLACED ( 43320 28000 ) FS ;
+   - g3108 AND2_X1 
+      + PLACED ( 14060 33600 ) FS ;
+   - g3110 AND2_X1 
+      + PLACED ( 12540 25200 ) N ;
+   - g3112 AND2_X1 
+      + PLACED ( 41800 25200 ) N ;
+   - g3114 AND2_X1 
+      + PLACED ( 42940 25200 ) N ;
+   - g3116 AND2_X1 
+      + PLACED ( 14060 28000 ) FS ;
+   - g3135 INV_X1 
+      + PLACED ( 28500 19600 ) N ;
+   - g3136 AND2_X1 
+      + PLACED ( 26600 22400 ) FS ;
+   - g3137 AND2_X1 
+      + PLACED ( 25840 25200 ) N ;
+   - g3138 AND2_X1 
+      + PLACED ( 19380 25200 ) N ;
+   - g3139 AND2_X1 
+      + PLACED ( 18240 25200 ) N ;
+   - g3140 AND2_X1 
+      + PLACED ( 24700 25200 ) N ;
+   - g3141 INV_X1 
+      + PLACED ( 26980 25200 ) N ;
+   - g3143 INV_X1 
+      + PLACED ( 22040 22400 ) FS ;
+   - g3145 INV_X1 
+      + PLACED ( 27360 19600 ) N ;
+   - g3142 AND2_X1 
+      + PLACED ( 28120 25200 ) N ;
+   - g3144 AND2_X1 
+      + PLACED ( 21280 19600 ) N ;
+   - g3146 AND2_X1 
+      + PLACED ( 27740 16800 ) FS ;
+   - g3147 AND2_X1 
+      + PLACED ( 20140 16800 ) FS ;
+   - g3148 AND2_X1 
+      + PLACED ( 25840 16800 ) FS ;
+   - g3149 INV_X1 
+      + PLACED ( 28120 22400 ) FS ;
+   - g3150 AND2_X1 
+      + PLACED ( 28880 22400 ) FS ;
+   - g3151 INV_X1 
+      + PLACED ( 21280 16800 ) FS ;
+   - g3153 INV_X1 
+      + PLACED ( 25080 16800 ) FS ;
+   - g3156 INV_X1 
+      + PLACED ( 38760 22400 ) FS ;
+   - g3152 AND2_X1 
+      + PLACED ( 20520 14000 ) N ;
+   - g3154 AND2_X1 
+      + PLACED ( 23560 19600 ) N ;
+   - g3155 AND2_X1 
+      + PLACED ( 30400 22400 ) FS ;
+   - g3157 AND2_X1 
+      + PLACED ( 38380 19600 ) N ;
+   - g3158 AND2_X1 
+      + PLACED ( 24320 22400 ) FS ;
+   - g3159 AND2_X1 
+      + PLACED ( 19380 22400 ) FS ;
+   - g3160 AND2_X1 
+      + PLACED ( 18240 22400 ) FS ;
+   - g3161 AND2_X1 
+      + PLACED ( 23180 22400 ) FS ;
+   - g3162 INV_X1 
+      + PLACED ( 23940 14000 ) N ;
+   - g3164 INV_X1 
+      + PLACED ( 24700 19600 ) N ;
+   - g3166 INV_X1 
+      + PLACED ( 19760 14000 ) N ;
+   - g3168 INV_X1 
+      + PLACED ( 22800 19600 ) N ;
+   - g3170 INV_X1 
+      + PLACED ( 31540 22400 ) FS ;
+   - g3173 INV_X1 
+      + PLACED ( 39520 19600 ) N ;
+   - g3163 AND2_X1 
+      + PLACED ( 25840 14000 ) N ;
+   - g3165 AND2_X1 
+      + PLACED ( 18620 19600 ) N ;
+   - g3167 AND2_X1 
+      + PLACED ( 25080 11200 ) FS ;
+   - g3169 AND2_X1 
+      + PLACED ( 19760 19600 ) N ;
+   - g3171 AND2_X1 
+      + PLACED ( 32300 25200 ) N ;
+   - g3172 AND2_X1 
+      + PLACED ( 36480 25200 ) N ;
+   - g3174 AND2_X1 
+      + PLACED ( 40280 19600 ) N ;
+   - g3175 INV_X1 
+      + PLACED ( 37620 25200 ) N ;
+   - g3177 INV_X1 
+      + PLACED ( 27740 14000 ) N ;
+   - g3179 INV_X1 
+      + PLACED ( 31540 19600 ) N ;
+   - g3181 INV_X1 
+      + PLACED ( 25080 14000 ) N ;
+   - g3183 INV_X1 
+      + PLACED ( 19000 16800 ) FS ;
+   - g3185 INV_X1 
+      + PLACED ( 31160 25200 ) N ;
+   - g3187 INV_X1 
+      + PLACED ( 35720 25200 ) N ;
+   - g3189 INV_X1 
+      + PLACED ( 17860 19600 ) N ;
+   - g3176 AND2_X1 
+      + PLACED ( 38760 30800 ) N ;
+   - g3178 AND2_X1 
+      + PLACED ( 32300 11200 ) FS ;
+   - g3180 AND2_X1 
+      + PLACED ( 39520 36400 ) N ;
+   - g3182 AND2_X1 
+      + PLACED ( 42940 16800 ) FS ;
+   - g3184 AND2_X1 
+      + PLACED ( 14440 16800 ) FS ;
+   - g3186 AND2_X1 
+      + PLACED ( 30020 25200 ) N ;
+   - g3188 AND2_X1 
+      + PLACED ( 26980 47600 ) N ;
+   - g3190 AND2_X1 
+      + PLACED ( 18240 14000 ) N ;
+   - g3193 INV_X1 
+      + PLACED ( 40280 30800 ) N ;
+   - g3199 INV_X1 
+      + PLACED ( 32300 14000 ) N ;
+   - g3203 INV_X1 
+      + PLACED ( 44460 16800 ) FS ;
+   - g3205 INV_X1 
+      + PLACED ( 29260 25200 ) N ;
+   - g3213 INV_X1 
+      + PLACED ( 14820 19600 ) N ;
+   - g3215 INV_X1 
+      + PLACED ( 40660 36400 ) N ;
+   - g3219 INV_X1 
+      + PLACED ( 26220 47600 ) N ;
+   - g3221 INV_X1 
+      + PLACED ( 17480 14000 ) N ;
+   - g3191 INV_X1 
+      + PLACED ( 26600 50400 ) FS ;
+   - g3194 AND2_X1 
+      + PLACED ( 39900 33600 ) FS ;
+   - g3195 INV_X1 
+      + PLACED ( 38380 33600 ) FS ;
+   - g3197 INV_X1 
+      + PLACED ( 14440 22400 ) FS ;
+   - g3200 AND2_X1 
+      + PLACED ( 33060 14000 ) N ;
+   - g3201 INV_X1 
+      + PLACED ( 31540 14000 ) N ;
+   - g3204 AND2_X1 
+      + PLACED ( 44460 19600 ) N ;
+   - g3206 AND2_X1 
+      + PLACED ( 29260 28000 ) FS ;
+   - g3207 INV_X1 
+      + PLACED ( 42180 16800 ) FS ;
+   - g3209 INV_X1 
+      + PLACED ( 39140 39200 ) FS ;
+   - g3211 INV_X1 
+      + PLACED ( 17860 16800 ) FS ;
+   - g3214 AND2_X1 
+      + PLACED ( 13680 19600 ) N ;
+   - g3216 AND2_X1 
+      + PLACED ( 39900 39200 ) FS ;
+   - g3217 INV_X1 
+      + PLACED ( 29260 30800 ) N ;
+   - g3220 AND2_X1 
+      + PLACED ( 25080 47600 ) N ;
+   - g3222 AND2_X1 
+      + PLACED ( 16720 16800 ) FS ;
+   - g3192 AND2_X1 
+      + PLACED ( 25460 50400 ) FS ;
+   - g3196 AND2_X1 
+      + PLACED ( 37240 33600 ) FS ;
+   - g3198 AND2_X1 
+      + PLACED ( 13300 22400 ) FS ;
+   - g3202 AND2_X1 
+      + PLACED ( 31920 16800 ) FS ;
+   - g3208 AND2_X1 
+      + PLACED ( 42560 19600 ) N ;
+   - g3210 AND2_X1 
+      + PLACED ( 38760 42000 ) N ;
+   - g3212 AND2_X1 
+      + PLACED ( 16340 19600 ) N ;
+   - g3218 AND2_X1 
+      + PLACED ( 28120 30800 ) N ;
+   - g3223 INV_X1 
+      + PLACED ( 16340 22400 ) FS ;
+   - g3225 INV_X1 
+      + PLACED ( 39140 33600 ) FS ;
+   - g3227 INV_X1 
+      + PLACED ( 33060 16800 ) FS ;
+   - g3229 INV_X1 
+      + PLACED ( 43700 19600 ) N ;
+   - g3231 INV_X1 
+      + PLACED ( 28500 28000 ) FS ;
+   - g3233 INV_X1 
+      + PLACED ( 39900 42000 ) N ;
+   - g3235 INV_X1 
+      + PLACED ( 14820 25200 ) N ;
+   - g3237 INV_X1 
+      + PLACED ( 24320 47600 ) N ;
+   - g3224 AND2_X1 
+      + PLACED ( 15960 25200 ) N ;
+   - g3226 AND2_X1 
+      + PLACED ( 30020 33600 ) FS ;
+   - g3228 AND2_X1 
+      + PLACED ( 22800 25200 ) N ;
+   - g3230 AND2_X1 
+      + PLACED ( 40280 22400 ) FS ;
+   - g3232 AND2_X1 
+      + PLACED ( 26980 28000 ) FS ;
+   - g3234 AND2_X1 
+      + PLACED ( 33060 42000 ) N ;
+   - g3236 AND2_X1 
+      + PLACED ( 14440 30800 ) N ;
+   - g3238 AND2_X1 
+      + PLACED ( 23180 47600 ) N ;
+   - g3239 INV_X1 
+      + PLACED ( 28880 33600 ) FS ;
+   - g3245 INV_X1 
+      + PLACED ( 17100 25200 ) N ;
+   - g3249 INV_X1 
+      + PLACED ( 22040 25200 ) N ;
+   - g3251 INV_X1 
+      + PLACED ( 40660 25200 ) N ;
+   - g3255 INV_X1 
+      + PLACED ( 25460 28000 ) FS ;
+   - g3261 INV_X1 
+      + PLACED ( 32300 44800 ) FS ;
+   - g3265 INV_X1 
+      + PLACED ( 15580 30800 ) N ;
+   - g3267 INV_X1 
+      + PLACED ( 21660 47600 ) N ;
+   - g3240 AND2_X1 
+      + PLACED ( 25840 33600 ) FS ;
+   - g3241 INV_X1 
+      + PLACED ( 28120 33600 ) FS ;
+   - g3243 INV_X1 
+      + PLACED ( 21280 25200 ) N ;
+   - g3246 AND2_X1 
+      + PLACED ( 16340 28000 ) FS ;
+   - g3247 INV_X1 
+      + PLACED ( 16340 30800 ) N ;
+   - g3250 AND2_X1 
+      + PLACED ( 21280 28000 ) FS ;
+   - g3252 AND2_X1 
+      + PLACED ( 39520 25200 ) N ;
+   - g3253 INV_X1 
+      + PLACED ( 38760 25200 ) N ;
+   - g3256 AND2_X1 
+      + PLACED ( 22420 28000 ) FS ;
+   - g3257 INV_X1 
+      + PLACED ( 15580 28000 ) FS ;
+   - g3259 INV_X1 
+      + PLACED ( 32300 42000 ) N ;
+   - g3262 AND2_X1 
+      + PLACED ( 30780 44800 ) FS ;
+   - g3263 INV_X1 
+      + PLACED ( 26220 28000 ) FS ;
+   - g3266 AND2_X1 
+      + PLACED ( 15200 33600 ) FS ;
+   - g3268 AND2_X1 
+      + PLACED ( 20520 47600 ) N ;
+   - g3269 INV_X1 
+      + PLACED ( 22420 47600 ) N ;
+   - g3242 AND2_X1 
+      + PLACED ( 25460 30800 ) N ;
+   - g3244 AND2_X1 
+      + PLACED ( 20140 28000 ) FS ;
+   - g3248 AND2_X1 
+      + PLACED ( 17480 33600 ) FS ;
+   - g3254 AND2_X1 
+      + PLACED ( 38380 28000 ) FS ;
+   - g3258 AND2_X1 
+      + PLACED ( 18240 28000 ) FS ;
+   - g3260 AND2_X1 
+      + PLACED ( 30020 42000 ) N ;
+   - g3264 AND2_X1 
+      + PLACED ( 24320 28000 ) FS ;
+   - g3270 AND2_X1 
+      + PLACED ( 19760 44800 ) FS ;
+   - g3271 INV_X1 
+      + PLACED ( 16340 33600 ) FS ;
+   - g3273 INV_X1 
+      + PLACED ( 41040 33600 ) FS ;
+   - g3275 INV_X1 
+      + PLACED ( 26600 30800 ) N ;
+   - g3277 INV_X1 
+      + PLACED ( 31160 42000 ) N ;
+   - g3279 INV_X1 
+      + PLACED ( 17480 28000 ) FS ;
+   - g3281 INV_X1 
+      + PLACED ( 20520 30800 ) N ;
+   - g3283 INV_X1 
+      + PLACED ( 39520 28000 ) FS ;
+   - g3285 INV_X1 
+      + PLACED ( 30020 30800 ) N ;
+   - g3287 INV_X1 
+      + PLACED ( 23180 30800 ) N ;
+   - g3289 INV_X1 
+      + PLACED ( 40660 42000 ) N ;
+   - g3291 INV_X1 
+      + PLACED ( 24700 50400 ) FS ;
+   - g3293 INV_X1 
+      + PLACED ( 20900 44800 ) FS ;
+   - g3272 AND2_X1 
+      + PLACED ( 32680 36400 ) N ;
+   - g3274 AND2_X1 
+      + PLACED ( 42560 33600 ) FS ;
+   - g3276 AND2_X1 
+      + PLACED ( 23180 33600 ) FS ;
+   - g3278 AND2_X1 
+      + PLACED ( 30400 36400 ) N ;
+   - g3280 AND2_X1 
+      + PLACED ( 34960 28000 ) FS ;
+   - g3282 AND2_X1 
+      + PLACED ( 18240 30800 ) N ;
+   - g3284 AND2_X1 
+      + PLACED ( 38380 36400 ) N ;
+   - g3286 AND2_X1 
+      + PLACED ( 31540 30800 ) N ;
+   - g3288 AND2_X1 
+      + PLACED ( 24320 36400 ) N ;
+   - g3290 AND2_X1 
+      + PLACED ( 41420 39200 ) FS ;
+   - g3292 AND2_X1 
+      + PLACED ( 25460 44800 ) FS ;
+   - g3294 AND2_X1 
+      + PLACED ( 22420 44800 ) FS ;
+   - g3295 INV_X1 
+      + PLACED ( 33820 36400 ) N ;
+   - g3297 INV_X1 
+      + PLACED ( 22420 33600 ) FS ;
+   - g3299 INV_X1 
+      + PLACED ( 36860 36400 ) N ;
+   - g3301 INV_X1 
+      + PLACED ( 23940 39200 ) FS ;
+   - g3303 INV_X1 
+      + PLACED ( 43320 36400 ) N ;
+   - g3307 INV_X1 
+      + PLACED ( 43320 39200 ) FS ;
+   - g3309 INV_X1 
+      + PLACED ( 29640 36400 ) N ;
+   - g3311 INV_X1 
+      + PLACED ( 19380 30800 ) N ;
+   - g3313 INV_X1 
+      + PLACED ( 36100 28000 ) FS ;
+   - g3319 INV_X1 
+      + PLACED ( 32680 30800 ) N ;
+   - g3327 INV_X1 
+      + PLACED ( 24700 44800 ) FS ;
+   - g3331 INV_X1 
+      + PLACED ( 21660 44800 ) FS ;
+   - g3296 AND2_X1 
+      + PLACED ( 34580 36400 ) N ;
+   - g3298 AND2_X1 
+      + PLACED ( 22040 36400 ) N ;
+   - g3300 AND2_X1 
+      + PLACED ( 35720 36400 ) N ;
+   - g3302 AND2_X1 
+      + PLACED ( 24700 39200 ) FS ;
+   - g3304 AND2_X1 
+      + PLACED ( 44080 36400 ) N ;
+   - g3305 INV_X1 
+      + PLACED ( 43700 33600 ) FS ;
+   - g3308 AND2_X1 
+      + PLACED ( 44080 39200 ) FS ;
+   - g3310 AND2_X1 
+      + PLACED ( 28500 36400 ) N ;
+   - g3312 AND2_X1 
+      + PLACED ( 19380 33600 ) FS ;
+   - g3314 AND2_X1 
+      + PLACED ( 35720 30800 ) N ;
+   - g3315 INV_X1 
+      + PLACED ( 18620 33600 ) FS ;
+   - g3317 INV_X1 
+      + PLACED ( 31920 28000 ) FS ;
+   - g3320 AND2_X1 
+      + PLACED ( 33440 30800 ) N ;
+   - g3321 INV_X1 
+      + PLACED ( 42560 39200 ) FS ;
+   - g3323 INV_X1 
+      + PLACED ( 31160 33600 ) FS ;
+   - g3325 INV_X1 
+      + PLACED ( 36860 28000 ) FS ;
+   - g3328 AND2_X1 
+      + PLACED ( 24700 42000 ) N ;
+   - g3329 INV_X1 
+      + PLACED ( 26600 44800 ) FS ;
+   - g3332 AND2_X1 
+      + PLACED ( 20900 39200 ) FS ;
+   - g3333 INV_X1 
+      + PLACED ( 23560 44800 ) FS ;
+   - g3335 INV_X1 
+      + PLACED ( 22040 30800 ) N ;
+   - g3337 INV_X1 
+      + PLACED ( 32300 39200 ) FS ;
+   - g3339 INV_X1 
+      + PLACED ( 37620 36400 ) N ;
+   - g3341 INV_X1 
+      + PLACED ( 25460 36400 ) N ;
+   - g3306 AND2_X1 
+      + PLACED ( 45220 33600 ) FS ;
+   - g3316 AND2_X1 
+      + PLACED ( 17860 36400 ) N ;
+   - g3318 AND2_X1 
+      + PLACED ( 32680 28000 ) FS ;
+   - g3322 AND2_X1 
+      + PLACED ( 45220 39200 ) FS ;
+   - g3324 AND2_X1 
+      + PLACED ( 31920 33600 ) FS ;
+   - g3326 AND2_X1 
+      + PLACED ( 36860 30800 ) N ;
+   - g3330 AND2_X1 
+      + PLACED ( 25840 42000 ) N ;
+   - g3334 AND2_X1 
+      + PLACED ( 22800 39200 ) FS ;
+   - g3336 AND2_X1 
+      + PLACED ( 21280 33600 ) FS ;
+   - g3338 AND2_X1 
+      + PLACED ( 33060 39200 ) FS ;
+   - g3340 AND2_X1 
+      + PLACED ( 37620 39200 ) FS ;
+   - g3342 AND2_X1 
+      + PLACED ( 26220 36400 ) N ;
+   - g3343 INV_X1 
+      + PLACED ( 45600 19600 ) N ;
+   - g3345 INV_X1 
+      + PLACED ( 33440 33600 ) FS ;
+   - g3347 INV_X1 
+      + PLACED ( 19380 28000 ) FS ;
+   - g3349 INV_X1 
+      + PLACED ( 33820 16800 ) FS ;
+   - g3351 INV_X1 
+      + PLACED ( 38000 30800 ) N ;
+   - g3353 INV_X1 
+      + PLACED ( 12540 22400 ) FS ;
+   - g3355 INV_X1 
+      + PLACED ( 25840 39200 ) FS ;
+   - g3357 INV_X1 
+      + PLACED ( 45220 36400 ) N ;
+   - g3359 INV_X1 
+      + PLACED ( 34960 39200 ) FS ;
+   - g3361 INV_X1 
+      + PLACED ( 17100 36400 ) N ;
+   - g3363 INV_X1 
+      + PLACED ( 15960 16800 ) FS ;
+   - g3365 INV_X1 
+      + PLACED ( 22040 39200 ) FS ;
+   - g3344 AND2_X1 
+      + PLACED ( 45980 5600 ) FS ;
+   - g3346 AND2_X1 
+      + PLACED ( 38000 16800 ) FS ;
+   - g3348 AND2_X1 
+      + PLACED ( 11780 33600 ) FS ;
+   - g3350 AND2_X1 
+      + PLACED ( 35720 16800 ) FS ;
+   - g3352 AND2_X1 
+      + PLACED ( 40280 28000 ) FS ;
+   - g3354 AND2_X1 
+      + PLACED ( 12540 19600 ) N ;
+   - g3356 AND2_X1 
+      + PLACED ( 25080 8400 ) N ;
+   - g3358 AND2_X1 
+      + PLACED ( 44840 25200 ) N ;
+   - g3360 AND2_X1 
+      + PLACED ( 47120 39200 ) FS ;
+   - g3362 AND2_X1 
+      + PLACED ( 9500 39200 ) FS ;
+   - g3364 AND2_X1 
+      + PLACED ( 15580 14000 ) N ;
+   - g3366 AND2_X1 
+      + PLACED ( 22800 14000 ) N ;
+   - g3367 INV_X1 
+      + PLACED ( 49020 39200 ) FS ;
+   - g3369 INV_X1 
+      + PLACED ( 7980 39200 ) FS ;
+   - g3371 INV_X1 
+      + PLACED ( 14820 14000 ) N ;
+   - g3373 INV_X1 
+      + PLACED ( 41040 30800 ) N ;
+   - g3375 INV_X1 
+      + PLACED ( 35340 14000 ) N ;
+   - g3377 INV_X1 
+      + PLACED ( 11020 33600 ) FS ;
+   - g3379 INV_X1 
+      + PLACED ( 36100 11200 ) FS ;
+   - g3381 INV_X1 
+      + PLACED ( 12920 33600 ) FS ;
+   - g3383 INV_X1 
+      + PLACED ( 38760 14000 ) N ;
+   - g3385 INV_X1 
+      + PLACED ( 45600 2800 ) N ;
+   - g3387 INV_X1 
+      + PLACED ( 47120 5600 ) FS ;
+   - g3389 INV_X1 
+      + PLACED ( 12540 16800 ) FS ;
+   - g3391 INV_X1 
+      + PLACED ( 45980 22400 ) FS ;
+   - g3393 INV_X1 
+      + PLACED ( 42180 28000 ) FS ;
+   - g3395 INV_X1 
+      + PLACED ( 39140 16800 ) FS ;
+   - g3397 INV_X1 
+      + PLACED ( 25840 5600 ) FS ;
+   - g3399 INV_X1 
+      + PLACED ( 25080 5600 ) FS ;
+   - g3401 INV_X1 
+      + PLACED ( 44080 25200 ) N ;
+   - g3403 INV_X1 
+      + PLACED ( 11780 16800 ) FS ;
+   - g3405 INV_X1 
+      + PLACED ( 8740 39200 ) FS ;
+   - g3407 INV_X1 
+      + PLACED ( 16720 14000 ) N ;
+   - g3409 INV_X1 
+      + PLACED ( 23180 16800 ) FS ;
+   - g3411 INV_X1 
+      + PLACED ( 22040 14000 ) N ;
+   - g3368 AND2_X1 
+      + PLACED ( 50540 39200 ) FS ;
+   - g3370 AND2_X1 
+      + PLACED ( 5700 42000 ) N ;
+   - g3372 AND2_X1 
+      + PLACED ( 14820 11200 ) FS ;
+   - g3374 AND2_X1 
+      + PLACED ( 41800 30800 ) N ;
+   - g3376 AND2_X1 
+      + PLACED ( 36100 14000 ) N ;
+   - g3378 AND2_X1 
+      + PLACED ( 10260 36400 ) N ;
+   - g3380 AND2_X1 
+      + PLACED ( 36860 11200 ) FS ;
+   - g3382 AND2_X1 
+      + PLACED ( 12160 36400 ) N ;
+   - g3384 AND2_X1 
+      + PLACED ( 39520 14000 ) N ;
+   - g3386 AND2_X1 
+      + PLACED ( 46360 2800 ) N ;
+   - g3388 AND2_X1 
+      + PLACED ( 46740 0 ) FS ;
+   - g3390 AND2_X1 
+      + PLACED ( 13680 14000 ) N ;
+   - g3392 AND2_X1 
+      + PLACED ( 44840 22400 ) FS ;
+   - g3394 AND2_X1 
+      + PLACED ( 43700 30800 ) N ;
+   - g3396 AND2_X1 
+      + PLACED ( 40660 16800 ) FS ;
+   - g3398 AND2_X1 
+      + PLACED ( 26600 2800 ) N ;
+   - g3400 AND2_X1 
+      + PLACED ( 24700 2800 ) N ;
+   - g3402 AND2_X1 
+      + PLACED ( 42180 22400 ) FS ;
+   - g3404 AND2_X1 
+      + PLACED ( 11780 14000 ) N ;
+   - g3406 AND2_X1 
+      + PLACED ( 6840 39200 ) FS ;
+   - g3408 AND2_X1 
+      + PLACED ( 15960 11200 ) FS ;
+   - g3410 AND2_X1 
+      + PLACED ( 23180 11200 ) FS ;
+   - g3412 AND2_X1 
+      + PLACED ( 22040 11200 ) FS ;
+   - g3413 INV_X1 
+      + PLACED ( 48260 39200 ) FS ;
+   - g3414 AND2_X1 
+      + PLACED ( 49780 42000 ) N ;
+   - g3415 INV_X1 
+      + PLACED ( 35340 11200 ) FS ;
+   - g3417 INV_X1 
+      + PLACED ( 25840 2800 ) N ;
+   - g3419 INV_X1 
+      + PLACED ( 24700 30800 ) N ;
+   - g3421 INV_X1 
+      + PLACED ( 15960 8400 ) N ;
+   - g3423 INV_X1 
+      + PLACED ( 26980 42000 ) N ;
+   - g3425 INV_X1 
+      + PLACED ( 49780 39200 ) FS ;
+   - g3427 INV_X1 
+      + PLACED ( 44840 30800 ) N ;
+   - g3429 INV_X1 
+      + PLACED ( 21280 11200 ) FS ;
+   - g3431 INV_X1 
+      + PLACED ( 11400 36400 ) N ;
+   - g3433 INV_X1 
+      + PLACED ( 46360 39200 ) FS ;
+   - g3435 INV_X1 
+      + PLACED ( 23560 28000 ) FS ;
+   - g3437 INV_X1 
+      + PLACED ( 37240 14000 ) N ;
+   - g3439 INV_X1 
+      + PLACED ( 9500 36400 ) N ;
+   - g3443 INV_X1 
+      + PLACED ( 43320 22400 ) FS ;
+   - g3445 INV_X1 
+      + PLACED ( 40660 14000 ) N ;
+   - g3447 INV_X1 
+      + PLACED ( 14060 11200 ) FS ;
+   - g3449 INV_X1 
+      + PLACED ( 45980 0 ) FS ;
+   - g3451 INV_X1 
+      + PLACED ( 39900 16800 ) FS ;
+   - g3453 INV_X1 
+      + PLACED ( 47500 2800 ) N ;
+   - g3455 INV_X1 
+      + PLACED ( 6840 42000 ) N ;
+   - g3457 INV_X1 
+      + PLACED ( 33820 28000 ) FS ;
+   - g3459 INV_X1 
+      + PLACED ( 50920 42000 ) N ;
+   - g3461 INV_X1 
+      + PLACED ( 12920 14000 ) N ;
+   - g3463 INV_X1 
+      + PLACED ( 26220 0 ) FS ;
+   - g3465 INV_X1 
+      + PLACED ( 45980 36400 ) N ;
+   - g3467 INV_X1 
+      + PLACED ( 30020 44800 ) FS ;
+   - g3469 INV_X1 
+      + PLACED ( 12540 11200 ) FS ;
+   - g3471 INV_X1 
+      + PLACED ( 19760 47600 ) N ;
+   - g3473 INV_X1 
+      + PLACED ( 44080 22400 ) FS ;
+   - g3475 INV_X1 
+      + PLACED ( 6080 39200 ) FS ;
+   - g3477 INV_X1 
+      + PLACED ( 23180 8400 ) N ;
+   - g3441 INV_X1 
+      + PLACED ( 42940 30800 ) N ;
+   - g3454 AND2_X1 
+      + PLACED ( 49780 2800 ) N ;
+   - g3446 AND2_X1 
+      + PLACED ( 46360 11200 ) FS ;
+   - g3478 AND2_X1 
+      + PLACED ( 28120 5600 ) FS ;
+   - g3416 AND2_X1 
+      + PLACED ( 34960 8400 ) N ;
+   - g3418 AND2_X1 
+      + PLACED ( 13300 2800 ) N ;
+   - g3420 AND2_X1 
+      + PLACED ( 7600 36400 ) N ;
+   - g3422 AND2_X1 
+      + PLACED ( 16340 2800 ) N ;
+   - g3424 AND2_X1 
+      + PLACED ( 35720 42000 ) N ;
+   - g3426 AND2_X1 
+      + PLACED ( 54340 36400 ) N ;
+   - g3428 AND2_X1 
+      + PLACED ( 45600 30800 ) N ;
+   - g3430 AND2_X1 
+      + PLACED ( 9500 11200 ) FS ;
+   - g3432 AND2_X1 
+      + PLACED ( 11400 39200 ) FS ;
+   - g3434 AND2_X1 
+      + PLACED ( 46360 42000 ) N ;
+   - g3436 AND2_X1 
+      + PLACED ( 12160 28000 ) FS ;
+   - g3438 AND2_X1 
+      + PLACED ( 45600 14000 ) N ;
+   - g3440 AND2_X1 
+      + PLACED ( 9880 33600 ) FS ;
+   - g3442 AND2_X1 
+      + PLACED ( 42180 42000 ) N ;
+   - g3448 AND2_X1 
+      + PLACED ( 7220 8400 ) N ;
+   - g3450 AND2_X1 
+      + PLACED ( 42560 5600 ) FS ;
+   - g3456 AND2_X1 
+      + PLACED ( 7600 42000 ) N ;
+   - g3458 AND2_X1 
+      + PLACED ( 45600 28000 ) FS ;
+   - g3460 AND2_X1 
+      + PLACED ( 48640 42000 ) N ;
+   - g3464 AND2_X1 
+      + PLACED ( 31920 0 ) FS ;
+   - g3466 AND2_X1 
+      + PLACED ( 47500 36400 ) N ;
+   - g3468 AND2_X1 
+      + PLACED ( 17480 44800 ) FS ;
+   - g3474 AND2_X1 
+      + PLACED ( 47500 19600 ) N ;
+   - g3472 AND2_X1 
+      + PLACED ( 14060 47600 ) N ;
+   - g3444 AND2_X1 
+      + PLACED ( 9500 19600 ) N ;
+   - g3462 AND2_X1 
+      + PLACED ( 9500 14000 ) N ;
+   - g3470 AND2_X1 
+      + PLACED ( 12540 8400 ) N ;
+   - g3476 AND2_X1 
+      + PLACED ( 4180 39200 ) FS ;
+   - g3452 AND2_X1 
+      + PLACED ( 23180 5600 ) FS ;
+   - g3601 INV_X1 
+      + PLACED ( 15580 2800 ) N ;
+   - g3493 INV_X1 
+      + PLACED ( 16340 0 ) FS ;
+   - g3539 INV_X1 
+      + PLACED ( 3420 39200 ) FS ;
+   - g3487 INV_X1 
+      + PLACED ( 8740 11200 ) FS ;
+   - g3525 INV_X1 
+      + PLACED ( 12540 39200 ) FS ;
+   - g3535 INV_X1 
+      + PLACED ( 12160 30800 ) N ;
+   - g3551 INV_X1 
+      + PLACED ( 49400 19600 ) N ;
+   - g3481 INV_X1 
+      + PLACED ( 30020 5600 ) FS ;
+   - g3483 INV_X1 
+      + PLACED ( 12160 47600 ) N ;
+   - g3485 INV_X1 
+      + PLACED ( 6460 8400 ) N ;
+   - g3489 INV_X1 
+      + PLACED ( 13300 0 ) FS ;
+   - g3491 INV_X1 
+      + PLACED ( 6840 36400 ) N ;
+   - g3537 INV_X1 
+      + PLACED ( 17480 42000 ) N ;
+   - g3495 INV_X1 
+      + PLACED ( 46740 33600 ) FS ;
+   - g3497 INV_X1 
+      + PLACED ( 47500 28000 ) FS ;
+   - g3499 INV_X1 
+      + PLACED ( 16720 42000 ) N ;
+   - g3501 INV_X1 
+      + PLACED ( 48640 44800 ) FS ;
+   - g3503 INV_X1 
+      + PLACED ( 46740 28000 ) FS ;
+   - g3505 INV_X1 
+      + PLACED ( 46740 30800 ) N ;
+   - g3507 INV_X1 
+      + PLACED ( 9120 33600 ) FS ;
+   - g3509 INV_X1 
+      + PLACED ( 48260 11200 ) FS ;
+   - g3511 INV_X1 
+      + PLACED ( 6840 33600 ) FS ;
+   - g3513 INV_X1 
+      + PLACED ( 22420 5600 ) FS ;
+   - g3515 INV_X1 
+      + PLACED ( 36860 42000 ) N ;
+   - g3517 INV_X1 
+      + PLACED ( 12540 2800 ) N ;
+   - g3519 INV_X1 
+      + PLACED ( 46360 8400 ) N ;
+   - g3521 INV_X1 
+      + PLACED ( 35720 44800 ) FS ;
+   - g3523 INV_X1 
+      + PLACED ( 49400 47600 ) N ;
+   - g3527 INV_X1 
+      + PLACED ( 54720 33600 ) FS ;
+   - g3529 INV_X1 
+      + PLACED ( 41420 42000 ) N ;
+   - g3531 INV_X1 
+      + PLACED ( 14440 8400 ) N ;
+   - g3533 INV_X1 
+      + PLACED ( 34960 5600 ) FS ;
+   - g3585 INV_X1 
+      + PLACED ( 49020 2800 ) N ;
+   - g3541 INV_X1 
+      + PLACED ( 42180 44800 ) FS ;
+   - g3543 INV_X1 
+      + PLACED ( 10640 39200 ) FS ;
+   - g3545 INV_X1 
+      + PLACED ( 23180 2800 ) N ;
+   - g3547 INV_X1 
+      + PLACED ( 48640 19600 ) N ;
+   - g3549 INV_X1 
+      + PLACED ( 47500 42000 ) N ;
+   - g3555 INV_X1 
+      + PLACED ( 9120 16800 ) FS ;
+   - g3557 INV_X1 
+      + PLACED ( 10260 28000 ) FS ;
+   - g3559 INV_X1 
+      + PLACED ( 45600 42000 ) N ;
+   - g3583 INV_X1 
+      + PLACED ( 9500 42000 ) N ;
+   - g3563 INV_X1 
+      + PLACED ( 45600 16800 ) FS ;
+   - g3565 INV_X1 
+      + PLACED ( 13680 8400 ) N ;
+   - g3569 INV_X1 
+      + PLACED ( 53960 33600 ) FS ;
+   - g3571 INV_X1 
+      + PLACED ( 29260 5600 ) FS ;
+   - g3599 INV_X1 
+      + PLACED ( 3800 36400 ) N ;
+   - g3553 INV_X1 
+      + PLACED ( 41040 5600 ) FS ;
+   - g3575 INV_X1 
+      + PLACED ( 12920 47600 ) N ;
+   - g3577 INV_X1 
+      + PLACED ( 46740 14000 ) N ;
+   - g3579 INV_X1 
+      + PLACED ( 50920 2800 ) N ;
+   - g3581 INV_X1 
+      + PLACED ( 41800 5600 ) FS ;
+   - g3567 INV_X1 
+      + PLACED ( 48640 36400 ) N ;
+   - g3587 INV_X1 
+      + PLACED ( 8740 14000 ) N ;
+   - g3589 INV_X1 
+      + PLACED ( 34200 8400 ) N ;
+   - g3591 INV_X1 
+      + PLACED ( 8740 19600 ) N ;
+   - g3595 INV_X1 
+      + PLACED ( 49400 36400 ) N ;
+   - g3597 INV_X1 
+      + PLACED ( 6460 14000 ) N ;
+   - g3603 INV_X1 
+      + PLACED ( 8360 33600 ) FS ;
+   - g3605 INV_X1 
+      + PLACED ( 6840 5600 ) FS ;
+   - g3479 INV_X1 
+      + PLACED ( 33440 2800 ) N ;
+   - g3593 INV_X1 
+      + PLACED ( 33820 0 ) FS ;
+   - g3561 INV_X1 
+      + PLACED ( 7980 11200 ) FS ;
+   - g3573 INV_X1 
+      + PLACED ( 8740 42000 ) N ;
+   - g3482 AND2_X1 
+      + PLACED ( 30780 5600 ) FS ;
+   - g3494 AND2_X1 
+      + PLACED ( 15200 0 ) FS ;
+   - g3544 AND2_X1 
+      + PLACED ( 11020 42000 ) N ;
+   - g3538 AND2_X1 
+      + PLACED ( 15580 42000 ) N ;
+   - g3490 AND2_X1 
+      + PLACED ( 14060 0 ) FS ;
+   - g3504 AND2_X1 
+      + PLACED ( 48260 28000 ) FS ;
+   - g3486 AND2_X1 
+      + PLACED ( 5320 8400 ) N ;
+   - g3558 AND2_X1 
+      + PLACED ( 8360 28000 ) FS ;
+   - g3506 AND2_X1 
+      + PLACED ( 49020 30800 ) N ;
+   - g3617 INV_X1 
+      + PLACED ( 31920 36400 ) N ;
+   - g3534 AND2_X1 
+      + PLACED ( 33820 5600 ) FS ;
+   - g3586 AND2_X1 
+      + PLACED ( 49400 5600 ) FS ;
+   - g3488 AND2_X1 
+      + PLACED ( 6840 11200 ) FS ;
+   - g3524 AND2_X1 
+      + PLACED ( 49020 50400 ) FS ;
+   - g3514 AND2_X1 
+      + PLACED ( 17100 5600 ) FS ;
+   - g3492 AND2_X1 
+      + PLACED ( 5700 36400 ) N ;
+   - g3496 AND2_X1 
+      + PLACED ( 47880 30800 ) N ;
+   - g3530 AND2_X1 
+      + PLACED ( 41040 44800 ) FS ;
+   - g3500 AND2_X1 
+      + PLACED ( 14440 42000 ) N ;
+   - g3562 AND2_X1 
+      + PLACED ( 5700 11200 ) FS ;
+   - g3508 AND2_X1 
+      + PLACED ( 8740 30800 ) N ;
+   - g3512 AND2_X1 
+      + PLACED ( 5700 33600 ) FS ;
+   - g3522 AND2_X1 
+      + PLACED ( 36480 47600 ) N ;
+   - g3554 AND2_X1 
+      + PLACED ( 36860 5600 ) FS ;
+   - g3516 AND2_X1 
+      + PLACED ( 37620 44800 ) FS ;
+   - g3520 AND2_X1 
+      + PLACED ( 47120 8400 ) N ;
+   - g3576 AND2_X1 
+      + PLACED ( 11400 44800 ) FS ;
+   - g3528 AND2_X1 
+      + PLACED ( 50920 30800 ) N ;
+   - g3536 AND2_X1 
+      + PLACED ( 10640 30800 ) N ;
+   - g3542 AND2_X1 
+      + PLACED ( 42180 47600 ) N ;
+   - g3526 AND2_X1 
+      + PLACED ( 12160 42000 ) N ;
+   - g3590 AND2_X1 
+      + PLACED ( 31540 8400 ) N ;
+   - g3518 AND2_X1 
+      + PLACED ( 11400 2800 ) N ;
+   - g3556 AND2_X1 
+      + PLACED ( 6840 16800 ) FS ;
+   - g3560 AND2_X1 
+      + PLACED ( 45980 44800 ) FS ;
+   - g3606 AND2_X1 
+      + PLACED ( 5700 5600 ) FS ;
+   - g3609 INV_X1 
+      + PLACED ( 26600 39200 ) FS ;
+   - g3566 AND2_X1 
+      + PLACED ( 13300 5600 ) FS ;
+   - g3510 AND2_X1 
+      + PLACED ( 48260 8400 ) N ;
+   - g3598 AND2_X1 
+      + PLACED ( 5320 14000 ) N ;
+   - g3596 AND2_X1 
+      + PLACED ( 50160 36400 ) N ;
+   - g3600 AND2_X1 
+      + PLACED ( 4560 36400 ) N ;
+   - g3574 AND2_X1 
+      + PLACED ( 9120 44800 ) FS ;
+   - g3615 INV_X1 
+      + PLACED ( 22420 42000 ) N ;
+   - g3607 INV_X1 
+      + PLACED ( 36860 39200 ) FS ;
+   - g3611 INV_X1 
+      + PLACED ( 21280 36400 ) N ;
+   - g3613 INV_X1 
+      + PLACED ( 34200 39200 ) FS ;
+   - g3621 INV_X1 
+      + PLACED ( 34960 30800 ) N ;
+   - g3619 INV_X1 
+      + PLACED ( 19000 36400 ) N ;
+   - g3532 AND2_X1 
+      + PLACED ( 14440 5600 ) FS ;
+   - g3604 AND2_X1 
+      + PLACED ( 7600 30800 ) N ;
+   - g3582 AND2_X1 
+      + PLACED ( 38000 5600 ) FS ;
+   - g3572 AND2_X1 
+      + PLACED ( 32680 5600 ) FS ;
+   - g3570 AND2_X1 
+      + PLACED ( 52440 33600 ) FS ;
+   - g3480 AND2_X1 
+      + PLACED ( 34200 2800 ) N ;
+   - g3602 AND2_X1 
+      + PLACED ( 14440 2800 ) N ;
+   - g3484 AND2_X1 
+      + PLACED ( 9120 47600 ) N ;
+   - g3594 AND2_X1 
+      + PLACED ( 34580 0 ) FS ;
+   - g3588 AND2_X1 
+      + PLACED ( 7220 14000 ) N ;
+   - g3498 AND2_X1 
+      + PLACED ( 49400 28000 ) FS ;
+   - g3592 AND2_X1 
+      + PLACED ( 5700 19600 ) N ;
+   - g3578 AND2_X1 
+      + PLACED ( 47500 14000 ) N ;
+   - g3550 AND2_X1 
+      + PLACED ( 47500 47600 ) N ;
+   - g3502 AND2_X1 
+      + PLACED ( 47120 44800 ) FS ;
+   - g3540 AND2_X1 
+      + PLACED ( 3420 33600 ) FS ;
+   - g3546 AND2_X1 
+      + PLACED ( 18240 2800 ) N ;
+   - g3564 AND2_X1 
+      + PLACED ( 46360 16800 ) FS ;
+   - g3584 AND2_X1 
+      + PLACED ( 10260 44800 ) FS ;
+   - g3552 AND2_X1 
+      + PLACED ( 49400 14000 ) N ;
+   - g3548 AND2_X1 
+      + PLACED ( 48260 16800 ) FS ;
+   - g3580 AND2_X1 
+      + PLACED ( 50160 8400 ) N ;
+   - g3568 AND2_X1 
+      + PLACED ( 48260 33600 ) FS ;
+   - g3622 AND2_X1 
+      + PLACED ( 35340 33600 ) FS ;
+   - g3620 AND2_X1 
+      + PLACED ( 20140 36400 ) N ;
+   - g3610 AND2_X1 
+      + PLACED ( 27360 36400 ) N ;
+   - g3608 AND2_X1 
+      + PLACED ( 35720 39200 ) FS ;
+   - g3616 AND2_X1 
+      + PLACED ( 21280 42000 ) N ;
+   - g3618 AND2_X1 
+      + PLACED ( 30020 39200 ) FS ;
+   - g3612 AND2_X1 
+      + PLACED ( 23180 36400 ) N ;
+   - g3614 AND2_X1 
+      + PLACED ( 31160 39200 ) FS ;
+   - g3628 INV_X1 
+      + PLACED ( 48640 47600 ) N ;
+   - g3624 INV_X1 
+      + PLACED ( 35720 5600 ) FS ;
+   - g3650 INV_X1 
+      + PLACED ( 52060 28000 ) FS ;
+   - g3637 INV_X1 
+      + PLACED ( 4180 11200 ) FS ;
+   - g3649 INV_X1 
+      + PLACED ( 33060 0 ) FS ;
+   - g3651 INV_X1 
+      + PLACED ( 10260 47600 ) N ;
+   - g3629 INV_X1 
+      + PLACED ( 4560 33600 ) FS ;
+   - g3646 INV_X1 
+      + PLACED ( 49400 33600 ) FS ;
+   - g3645 INV_X1 
+      + PLACED ( 13680 42000 ) N ;
+   - g3633 INV_X1 
+      + PLACED ( 44840 47600 ) N ;
+   - g3623 INV_X1 
+      + PLACED ( 38380 50400 ) FS ;
+   - g3638 INV_X1 
+      + PLACED ( 45600 11200 ) FS ;
+   - g3647 INV_X1 
+      + PLACED ( 16340 5600 ) FS ;
+   - g3653 INV_X1 
+      + PLACED ( 6080 16800 ) FS ;
+   - g3631 INV_X1 
+      + PLACED ( 51300 33600 ) FS ;
+   - g3648 INV_X1 
+      + PLACED ( 35340 2800 ) N ;
+   - g3635 INV_X1 
+      + PLACED ( 6460 30800 ) N ;
+   - g3634 INV_X1 
+      + PLACED ( 4180 8400 ) N ;
+   - g3626 INV_X1 
+      + PLACED ( 31160 11200 ) FS ;
+   - g3636 INV_X1 
+      + PLACED ( 12540 5600 ) FS ;
+   - g3652 INV_X1 
+      + PLACED ( 3420 14000 ) N ;
+   - g3643 INV_X1 
+      + PLACED ( 48260 25200 ) N ;
+   - g3639 INV_X1 
+      + PLACED ( 41040 47600 ) N ;
+   - g3644 INV_X1 
+      + PLACED ( 49780 11200 ) FS ;
+   - g3641 INV_X1 
+      + PLACED ( 7600 47600 ) N ;
+   - g3627 INV_X1 
+      + PLACED ( 9500 28000 ) FS ;
+   - g3632 INV_X1 
+      + PLACED ( 2660 36400 ) N ;
+   - g3642 INV_X1 
+      + PLACED ( 12540 0 ) FS ;
+   - g3640 INV_X1 
+      + PLACED ( 49400 8400 ) N ;
+   - g3625 INV_X1 
+      + PLACED ( 47500 16800 ) FS ;
+   - g3654 INV_X1 
+      + PLACED ( 15580 5600 ) FS ;
+   - g3630 INV_X1 
+      + PLACED ( 12540 44800 ) FS ;
+END COMPONENTS
+
+PINS 73 ;
+   - pi00 + NET pi00
+      + DIRECTION INPUT
+      + USE SIGNAL
+      + PLACED ( 49590 53200 ) S
+      + LAYER metal2 
+        ( -70 0 ) ( 70 140 ) ;
+   - pi01 + NET pi01
+      + DIRECTION INPUT
+      + USE SIGNAL
+      + PLACED ( 41230 53200 ) S
+      + LAYER metal2 
+        ( -70 0 ) ( 70 140 ) ;
+   - pi02 + NET pi02
+      + DIRECTION INPUT
+      + USE SIGNAL
+      + PLACED ( 56180 29540 ) W
+      + LAYER metal3 
+        ( -70 0 ) ( 70 140 ) ;
+   - pi03 + NET pi03
+      + DIRECTION INPUT
+      + USE SIGNAL
+      + PLACED ( 56180 37380 ) W
+      + LAYER metal3 
+        ( -70 0 ) ( 70 140 ) ;
+   - pi04 + NET pi04
+      + DIRECTION INPUT
+      + USE SIGNAL
+      + PLACED ( 44650 53200 ) S
+      + LAYER metal2 
+        ( -70 0 ) ( 70 140 ) ;
+   - pi05 + NET pi05
+      + DIRECTION INPUT
+      + USE SIGNAL
+      + PLACED ( 39330 53200 ) S
+      + LAYER metal2 
+        ( -70 0 ) ( 70 140 ) ;
+   - pi06 + NET pi06
+      + DIRECTION INPUT
+      + USE SIGNAL
+      + PLACED ( 56180 28420 ) W
+      + LAYER metal3 
+        ( -70 0 ) ( 70 140 ) ;
+   - pi07 + NET pi07
+      + DIRECTION INPUT
+      + USE SIGNAL
+      + PLACED ( 56180 33740 ) W
+      + LAYER metal3 
+        ( -70 0 ) ( 70 140 ) ;
+   - pi08 + NET pi08
+      + DIRECTION INPUT
+      + USE SIGNAL
+      + PLACED ( 12730 53200 ) S
+      + LAYER metal2 
+        ( -70 0 ) ( 70 140 ) ;
+   - pi09 + NET pi09
+      + DIRECTION INPUT
+      + USE SIGNAL
+      + PLACED ( 9310 53200 ) S
+      + LAYER metal2 
+        ( -70 0 ) ( 70 140 ) ;
+   - pi10 + NET pi10
+      + DIRECTION INPUT
+      + USE SIGNAL
+      + PLACED ( 0 33740 ) E
+      + LAYER metal3 
+        ( -70 0 ) ( 70 140 ) ;
+   - pi11 + NET pi11
+      + DIRECTION INPUT
+      + USE SIGNAL
+      + PLACED ( 0 37380 ) E
+      + LAYER metal3 
+        ( -70 0 ) ( 70 140 ) ;
+   - pi12 + NET pi12
+      + DIRECTION INPUT
+      + USE SIGNAL
+      + PLACED ( 13870 53200 ) S
+      + LAYER metal2 
+        ( -70 0 ) ( 70 140 ) ;
+   - pi13 + NET pi13
+      + DIRECTION INPUT
+      + USE SIGNAL
+      + PLACED ( 10450 53200 ) S
+      + LAYER metal2 
+        ( -70 0 ) ( 70 140 ) ;
+   - pi14 + NET pi14
+      + DIRECTION INPUT
+      + USE SIGNAL
+      + PLACED ( 0 29540 ) E
+      + LAYER metal3 
+        ( -70 0 ) ( 70 140 ) ;
+   - pi15 + NET pi15
+      + DIRECTION INPUT
+      + USE SIGNAL
+      + PLACED ( 0 32060 ) E
+      + LAYER metal3 
+        ( -70 0 ) ( 70 140 ) ;
+   - pi16 + NET pi16
+      + DIRECTION INPUT
+      + USE SIGNAL
+      + PLACED ( 56180 9380 ) W
+      + LAYER metal3 
+        ( -70 0 ) ( 70 140 ) ;
+   - pi17 + NET pi17
+      + DIRECTION INPUT
+      + USE SIGNAL
+      + PLACED ( 56180 12740 ) W
+      + LAYER metal3 
+        ( -70 0 ) ( 70 140 ) ;
+   - pi18 + NET pi18
+      + DIRECTION INPUT
+      + USE SIGNAL
+      + PLACED ( 16530 0 ) N
+      + LAYER metal2 
+        ( -70 0 ) ( 70 140 ) ;
+   - pi19 + NET pi19
+      + DIRECTION INPUT
+      + USE SIGNAL
+      + PLACED ( 16990 0 ) N
+      + LAYER metal4 
+        ( -140 0 ) ( 140 280 ) ;
+   - pi20 + NET pi20
+      + DIRECTION INPUT
+      + USE SIGNAL
+      + PLACED ( 56180 13020 ) W
+      + LAYER metal5 
+        ( -140 0 ) ( 140 280 ) ;
+   - pi21 + NET pi21
+      + DIRECTION INPUT
+      + USE SIGNAL
+      + PLACED ( 56180 17220 ) W
+      + LAYER metal3 
+        ( -70 0 ) ( 70 140 ) ;
+   - pi22 + NET pi22
+      + DIRECTION INPUT
+      + USE SIGNAL
+      + PLACED ( 0 19180 ) E
+      + LAYER metal3 
+        ( -70 0 ) ( 70 140 ) ;
+   - pi23 + NET pi23
+      + DIRECTION INPUT
+      + USE SIGNAL
+      + PLACED ( 0 15540 ) E
+      + LAYER metal3 
+        ( -70 0 ) ( 70 140 ) ;
+   - pi24 + NET pi24
+      + DIRECTION INPUT
+      + USE SIGNAL
+      + PLACED ( 36670 0 ) N
+      + LAYER metal2 
+        ( -70 0 ) ( 70 140 ) ;
+   - pi25 + NET pi25
+      + DIRECTION INPUT
+      + USE SIGNAL
+      + PLACED ( 33250 0 ) N
+      + LAYER metal2 
+        ( -70 0 ) ( 70 140 ) ;
+   - pi26 + NET pi26
+      + DIRECTION INPUT
+      + USE SIGNAL
+      + PLACED ( 13110 0 ) N
+      + LAYER metal2 
+        ( -70 0 ) ( 70 140 ) ;
+   - pi27 + NET pi27
+      + DIRECTION INPUT
+      + USE SIGNAL
+      + PLACED ( 12350 0 ) N
+      + LAYER metal2 
+        ( -70 0 ) ( 70 140 ) ;
+   - pi28 + NET pi28
+      + DIRECTION INPUT
+      + USE SIGNAL
+      + PLACED ( 37150 0 ) N
+      + LAYER metal4 
+        ( -140 0 ) ( 140 280 ) ;
+   - pi29 + NET pi29
+      + DIRECTION INPUT
+      + USE SIGNAL
+      + PLACED ( 31730 0 ) N
+      + LAYER metal2 
+        ( -70 0 ) ( 70 140 ) ;
+   - pi30 + NET pi30
+      + DIRECTION INPUT
+      + USE SIGNAL
+      + PLACED ( 0 14420 ) E
+      + LAYER metal3 
+        ( -70 0 ) ( 70 140 ) ;
+   - pi31 + NET pi31
+      + DIRECTION INPUT
+      + USE SIGNAL
+      + PLACED ( 0 10220 ) E
+      + LAYER metal3 
+        ( -70 0 ) ( 70 140 ) ;
+   - pi32 + NET pi32
+      + DIRECTION INPUT
+      + USE SIGNAL
+      + PLACED ( 30970 53200 ) S
+      + LAYER metal2 
+        ( -70 0 ) ( 70 140 ) ;
+   - pi33 + NET pi33
+      + DIRECTION INPUT
+      + USE SIGNAL
+      + PLACED ( 21850 53200 ) S
+      + LAYER metal2 
+        ( -70 0 ) ( 70 140 ) ;
+   - pi34 + NET pi34
+      + DIRECTION INPUT
+      + USE SIGNAL
+      + PLACED ( 27550 53200 ) S
+      + LAYER metal2 
+        ( -70 0 ) ( 70 140 ) ;
+   - pi35 + NET pi35
+      + DIRECTION INPUT
+      + USE SIGNAL
+      + PLACED ( 23750 53200 ) S
+      + LAYER metal2 
+        ( -70 0 ) ( 70 140 ) ;
+   - pi36 + NET pi36
+      + DIRECTION INPUT
+      + USE SIGNAL
+      + PLACED ( 36670 53200 ) S
+      + LAYER metal2 
+        ( -70 0 ) ( 70 140 ) ;
+   - pi37 + NET pi37
+      + DIRECTION INPUT
+      + USE SIGNAL
+      + PLACED ( 20330 53200 ) S
+      + LAYER metal2 
+        ( -70 0 ) ( 70 140 ) ;
+   - pi38 + NET pi38
+      + DIRECTION INPUT
+      + USE SIGNAL
+      + PLACED ( 32110 53200 ) S
+      + LAYER metal2 
+        ( -70 0 ) ( 70 140 ) ;
+   - pi39 + NET pi39
+      + DIRECTION INPUT
+      + USE SIGNAL
+      + PLACED ( 35910 53200 ) S
+      + LAYER metal2 
+        ( -70 0 ) ( 70 140 ) ;
+   - pi40 + NET pi40
+      + DIRECTION INPUT
+      + USE SIGNAL
+      + PLACED ( 28310 53200 ) S
+      + LAYER metal2 
+        ( -70 0 ) ( 70 140 ) ;
+   - po00 + NET po00
+      + DIRECTION OUTPUT
+      + USE SIGNAL
+      + PLACED ( 56180 47180 ) W
+      + LAYER metal3 
+        ( -70 0 ) ( 70 140 ) ;
+   - po01 + NET po01
+      + DIRECTION OUTPUT
+      + USE SIGNAL
+      + PLACED ( 39390 53200 ) S
+      + LAYER metal4 
+        ( -140 0 ) ( 140 280 ) ;
+   - po02 + NET po02
+      + DIRECTION OUTPUT
+      + USE SIGNAL
+      + PLACED ( 56180 24780 ) W
+      + LAYER metal3 
+        ( -70 0 ) ( 70 140 ) ;
+   - po03 + NET po03
+      + DIRECTION OUTPUT
+      + USE SIGNAL
+      + PLACED ( 56180 42420 ) W
+      + LAYER metal3 
+        ( -70 0 ) ( 70 140 ) ;
+   - po04 + NET po04
+      + DIRECTION OUTPUT
+      + USE SIGNAL
+      + PLACED ( 47690 53200 ) S
+      + LAYER metal2 
+        ( -70 0 ) ( 70 140 ) ;
+   - po05 + NET po05
+      + DIRECTION OUTPUT
+      + USE SIGNAL
+      + PLACED ( 32670 53200 ) S
+      + LAYER metal4 
+        ( -140 0 ) ( 140 280 ) ;
+   - po06 + NET po06
+      + DIRECTION OUTPUT
+      + USE SIGNAL
+      + PLACED ( 56180 24780 ) W
+      + LAYER metal5 
+        ( -140 0 ) ( 140 280 ) ;
+   - po07 + NET po07
+      + DIRECTION OUTPUT
+      + USE SIGNAL
+      + PLACED ( 56180 25620 ) W
+      + LAYER metal3 
+        ( -70 0 ) ( 70 140 ) ;
+   - po08 + NET po08
+      + DIRECTION OUTPUT
+      + USE SIGNAL
+      + PLACED ( 14630 53200 ) S
+      + LAYER metal2 
+        ( -70 0 ) ( 70 140 ) ;
+   - po09 + NET po09
+      + DIRECTION OUTPUT
+      + USE SIGNAL
+      + PLACED ( 0 42420 ) E
+      + LAYER metal3 
+        ( -70 0 ) ( 70 140 ) ;
+   - po10 + NET po10
+      + DIRECTION OUTPUT
+      + USE SIGNAL
+      + PLACED ( 0 30380 ) E
+      + LAYER metal3 
+        ( -70 0 ) ( 70 140 ) ;
+   - po11 + NET po11
+      + DIRECTION OUTPUT
+      + USE SIGNAL
+      + PLACED ( 0 31220 ) E
+      + LAYER metal3 
+        ( -70 0 ) ( 70 140 ) ;
+   - po12 + NET po12
+      + DIRECTION OUTPUT
+      + USE SIGNAL
+      + PLACED ( 0 36820 ) E
+      + LAYER metal3 
+        ( -70 0 ) ( 70 140 ) ;
+   - po13 + NET po13
+      + DIRECTION OUTPUT
+      + USE SIGNAL
+      + PLACED ( 5890 53200 ) S
+      + LAYER metal2 
+        ( -70 0 ) ( 70 140 ) ;
+   - po14 + NET po14
+      + DIRECTION OUTPUT
+      + USE SIGNAL
+      + PLACED ( 0 24780 ) E
+      + LAYER metal3 
+        ( -70 0 ) ( 70 140 ) ;
+   - po15 + NET po15
+      + DIRECTION OUTPUT
+      + USE SIGNAL
+      + PLACED ( 0 25620 ) E
+      + LAYER metal3 
+        ( -70 0 ) ( 70 140 ) ;
+   - po16 + NET po16
+      + DIRECTION OUTPUT
+      + USE SIGNAL
+      + PLACED ( 56180 7980 ) W
+      + LAYER metal3 
+        ( -70 0 ) ( 70 140 ) ;
+   - po17 + NET po17
+      + DIRECTION OUTPUT
+      + USE SIGNAL
+      + PLACED ( 45030 0 ) N
+      + LAYER metal2 
+        ( -70 0 ) ( 70 140 ) ;
+   - po18 + NET po18
+      + DIRECTION OUTPUT
+      + USE SIGNAL
+      + PLACED ( 21850 0 ) N
+      + LAYER metal2 
+        ( -70 0 ) ( 70 140 ) ;
+   - po19 + NET po19
+      + DIRECTION OUTPUT
+      + USE SIGNAL
+      + PLACED ( 21470 0 ) N
+      + LAYER metal4 
+        ( -140 0 ) ( 140 280 ) ;
+   - po20 + NET po20
+      + DIRECTION OUTPUT
+      + USE SIGNAL
+      + PLACED ( 56180 14420 ) W
+      + LAYER metal3 
+        ( -70 0 ) ( 70 140 ) ;
+   - po21 + NET po21
+      + DIRECTION OUTPUT
+      + USE SIGNAL
+      + PLACED ( 56180 20020 ) W
+      + LAYER metal3 
+        ( -70 0 ) ( 70 140 ) ;
+   - po22 + NET po22
+      + DIRECTION OUTPUT
+      + USE SIGNAL
+      + PLACED ( 0 24780 ) E
+      + LAYER metal5 
+        ( -140 0 ) ( 140 280 ) ;
+   - po23 + NET po23
+      + DIRECTION OUTPUT
+      + USE SIGNAL
+      + PLACED ( 0 20020 ) E
+      + LAYER metal3 
+        ( -70 0 ) ( 70 140 ) ;
+   - po24 + NET po24
+      + DIRECTION OUTPUT
+      + USE SIGNAL
+      + PLACED ( 39710 0 ) N
+      + LAYER metal2 
+        ( -70 0 ) ( 70 140 ) ;
+   - po25 + NET po25
+      + DIRECTION OUTPUT
+      + USE SIGNAL
+      + PLACED ( 28310 0 ) N
+      + LAYER metal2 
+        ( -70 0 ) ( 70 140 ) ;
+   - po26 + NET po26
+      + DIRECTION OUTPUT
+      + USE SIGNAL
+      + PLACED ( 5890 0 ) N
+      + LAYER metal2 
+        ( -70 0 ) ( 70 140 ) ;
+   - po27 + NET po27
+      + DIRECTION OUTPUT
+      + USE SIGNAL
+      + PLACED ( 5790 0 ) N
+      + LAYER metal4 
+        ( -140 0 ) ( 140 280 ) ;
+   - po28 + NET po28
+      + DIRECTION OUTPUT
+      + USE SIGNAL
+      + PLACED ( 41610 0 ) N
+      + LAYER metal2 
+        ( -70 0 ) ( 70 140 ) ;
+   - po29 + NET po29
+      + DIRECTION OUTPUT
+      + USE SIGNAL
+      + PLACED ( 26410 0 ) N
+      + LAYER metal2 
+        ( -70 0 ) ( 70 140 ) ;
+   - po30 + NET po30
+      + DIRECTION OUTPUT
+      + USE SIGNAL
+      + PLACED ( 0 13580 ) E
+      + LAYER metal3 
+        ( -70 0 ) ( 70 140 ) ;
+   - po31 + NET po31
+      + DIRECTION OUTPUT
+      + USE SIGNAL
+      + PLACED ( 0 7980 ) E
+      + LAYER metal3 
+        ( -70 0 ) ( 70 140 ) ;
+END PINS
+
+END DESIGN
+
