@@ -10,7 +10,6 @@ Liberty::Liberty(char * libFileName)
     {
         char line_buffer[MAX_LINE];
         char * aux;
-        //Header
             while(fgets(line,MAX_LINE,libFile))
             {
                   aux = strtok(line," ");

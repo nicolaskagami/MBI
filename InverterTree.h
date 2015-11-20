@@ -2,23 +2,15 @@
 #include<stdlib.h>
 #include<stdio.h>
 #include<time.h>//For rand seed
-#include<cmath>//For abs
 #include<vector>
+#include "Geometry.h"
 
 #ifndef NON_CRIT_ALG
 #define NON_CRIT_ALG 0 
 #endif
 
 
-class Point
-{
-    public:
-        float x;
-        float y;
 
-        bool operator== (Point b);
-		float distance(Point b);
-};
 
 typedef struct
 {

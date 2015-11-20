@@ -1,17 +1,7 @@
 #include "InverterTree.h"
 
 
-bool Point::operator== (Point b)
-{ 
-    if((x == b.x)&&(y == b.y))
-        return true; 
-    else 
-        return false;
-}
-float Point::distance(Point b)
-{//Manhattan Distance
-	return fabs((float)x-b.x) + fabs((float)y-b.y);
-}
+
 InverterTree::InverterTree(unsigned posTargets,unsigned negTargets,unsigned maxCellFanout,unsigned maxInvFanout,float invDelay,Point srcPosition)
 {
 	sourcePosition = srcPosition;

@@ -8,6 +8,7 @@
 
 #include "Liberty.h"
 #include "InverterTree.h"
+#include "Topology.h"
 
 #define CRITICAL_THRESHOLD 0.95 //Up to 10% 
 
@@ -17,49 +18,8 @@
 #define MAX_LABEL 32
 
 
-typedef struct
-{
-    //Vertex Position
-    Point position;
-    unsigned num_srcs;
-    unsigned srcs[MAX_SOURCES];
-
-    //Vertex Delay Data
-    float pre_delay;
-    float post_delay;
-
-    //Vertex Edges
-    unsigned pindex;
-    unsigned positive_targets;
-    unsigned nindex;
-    unsigned negative_targets;
-    unsigned num_positive_critical;
-    unsigned num_negative_critical;
-    InverterTree * inverter_tree;
-}VERT;
-
-typedef struct 
-{
-    unsigned target;
-    float path_delay;
-    unsigned level;
-} EDGE;
 
 
-//PAAG data
-typedef struct
-{
-    unsigned index;
-    char name[MAX_LABEL];
-    float delay;
-} INPUT;
-
-typedef struct
-{
-    unsigned index;
-    char name[MAX_LABEL];
-    float max_delay;
-} OUTPUT;
 
 typedef struct
 {
@@ -71,33 +31,22 @@ typedef struct
 class MBI
 {
     public:
-        //Forward Star Graph
-        VERT * vertices;
-        unsigned num_vertices;
-        EDGE * edges;
-        unsigned num_edges;
-        
-        int allocate_memory(unsigned v, unsigned e);
-        void preallocate(unsigned src,unsigned tgt,bool signal);
-        void indexify();
-        void add_edge(unsigned src,unsigned tgt,bool signal);
-        void set_position(unsigned vert,float x,float y);
-
         //MBI data
         unsigned max_cell_fanout;
         unsigned max_inv_fanout;
         float nodal_delay;
         float inv_delay;
 
-        MBI(char * paagFileName,char * sdcFileName,char * libFileName);
-        ~MBI();
-        void print();
-        
-        void estimate_delay();
+        //MBI(char * paagFileName,char * sdcFileName,char * libFileName);
+        MBI(int argc,char ** argv);
+		~MBI();
+		
+		void estimate_delay();
         void insert_buffers();
         void select_criticals(unsigned vert);
 		void add_criticals(unsigned vert);
 		void add_non_criticals(unsigned vert);
+        void print();
         
         //Sorting
         void sort_vert(VERT vert);
@@ -106,13 +55,28 @@ class MBI
         void mSort(EDGE * a,EDGE *aux,int left,int right);
 
         //Parsers
+		
+		//Position input
+		//Forward Star Graph
+        VERT * vertices;
+        unsigned num_vertices;
+        EDGE * edges;
+        unsigned num_edges;
+		
+		INPUT * inputs;
+		unsigned num_inputs;
+        OUTPUT * outputs;
+		unsigned num_outputs;
+		
         //PAAG
-        unsigned M,I,L,O,A,X,Y;
-        INPUT * paag_inputs;
-        OUTPUT * paag_outputs;
+		Paag * paag;
         void parse_paag(char * paagFileName);
-        void clean_paag();
-        
+		void clean_paag();
+		
+		//DEF
+		void parse_def(char * defFileName);
+        void clean_def();
+		
         //SDC
         std::list<CLOCK> clocks;
         CLOCK current_clock;
@@ -123,6 +87,9 @@ class MBI
         //LIB
         Liberty * lib;
         void set_nodal_delay(char * cellName,char * invName);
+		
+		//InverterTree
+		InverterTree * inverter_trees;
         
         //
 		unsigned min_height(unsigned posConsumers,unsigned negConsumers);
