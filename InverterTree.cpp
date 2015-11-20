@@ -1,7 +1,5 @@
 #include "InverterTree.h"
 
-
-
 InverterTree::InverterTree(unsigned posTargets,unsigned negTargets,unsigned maxCellFanout,unsigned maxInvFanout,float invDelay,Point srcPosition)
 {
 	sourcePosition = srcPosition;
@@ -59,12 +57,10 @@ void InverterTree::add_levels(unsigned newLevels)
 		levels[i].signal_taken = 0;
 	}
 }
-//Maybe add targets equally for critical targets
 void InverterTree::add_critical_target(unsigned target,bool signal,float delay)
 {
 	//Allocate as close to the source as possible, always leaving a space to deliver the rest of the signals
 	unsigned i;
-	
 	
 	if(signal)
 	{
@@ -295,10 +291,9 @@ void InverterTree::connect_positioned_targets()
         float totalDistance = 0;
         for(unsigned i=0;i<numInverters;i++)
             for(unsigned t=0;t<inverters[i].num_targets;t++)
-            {
                 totalDistance+=inverters[i].position.distance(targets[inverters[i].targets_indexes[t]].position);
-            }
-        printf("Total Distance: %.2f\n",totalDistance);
+
+        //printf("Total Distance: %.2f\n",totalDistance);
         //Temporary Inverters are ready, let's consolidate them
 		for(unsigned i=0;i<numInverters;i++)
 		{
@@ -327,21 +322,21 @@ void InverterTree::connect_positioned_targets()
 	free(inverters);
 
 }
-void InverterTree::non_critical_allocation() 
+float InverterTree::non_critical_allocation() 
 {
     switch(NON_CRIT_ALG)
     {
+        default:
         case 0: 
-            non_critical_allocation_kmeans();
-            break;
+            return non_critical_allocation_kmeans();
         case 1: 
-            non_critical_allocation_worstFirst();
-            break;
+            return non_critical_allocation_worstFirst();
     }
 }
-void InverterTree::non_critical_allocation_worstFirst()
+float InverterTree::non_critical_allocation_worstFirst()
 {
     float furthest_distance;
+    float worstDelay = 0;
 	Point furthestPoint;
 	unsigned furthest;
 	
@@ -409,25 +404,20 @@ void InverterTree::non_critical_allocation_worstFirst()
 			inverters[inv].position = furthestPoint;
 			for(unsigned j=0;j<degree;j++)
 				supplied_targets[inverters[inv].targets_indexes[j]] = true;
-				
 		}
 	}
 	
 	free(supplied_targets);
 	free(distances);
-    //for()
-   // sourcePosition 
-    //Escolhe o ponto mais longe da origem
-    //Poe um inversor neste ponto
-    //Este inversor busca os pontos mais proximos ate preencher
-    //Remove estes pontos do problema
+    return worstDelay;
 }
-void InverterTree::non_critical_allocation_kmeans() 
+float InverterTree::non_critical_allocation_kmeans() 
 { 
 	//Randomly seed inverters
 	for(unsigned i=0;i<numInverters;i++) // Starting position
 		inverters[i].position = targets[rand()%numTargets].position;
     //K Means
+    float worstDelay = 0;
     for(unsigned iterations=0;iterations<5;iterations++)
     {
         for(unsigned i=0;i<numInverters;i++)
@@ -468,6 +458,8 @@ void InverterTree::non_critical_allocation_kmeans()
             }
         //printf("Total Distance: %.2f\n",totalDistance);
     }
+
+    return worstDelay;
 }
 void InverterTree::print()
 {

@@ -63,7 +63,6 @@ MBI::MBI(int argc,char ** argv)
 		exit(1);
 	}
 }
-
 MBI::~MBI()
 {
 	for(unsigned i=0;i<num_vertices;i++)
@@ -81,7 +80,6 @@ MBI::~MBI()
     if(lib)
         delete(lib);
 }
-
 void MBI::print()
 {
     unsigned i;
@@ -129,163 +127,7 @@ void MBI::print()
         }
     }
 }
-//Parsers
-//Zeroth vertex is true, negated is false
-void MBI::parse_paag(char * paagFileName)
-{
-	paag = new Paag(paagFileName);
 
-	vertices = paag->topology->vertices;
-	num_vertices = paag->topology->num_vertices;
-	
-	edges = paag->topology->edges;
-	num_edges = paag->topology->num_edges;
-	
-	inputs = paag->topology->inputs;
-	num_inputs = paag->topology->num_inputs;
-	outputs = paag->topology->outputs;
-	num_outputs = paag->topology->num_outputs;
-}
-void MBI::clean_paag()
-{
-    if(paag)
-		delete(paag);
-}
-void MBI::parse_def(char * defFileName)
-{
-	
-}
-void MBI::clean_def()
-{
-	
-}
-void MBI::parse_sdc(char * sdcFileName)
-{
-    FILE * sdcFile;
-    sdcFile = fopen(sdcFileName,"r");
-    if(sdcFile)
-    {
-        char line[MAX_LINE];
-        char * aux;
-        //Header
-        while(fgets(line,MAX_LINE,sdcFile))
-        {
-            aux = strtok(line," \t");
-            if(strcmp(aux,"create_clock") == 0)
-            {
-                CLOCK clk;
-                for(aux=strtok(NULL," \n");aux!=NULL;aux=strtok(NULL," \n"))
-                {
-                    if(strcmp(aux,"-period")==0)
-                    {
-                        aux=strtok(NULL," \n");
-                        if(aux)
-                        {
-                            clk.period = strtof(aux,NULL);
-                            //printf("Period: %f\n",clk.period);
-                        }
-                    }
-                    if(strcmp(aux,"-name")==0)
-                    {
-                        aux=strtok(NULL," \n");
-                        if(aux)
-                        {
-                            strcpy(clk.name,aux);
-                            //printf("NAME: %s\n",clk.name);
-                        }
-                    }
-                }
-                clocks.push_back(clk); 
-            }
-            else
-            if(strcmp(aux,"set_input_delay") == 0)
-            {
-                float delay;
-                bool delay_parsed = false;
-                char input_name[MAX_LINE];
-                for(aux=strtok(NULL," \n");aux!=NULL;aux=strtok(NULL," \n"))
-                {
-                    if(strcmp(aux,"-clock")==0)
-                    {
-                        aux=strtok(NULL," \n");
-                        if(aux)
-                        {
-                            //printf("For clock: %s\n",aux);
-                        }
-                    } else
-                    if(delay_parsed==false)
-                    {
-                        delay = strtof(aux,&aux);
-                        delay_parsed = true;
-                    } else {
-                        if(aux)
-                        {
-                            unsigned i;
-                            strcpy(input_name,aux);
-                            for(i=0;i<num_inputs;i++)
-                            {
-                                if(strcmp(input_name,inputs[i].name)==0)
-                                {
-                                    inputs[i].delay = delay;
-                                    //set_delay(inputs[i].index,delay);        
-                                }
-                            }
-                        }
-                    }                        
-                }
-            }
-            else
-            if(strcmp(aux,"set_max_delay") == 0)
-            {
-                float delay;
-                bool delay_parsed = false;
-                char output_name[MAX_LINE];
-                for(aux=strtok(NULL," \t\n");aux!=NULL;aux=strtok(NULL," \t\n"))
-                {
-                    if(strcmp(aux,"-to")==0)
-                    {
-                        aux=strtok(NULL," \t\n");
-                        if(aux)
-                        {
-                            unsigned i;
-                            strcpy(output_name,aux);
-                            for(i=0;i<num_outputs;i++)
-                            {
-                                if(strcmp(output_name,outputs[i].name)==0)
-                                {
-                                    outputs[i].max_delay = delay;
-                                    //set_delay(outputs[i].index,delay);        
-                                }
-                            }
-                        }
-                    } else
-                    if(delay_parsed==false)
-                    {
-                        delay = strtof(aux,&aux);
-                        delay_parsed = true;
-                    }
-                }
-            }
-        }
-        fclose(sdcFile);
-    }
-
-}
-void MBI::clean_sdc()
-{
-    
-}
-void MBI::set_clock()
-{
-    if(clocks.size()!=0)
-    {
-        current_clock = clocks.front();
-    }
-    else
-    {
-        printf("SDC Error: No Clocks Set\n");
-    }
-}
 //
 void MBI::estimate_delay()
 {
@@ -350,30 +192,114 @@ void MBI::insert_buffers()
     //1: Iterate over the array
     //2: Propagate from inputs 
     //3: Propagate from outputs 
-    //
-    //sort the edges
-    for(unsigned i=0;i<num_vertices;i++)
-    {
+    std::queue<unsigned> q;
+    unsigned vert;
 
-		if(min_height(vertices[i].positive_targets,vertices[i].negative_targets)>0)
-		{
-			//Sort the targets
-			//sort_vert(i);
-			sort_vert(vertices[i]);
-			//Determine the critical ones (a number of how many of the first positive and negative are critical)
-			select_criticals(i);
-			//Allocate
-			vertices[i].inverter_tree = new InverterTree(vertices[i].positive_targets,vertices[i].negative_targets,max_cell_fanout,max_inv_fanout,inv_delay,vertices[i].position);
-			//
-			add_criticals(i);
-			vertices[i].inverter_tree->expand();
-			
-			//
-			add_non_criticals(i);
-			vertices[i].inverter_tree->connect_positioned_targets();
-			vertices[i].inverter_tree->print_inverters();
-		}
-	}
+    bool * expanded_vertices = (bool*) malloc(sizeof(bool)*num_vertices);
+
+    for(unsigned i=0;i<num_vertices;i++)
+        expanded_vertices[i] = false;
+
+    switch(NET_ORDER)
+    {
+        default:
+        case 0: //Simple iteration 
+                for(vert=0;vert<num_vertices;vert++)
+                    insert_buffer(vert);
+                break;
+        case 1: //Input -> Output propagation
+                for(unsigned i=0;i<num_inputs;i++)
+                    q.push(inputs[i].index);
+
+                while(!q.empty())
+                {
+                    vert = q.front();
+                    q.pop();
+                    insert_buffer(vert);
+                    expanded_vertices[vert] = true;
+                    unsigned ind,base,tgt;
+                    for(base = vertices[vert].pindex,ind=0;ind<(vertices[vert].positive_targets+vertices[vert].negative_targets);ind++)
+                    {
+                        tgt = edges[base+ind].target;
+                        bool ready_to_expand = true;
+                        for(unsigned sources = 0;sources<vertices[tgt].num_srcs;sources++)
+                        {
+                            if(expanded_vertices[vertices[tgt].srcs[sources]] == false) 
+                                ready_to_expand = false;
+                        }
+                        if(ready_to_expand)
+                            q.push(tgt);
+                    }
+                }
+                break; 
+        case 2: //Output -> Input propagation
+                for(unsigned o=0;o<num_outputs;o++)
+                {
+                    //Here we sort out the outputs who supply other vertices
+                    //This may not work for sequential circuits
+                    unsigned ind,base,tgt;
+                    bool ready_to_expand = true;
+                    unsigned src = outputs[o].index;
+                    for(base = vertices[src].pindex,ind=0;ind<(vertices[src].positive_targets+vertices[src].negative_targets);ind++)
+                    {
+                        tgt = edges[base+ind].target;
+                        if(expanded_vertices[tgt] == false) 
+                            ready_to_expand = false;
+                    }
+                    if(ready_to_expand)
+                        q.push(src);
+                }
+
+                while(!q.empty())
+                {
+                    vert = q.front();
+                    q.pop();
+                    insert_buffer(vert);
+                    expanded_vertices[vert] = true;
+                    unsigned ind,base,tgt;
+                    for(unsigned sources = 0;sources<vertices[vert].num_srcs;sources++)
+                    {
+                        bool ready_to_expand = true;
+                        unsigned src = vertices[vert].srcs[sources];
+                        for(base = vertices[src].pindex,ind=0;ind<(vertices[src].positive_targets+vertices[src].negative_targets);ind++)
+                        {
+                            tgt = edges[base+ind].target;
+                            if(expanded_vertices[tgt] == false) 
+                                ready_to_expand = false;
+                        }
+                        if(ready_to_expand)
+                            q.push(src);
+                    }
+                }
+                for(unsigned i=0;i<num_vertices;i++)
+                {
+                    if(!expanded_vertices[i]) //This should only bee needed in circularly dependant sequential circuits
+                        insert_buffer(i);
+                }
+                break; 
+    }
+    free(expanded_vertices);
+}
+void MBI::insert_buffer(unsigned vert)
+{
+    if(min_height(vertices[vert].positive_targets,vertices[vert].negative_targets)>0)
+    {
+        //Sort the targets
+        //sort_vert(i);
+        sort_vert(vertices[vert]);
+        //Determine the critical ones (a number of how many of the first positive and negative are critical)
+        select_criticals(vert);
+        //Allocate
+        vertices[vert].inverter_tree = new InverterTree(vertices[vert].positive_targets,vertices[vert].negative_targets,max_cell_fanout,max_inv_fanout,inv_delay,vertices[vert].position);
+        //
+        add_criticals(vert);
+        vertices[vert].inverter_tree->expand();
+        
+        //
+        add_non_criticals(vert);
+        vertices[vert].inverter_tree->connect_positioned_targets();
+        //vertices[vert].inverter_tree->print_inverters();
+    }
 }
 void MBI::sort_vert(VERT vert)
 {
@@ -559,6 +485,174 @@ unsigned MBI::min_height(unsigned posConsumers,unsigned negConsumers)
     return minHeight;
 }
 
+//Parsers
+//Zeroth vertex is true, negated is false
+void MBI::parse_paag(char * paagFileName)
+{
+	paag = new Paag(paagFileName);
+
+	vertices = paag->topology->vertices;
+	num_vertices = paag->topology->num_vertices;
+	
+	edges = paag->topology->edges;
+	num_edges = paag->topology->num_edges;
+	
+	inputs = paag->topology->inputs;
+	num_inputs = paag->topology->num_inputs;
+	outputs = paag->topology->outputs;
+	num_outputs = paag->topology->num_outputs;
+}
+void MBI::clean_paag()
+{
+    if(paag)
+		delete(paag);
+}
+void MBI::parse_def(char * defFileName)
+{
+	def = new Def(defFileName);
+
+	vertices = def->topology->vertices;
+	num_vertices = def->topology->num_vertices;
+	
+	edges = def->topology->edges;
+	num_edges = def->topology->num_edges;
+	
+	inputs = def->topology->inputs;
+	num_inputs = def->topology->num_inputs;
+	outputs = def->topology->outputs;
+	num_outputs = def->topology->num_outputs;
+}
+void MBI::clean_def()
+{
+	
+}
+void MBI::parse_sdc(char * sdcFileName)
+{
+    FILE * sdcFile;
+    sdcFile = fopen(sdcFileName,"r");
+    if(sdcFile)
+    {
+        char line[MAX_LINE];
+        char * aux;
+        //Header
+        while(fgets(line,MAX_LINE,sdcFile))
+        {
+            aux = strtok(line," \t");
+            if(strcmp(aux,"create_clock") == 0)
+            {
+                CLOCK clk;
+                for(aux=strtok(NULL," \n");aux!=NULL;aux=strtok(NULL," \n"))
+                {
+                    if(strcmp(aux,"-period")==0)
+                    {
+                        aux=strtok(NULL," \n");
+                        if(aux)
+                        {
+                            clk.period = strtof(aux,NULL);
+                            //printf("Period: %f\n",clk.period);
+                        }
+                    }
+                    if(strcmp(aux,"-name")==0)
+                    {
+                        aux=strtok(NULL," \n");
+                        if(aux)
+                        {
+                            strcpy(clk.name,aux);
+                            //printf("NAME: %s\n",clk.name);
+                        }
+                    }
+                }
+                clocks.push_back(clk); 
+            }
+            else
+            if(strcmp(aux,"set_input_delay") == 0)
+            {
+                float delay;
+                bool delay_parsed = false;
+                char input_name[MAX_LINE];
+                for(aux=strtok(NULL," \n");aux!=NULL;aux=strtok(NULL," \n"))
+                {
+                    if(strcmp(aux,"-clock")==0)
+                    {
+                        aux=strtok(NULL," \n");
+                        if(aux)
+                        {
+                            //printf("For clock: %s\n",aux);
+                        }
+                    } else
+                    if(delay_parsed==false)
+                    {
+                        delay = strtof(aux,&aux);
+                        delay_parsed = true;
+                    } else {
+                        if(aux)
+                        {
+                            unsigned i;
+                            strcpy(input_name,aux);
+                            for(i=0;i<num_inputs;i++)
+                            {
+                                if(strcmp(input_name,inputs[i].name)==0)
+                                {
+                                    inputs[i].delay = delay;
+                                    //set_delay(inputs[i].index,delay);        
+                                }
+                            }
+                        }
+                    }                        
+                }
+            }
+            else
+            if(strcmp(aux,"set_max_delay") == 0)
+            {
+                float delay;
+                bool delay_parsed = false;
+                char output_name[MAX_LINE];
+                for(aux=strtok(NULL," \t\n");aux!=NULL;aux=strtok(NULL," \t\n"))
+                {
+                    if(strcmp(aux,"-to")==0)
+                    {
+                        aux=strtok(NULL," \t\n");
+                        if(aux)
+                        {
+                            unsigned i;
+                            strcpy(output_name,aux);
+                            for(i=0;i<num_outputs;i++)
+                            {
+                                if(strcmp(output_name,outputs[i].name)==0)
+                                {
+                                    outputs[i].max_delay = delay;
+                                    //set_delay(outputs[i].index,delay);        
+                                }
+                            }
+                        }
+                    } else
+                    if(delay_parsed==false)
+                    {
+                        delay = strtof(aux,&aux);
+                        delay_parsed = true;
+                    }
+                }
+            }
+        }
+        fclose(sdcFile);
+    }
+
+}
+void MBI::clean_sdc()
+{
+    
+}
+void MBI::set_clock()
+{
+    if(clocks.size()!=0)
+    {
+        current_clock = clocks.front();
+    }
+    else
+    {
+        printf("SDC Error: No Clocks Set\n");
+    }
+}
 
 int main(int argc, char ** argv)
 {
@@ -568,7 +662,6 @@ int main(int argc, char ** argv)
 	nets.max_cell_fanout = 2;
 	
     nets.set_nodal_delay("AND2_X1","INV_X1");
-    //nets.print();
     nets.estimate_delay();
 	
     nets.insert_buffers();

@@ -57,7 +57,6 @@ typedef struct
     float max_delay;
 } OUTPUT;
 
-
 class Topology
 {
 	public:
@@ -80,9 +79,6 @@ class Topology
 		
 };
 
-
-//PAAG data
-
 class Paag
 {
     public:
@@ -94,7 +90,16 @@ class Paag
         Paag(char * paagFileName);  
 		~Paag();
 		void print();
+};
+
+class Def 
+{
+    public:
+        //Def
+		Topology * topology;
 		
-	private:
 		
+        Def(char * defFileName);  
+		~Def();
+		void print();
 };

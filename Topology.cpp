@@ -107,9 +107,6 @@ void Topology::set_position(unsigned vert,float x,float y)
     }
 }
 
-
-
-
 //PAAG
 Paag::Paag(char * paagFileName)
 {
@@ -120,7 +117,6 @@ Paag::Paag(char * paagFileName)
 	
     if(paagFile)
     {
-		
         //Header
         {
             char head[MAX_LINE];
@@ -284,9 +280,134 @@ Paag::Paag(char * paagFileName)
 			exit(1);
         }
     }
-
 }
 Paag::~Paag()
 {
 	delete topology;
+}
+
+//DEF
+Def::Def(char * defFileName)
+{
+	FILE * defFile;
+    defFile = fopen(defFileName,"r");
+	topology = new Topology();
+	char line[MAX_LINE];
+    char * aux;
+	
+    if(defFile)
+    {
+        while(fgets(line,MAX_LINE,defFile)&&!feof(defFile))
+        {
+            aux = strtok(line," ;\n");
+            if(aux)
+            {
+                if(strcmp("VERSION",aux)==0)
+                {//Version
+                    aux = strtok(NULL," ;\n") ;
+                } else if(strcmp("DIVIDERCHAR", aux)==0)
+                {//Divider Char
+                    aux = strtok(NULL,"\" ;\n") ;
+                } else if(strcmp("BUSBITCHARS", aux)==0)
+                {//Bus Bit Chars
+                    aux = strtok(NULL,"\" ;\n") ;
+                    printf("Bus Bit Chars: %s\n",aux);
+                } else if(strcmp("DESIGN", aux)==0)
+                {//Design
+                    aux = strtok(NULL,"\" ;\n") ;
+                    printf("Design: %s\n",aux);
+                    while(fgets(line,MAX_LINE,defFile)&&!feof(defFile))
+                    {
+                        aux = strtok(line,";\n");
+                        if((aux)&&(strcmp("END DESIGN",line)==0))
+                        {
+                            aux = strtok(NULL,"\" ;\n") ;
+                            printf("Design End\n");
+                            break;
+                        } 
+                        aux = strtok(line," ;\n");
+                        if(aux)
+                        {
+                            if(strcmp("UNITS",aux)==0)
+                            {
+                            } else if(strcmp("PROPERTYDEFINITIONS",aux)==0)
+                            {
+                            } else if(strcmp("DIEAREA",aux)==0)
+                            {//DIEAREA
+                                aux = strtok(NULL," \n;()");
+                                float u = strtof(aux,NULL);
+                                aux = strtok(NULL," \n;()");
+                                u = strtof(aux,NULL);
+                                aux = strtok(NULL," \n;()");
+                                u = strtof(aux,NULL);
+                                //MAX X = u
+                                aux = strtok(NULL," \n;()");
+                                u = strtof(aux,NULL);
+                                //MAX Y = u
+                            } else if(strcmp("ROW",aux)==0)
+                            {
+                            } else if(strcmp("TRACKS",aux)==0)
+                            {
+                            } else if(strcmp("GCELLGRID",aux)==0)
+                            {
+                            } else if(strcmp("COMPONENTS",aux)==0)
+                            {//COMPONENTS
+                                aux = strtok(NULL," ;\n");
+                                printf("Num of Components: %s\n",aux);
+                                while(fgets(line,MAX_LINE,defFile)&&!feof(defFile))
+                                {
+                                    aux = strtok(line,";\n");
+                                    if((aux)&&(strcmp("END COMPONENTS",line)==0))
+                                    {
+                                        aux = strtok(NULL,"\" ;\n") ;
+                                        printf("Components End\n");
+                                        break;
+                                    }
+                                    aux = strtok(line," ;\n");
+                                    if(aux)
+                                    {
+                                        if(strcmp("-",aux)==0)
+                                        {
+                                            aux = strtok(NULL," \n");
+                                            puts(aux);
+                                        }
+                                    }
+                                } 
+
+                            } else if(strcmp("PINS",aux)==0)
+                            {//PINS
+                                aux = strtok(NULL," ;\n");
+                                printf("Num of Pins: %s\n",aux);
+                                while(fgets(line,MAX_LINE,defFile)&&!feof(defFile))
+                                {
+                                    aux = strtok(line,";\n");
+                                    if((aux)&&(strcmp("END PINS",line)==0))
+                                    {
+                                        aux = strtok(NULL,"\" ;\n") ;
+                                        printf("Pins End\n");
+                                        break;
+                                    }
+                                    aux = strtok(line," ;\n");
+                                    if(aux)
+                                    {
+                                        if(strcmp("-",aux)==0)
+                                        {
+                                            aux = strtok(NULL," \n");
+                                            puts(aux);
+                                        }
+                                    }
+                                } 
+
+                            } //else if(strcmp("PINS",aux)==0)
+                        }
+                    }
+                }
+            
+            }
+        }
+    }
+}
+Def::~Def()
+{
+    delete topology;
 }

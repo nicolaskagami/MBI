@@ -12,13 +12,14 @@
 
 #define CRITICAL_THRESHOLD 0.95 //Up to 10% 
 
+#ifndef NET_ORDER
+#define NET_ORDER 2 
+#endif
+
 #define MAX_LINE 255
 #define MAX_NAME 255
 #define MAX_SOURCES 2 
 #define MAX_LABEL 32
-
-
-
 
 
 typedef struct
@@ -43,6 +44,7 @@ class MBI
 		
 		void estimate_delay();
         void insert_buffers();
+        void insert_buffer(unsigned vert);
         void select_criticals(unsigned vert);
 		void add_criticals(unsigned vert);
 		void add_non_criticals(unsigned vert);
@@ -74,6 +76,7 @@ class MBI
 		void clean_paag();
 		
 		//DEF
+        Def * def;
 		void parse_def(char * defFileName);
         void clean_def();
 		

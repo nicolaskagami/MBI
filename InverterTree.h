@@ -37,17 +37,17 @@ typedef struct
 
 typedef struct
 {
-    unsigned vacant;
-    unsigned inv_taken;
-    unsigned signal_taken;
-} LEVEL;
-
-typedef struct
-{
     Point position;
     bool isVertex;//If true, this target is a vertex, otherwise it is an inv
     unsigned target;
 } TARGET;
+
+typedef struct
+{
+    unsigned vacant;
+    unsigned inv_taken;
+    unsigned signal_taken;
+} LEVEL;
 
 class InverterTree
 {
@@ -101,9 +101,9 @@ class InverterTree
 		void print_inverters();
 		void print();
         //Non Critical Allocation
-        void non_critical_allocation();
-        void non_critical_allocation_kmeans();
-        void non_critical_allocation_worstFirst();
+        float non_critical_allocation();
+        float non_critical_allocation_kmeans();
+        float non_critical_allocation_worstFirst();
         //Inverter Positioning
         void position_inverter(TEMP_INVERTER * inv);
 };
