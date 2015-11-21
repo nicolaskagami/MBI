@@ -5,12 +5,10 @@
 #include<vector>
 #include "Geometry.h"
 
+
 #ifndef NON_CRIT_ALG
 #define NON_CRIT_ALG 0 
 #endif
-
-
-
 
 typedef struct
 {
@@ -40,6 +38,7 @@ typedef struct
     Point position;
     bool isVertex;//If true, this target is a vertex, otherwise it is an inv
     unsigned target;
+	float post_delay;
 } TARGET;
 
 typedef struct
@@ -79,6 +78,11 @@ class InverterTree
 		std::vector<INVERTER> positionedInverters;
 
         //Temporary Variables
+		TARGET * critical_targets;
+		unsigned * critical_levels;
+		unsigned num_critical_targets;
+		unsigned critical_targets_occupied;
+		
         unsigned currentLayer;
         TARGET * targets;
         unsigned numTargets;
@@ -87,11 +91,14 @@ class InverterTree
         unsigned sizeInvertersArray;
 		
         //Functions
-		InverterTree(unsigned positiveConsumers,unsigned negativeConsumers,unsigned maxCellFanout,unsigned maxInvFanout,float invDelay,Point srcPosition);
+		InverterTree(unsigned positiveConsumers,unsigned negativeConsumers,unsigned maxCellFanout,unsigned maxInvFanout,float invDelay,Point srcPosition, unsigned num_critical);
 		~InverterTree();
 		void add_levels(unsigned newLevels);
-		void add_critical_target(unsigned target,bool signal,float delay);
+		void add_critical_target(unsigned target,bool signal,float delay,Point position);
+		void save_critical_target(TARGET tgt, unsigned level);
+		void introduce_critical_targets(unsigned level);
 		void expand();
+		void prune();
         void add_negative_target(unsigned target,bool isVertex,float delay,Point position);
         void add_positive_target(unsigned target,bool isVertex,float delay,Point position);
 		unsigned min_height(unsigned posConsumers,unsigned negConsumers);

@@ -290,7 +290,9 @@ void MBI::insert_buffer(unsigned vert)
         //Determine the critical ones (a number of how many of the first positive and negative are critical)
         select_criticals(vert);
         //Allocate
-        vertices[vert].inverter_tree = new InverterTree(vertices[vert].positive_targets,vertices[vert].negative_targets,max_cell_fanout,max_inv_fanout,inv_delay,vertices[vert].position);
+        vertices[vert].inverter_tree = new InverterTree(vertices[vert].positive_targets,vertices[vert].negative_targets,
+														max_cell_fanout,max_inv_fanout,inv_delay,vertices[vert].position,
+														vertices[vert].num_positive_critical+vertices[vert].num_negative_critical);
         //
         add_criticals(vert);
         vertices[vert].inverter_tree->expand();
@@ -298,7 +300,7 @@ void MBI::insert_buffer(unsigned vert)
         //
         add_non_criticals(vert);
         vertices[vert].inverter_tree->connect_positioned_targets();
-        //vertices[vert].inverter_tree->print_inverters();
+        vertices[vert].inverter_tree->print_inverters();
     }
 }
 void MBI::sort_vert(VERT vert)
@@ -374,12 +376,12 @@ void MBI::add_criticals(unsigned vert)
 	
     for( unsigned i=0;i<vertices[vert].num_positive_critical;i++)
     {
-		vertices[vert].inverter_tree->add_critical_target(edges[pbase+i].target,false,vertices[edges[pbase+i].target].post_delay);
+		vertices[vert].inverter_tree->add_critical_target(edges[pbase+i].target,false,vertices[edges[pbase+i].target].post_delay,vertices[edges[pbase+i].target].position);
     }
     
     for( unsigned i=0;i<vertices[vert].num_negative_critical;i++)
     {
-		vertices[vert].inverter_tree->add_critical_target(edges[nbase+i].target,true,vertices[edges[nbase+i].target].post_delay);
+		vertices[vert].inverter_tree->add_critical_target(edges[nbase+i].target,true,vertices[edges[nbase+i].target].post_delay,vertices[edges[pbase+i].target].position);
     }
 }
 void MBI::add_non_criticals(unsigned vert)
