@@ -123,7 +123,7 @@ void MBI::print()
             }
             printf("\n");
 			if(vertices[i].inverter_tree)
-			vertices[i].inverter_tree->print();
+				vertices[i].inverter_tree->print();
         }
     }
 }
@@ -280,6 +280,7 @@ void MBI::insert_buffers()
     }
     free(expanded_vertices);
 }
+/* Old Insert Buffer, works great
 void MBI::insert_buffer(unsigned vert)
 {
     if(min_height(vertices[vert].positive_targets,vertices[vert].negative_targets)>0)
@@ -300,6 +301,20 @@ void MBI::insert_buffer(unsigned vert)
         //
         add_non_criticals(vert);
         vertices[vert].inverter_tree->connect_positioned_targets();
+        vertices[vert].inverter_tree->print_inverters();
+    }
+}*/
+void MBI::insert_buffer(unsigned vert)
+{
+    if(min_height(vertices[vert].positive_targets,vertices[vert].negative_targets)>0)
+    {
+        sort_vert(vertices[vert]);
+        vertices[vert].inverter_tree = new InverterTree(vertices[vert].positive_targets,vertices[vert].negative_targets,
+														max_cell_fanout,max_inv_fanout,inv_delay,vertices[vert].position);
+        //
+        add_targets(vert);
+		print();
+		vertices[vert].inverter_tree->connect();
         vertices[vert].inverter_tree->print_inverters();
     }
 }
@@ -332,6 +347,7 @@ void MBI::sort_vert(unsigned vert)
     free(naux);
     free(paux);
 }
+/*
 void MBI::select_criticals(unsigned vert)
 {
     unsigned pbase = vertices[vert].pindex;
@@ -366,41 +382,25 @@ void MBI::select_criticals(unsigned vert)
             break;
         }
     }
-}
-void MBI::add_criticals(unsigned vert)
+}*/
+void MBI::add_targets(unsigned vert)
 {
     unsigned pbase = vertices[vert].pindex;
     unsigned nbase = vertices[vert].nindex;
 
     //Paralellizable
 	
-    for( unsigned i=0;i<vertices[vert].num_positive_critical;i++)
-    {
-		vertices[vert].inverter_tree->add_critical_target(edges[pbase+i].target,false,vertices[edges[pbase+i].target].post_delay,vertices[edges[pbase+i].target].position);
-    }
-    
-    for( unsigned i=0;i<vertices[vert].num_negative_critical;i++)
-    {
-		vertices[vert].inverter_tree->add_critical_target(edges[nbase+i].target,true,vertices[edges[nbase+i].target].post_delay,vertices[edges[pbase+i].target].position);
-    }
-}
-void MBI::add_non_criticals(unsigned vert)
-{
-    unsigned pbase = vertices[vert].pindex;
-    unsigned nbase = vertices[vert].nindex;
-
-    //Paralellizable
-	
-    for( unsigned i=vertices[vert].num_positive_critical;i<vertices[vert].positive_targets;i++)
+    for( unsigned i=0;i<vertices[vert].positive_targets;i++)
     {
 		vertices[vert].inverter_tree->add_positive_target(edges[pbase+i].target,true,vertices[edges[pbase+i].target].post_delay,vertices[edges[pbase+i].target].position);
     }
     
-    for( unsigned i=vertices[vert].num_negative_critical;i<vertices[vert].negative_targets;i++)
+    for( unsigned i=0;i<vertices[vert].negative_targets;i++)
     {
 		vertices[vert].inverter_tree->add_negative_target(edges[nbase+i].target,true,vertices[edges[nbase+i].target].post_delay,vertices[edges[nbase+i].target].position);
     }
 }
+
 void MBI::set_nodal_delay(char * cellName,char * invName)
 {
     for (std::list<CELL>::iterator it=lib->cells.begin(); it!=lib->cells.end(); ++it)
@@ -667,6 +667,6 @@ int main(int argc, char ** argv)
     nets.estimate_delay();
 	
     nets.insert_buffers();
-    nets.print();
+    //nets.print();
     //nets.lib->print();
 }

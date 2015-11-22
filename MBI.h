@@ -9,8 +9,7 @@
 #include "Liberty.h"
 #include "InverterTree.h"
 #include "Topology.h"
-
-#define CRITICAL_THRESHOLD 0.95 //Up to 10% 
+ //Up to 10% 
 
 #ifndef NET_ORDER
 #define NET_ORDER 2 
@@ -45,9 +44,7 @@ class MBI
 		void estimate_delay();
         void insert_buffers();
         void insert_buffer(unsigned vert);
-        void select_criticals(unsigned vert);
-		void add_criticals(unsigned vert);
-		void add_non_criticals(unsigned vert);
+		void add_targets(unsigned vert);
         void print();
         
         //Sorting
