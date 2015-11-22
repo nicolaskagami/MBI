@@ -7,7 +7,7 @@
 
 //For CRIT_ALG 0 and 1
 #ifndef CRITICAL_THRESHOLD
-#define CRITICAL_THRESHOLD 0.90
+#define CRITICAL_THRESHOLD 0.95
 #endif
 
 //Critical Algorithms:
@@ -128,6 +128,8 @@ class InverterTree
 		void connect();
 		void expand();
 		void prune();
+		void connect_targets();
+		void determine_max_delay();
 		
 		//Critical targets algorithms
 		void place_criticals();
@@ -146,12 +148,8 @@ class InverterTree
 		void position_inverter_centroid(TEMP_INVERTER * inv);
 		void position_inverter_ponderateCentroid(TEMP_INVERTER * inv);
 		
-		void connect_targets();
-		
-		
 		void collect_targets(unsigned level);
 		void add_levels(unsigned newLevels);
-		
 		void determine_level(unsigned tgt_index, unsigned level);
 		
 		void add_critical_target(unsigned target_index,bool signal);
@@ -160,8 +158,6 @@ class InverterTree
 		void add_current_negative_target(unsigned target,bool isVertex,float delay,Point position);
         void add_current_positive_target(unsigned target,bool isVertex,float delay,Point position);
 		unsigned min_height(unsigned posConsumers,unsigned negConsumers);
-		
-		
 		unsigned consolidate_inverter(TARGET * target_list,TEMP_INVERTER temp_inv);
 		void print_inverters();
 		void print();

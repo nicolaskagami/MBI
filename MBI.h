@@ -36,15 +36,18 @@ class MBI
         unsigned max_inv_fanout;
         float nodal_delay;
         float inv_delay;
+        float critical_path_delay;
 
-        //MBI(char * paagFileName,char * sdcFileName,char * libFileName);
         MBI(int argc,char ** argv);
 		~MBI();
 		
+        void set_initial_delay();
 		void estimate_delay();
         void insert_buffers();
         void insert_buffer(unsigned vert);
 		void add_targets(unsigned vert);
+        void calculate_critical_delay();
+        void calculate_path_delay(unsigned vert);
         void print();
         
         //Sorting
@@ -67,6 +70,11 @@ class MBI
         OUTPUT * outputs;
 		unsigned num_outputs;
 		
+        //Topological input switch:
+        //1 is Paag
+        //2 is Def
+        unsigned positional_input_source;
+
         //PAAG
 		Paag * paag;
         void parse_paag(char * paagFileName);
@@ -86,6 +94,8 @@ class MBI
         
         //LIB
         Liberty * lib;
+        void parse_lib(char * libFileName);
+        void clean_lib();
         void set_nodal_delay(char * cellName,char * invName);
 		
 		//InverterTree

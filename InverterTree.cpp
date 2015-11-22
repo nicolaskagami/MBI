@@ -67,6 +67,8 @@ void InverterTree::connect()
 	prune();
 	place_non_criticals();
 	connect_targets();
+	determine_max_delay();
+	//print();
 }
 void InverterTree::expand()
 {
@@ -330,6 +332,17 @@ void InverterTree::connect_targets()
 		free(inverters[i].targets_indexes);
 	free(inverters);
 
+}
+void InverterTree::determine_max_delay()
+{
+	maxDelay=0;
+
+	for(unsigned i=0;i<numPositiveTargets;i++)
+		if((positiveLevels[i] == 0)&&(positiveTargets[i].post_delay>maxDelay))
+			maxDelay = positiveTargets[i].post_delay;
+	for(unsigned i=0;i<numCurrentPositiveTargets;i++)
+		if(positionedInverters[currentPositiveTargets[i].target].post_delay > maxDelay)
+			maxDelay = positionedInverters[currentPositiveTargets[i].target].post_delay;
 }
 
 //Critical targets algorithms
@@ -725,7 +738,6 @@ void InverterTree::add_critical_target(unsigned target_index,bool signal)
 	determine_level(target_index,i);
 	//printf("3Added Target %u to level %u\n",target_index,i);
 	return;
-	
 }
 void InverterTree::add_negative_target(unsigned target,bool isVertex,float delay,Point position)
 {
@@ -838,15 +850,23 @@ unsigned InverterTree::consolidate_inverter(TARGET * target_list,TEMP_INVERTER t
 	inv.num_vert_targets = 0;
 	inv.position = temp_inv.position;
 	inv.post_delay = 0;
+	float post_delay_candidate =0;
 	for(unsigned i=0;i<temp_inv.num_targets;i++)
 	{//For better performance: Iterate over "temp_inv.targets_indexes[i]"
-		if(target_list[temp_inv.targets_indexes[i]].post_delay>inv.post_delay)
-			inv.post_delay = target_list[temp_inv.targets_indexes[i]].post_delay;
 		
 		if(target_list[temp_inv.targets_indexes[i]].isVertex)
+		{
 			inv.targets[inv.num_vert_targets++]=target_list[temp_inv.targets_indexes[i]].target;
+			post_delay_candidate = target_list[temp_inv.targets_indexes[i]].post_delay;
+		}
 		else
+		{
 			inv.targets[degree-1-(inv.num_inv_targets++)]=target_list[temp_inv.targets_indexes[i]].target;
+			post_delay_candidate = target_list[temp_inv.targets_indexes[i]].post_delay + inverterDelay;
+		}
+		//Add here path delay
+		if(post_delay_candidate>inv.post_delay)
+				inv.post_delay = post_delay_candidate;
 	}
 	//printf("Consolidating inverter: %u,%u targets \n",inv.num_inv_targets,inv.num_vert_targets);
 	
@@ -862,19 +882,20 @@ void InverterTree::print()
 	printf("First Level:\n");
 	for(unsigned i=0;i<numPositiveTargets;i++)
 		if(positiveLevels[i] == 0)
-			printf("Target: %u\n",i);
+			printf("Target: %u Post Delay: %.4f\n",positiveTargets[i].target,positiveTargets[i].post_delay);
 	for(unsigned i=0;i<numCurrentPositiveTargets;i++)
-		printf("Inverter %u\n",currentPositiveTargets[i].target);
+		printf("Inverter %u Post Delay: %.4f\n",currentPositiveTargets[i].target,positionedInverters[currentPositiveTargets[i].target].post_delay);
 }
 void InverterTree::print_inverters()
 {
 	unsigned i=0,j;
 	for (std::vector<INVERTER>::iterator it = positionedInverters.begin() ; it != positionedInverters.end(); ++it,i++)
 	{
-		printf("Inverter: %u (%.2f,%.2f): Signals Fed: (%u)",i,it->position.x,it->position.y,it->num_vert_targets);
+		printf("Inverter: %u (%.2f,%.2f) Post Delay: %.4f",i,it->position.x,it->position.y,it->post_delay);
+		printf("\n\tSignals Fed(%u): ",it->num_vert_targets);
 		for(j=0;j<it->num_vert_targets;j++)
 			printf("%u ",it->targets[j]);
-		printf("Inverters Fed: (%u)",it->num_inv_targets);
+		printf("\n\tInverters Fed: (%u)",it->num_inv_targets);
 		for(j=0;j<it->num_inv_targets;j++)
 			printf("%u ",it->targets[degree-j-1]);
 		printf("\n");

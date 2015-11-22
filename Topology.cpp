@@ -34,6 +34,10 @@ int Topology::allocate_memory(unsigned v, unsigned e,unsigned I, unsigned O)
 		vertices[i].num_negative_critical = 0;
 		vertices[i].inverter_tree = NULL;
     }
+    for(unsigned i=0;i<num_edges;i++)
+    {
+        edges[i].path_delay = 0;
+    }
 	inputs = (INPUT*) malloc(sizeof(INPUT)*I);
 	outputs = (OUTPUT*) malloc(sizeof(OUTPUT)*O);
 
