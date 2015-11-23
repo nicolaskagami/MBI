@@ -654,6 +654,7 @@ void MBI::set_clock()
 int main(int argc, char ** argv)
 {
     MBI nets(argc,argv);
+    nets.print();
 	nets.max_inv_fanout = 2;
 	nets.max_cell_fanout = 2;
 	

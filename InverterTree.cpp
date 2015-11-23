@@ -577,6 +577,8 @@ float InverterTree::non_critical_allocation_kmeans()
 {
 	srand(time(NULL));
 	//Randomly seed inverters
+    if(numTargets == 0)
+        return 0;
 	for(unsigned i=0;i<numInverters;i++) // Starting position
 		inverters[i].position = targets[rand()%numTargets].position;
     //K Means

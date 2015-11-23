@@ -46,8 +46,8 @@ int Topology::allocate_memory(unsigned v, unsigned e,unsigned I, unsigned O)
 	inputs = (INPUT*) malloc(sizeof(INPUT)*I);
 	outputs = (OUTPUT*) malloc(sizeof(OUTPUT)*O);
 
-	num_inputs = I;
-	num_outputs = O;
+	num_inputs = 0;
+	num_outputs = 0;
 }
 void Topology::preallocate(unsigned src,unsigned tgt,bool signal)
 {
@@ -836,29 +836,29 @@ void Def::toTopology()
     //Position Vertices
     for(unsigned i = 0; i < pins.size();i++)
     {
+        topology->set_position(pins[i].vertex,pins[i].position.x,pins[i].position.y);
         if(!pins[i].direction)
         {
-            numEdges++;
-            numOutputs++;
+            OUTPUT o;
+            o.index = pins[i].vertex;
+            strcpy(o.name,pins[i].name);
+            o.max_delay = 0;
+            topology->outputs[topology->num_outputs++] = o;
         }
         else
         {
-            numInputs++; 
+            INPUT in;
+            in.index = pins[i].vertex;
+            strcpy(in.name,pins[i].name);
+            in.delay = 0;
+            topology->inputs[topology->num_inputs++] = in;
         }
-        pins[i].vertex = numVertices++;
     }
     for(unsigned i = 0; i < components.size();i++)
     {
         if((components[i].cell->name,"AND2_X1")==0)
         {
-            //And
-            components[i].vertex =  numVertices++;
-            components[i].ready = true;
-            numEdges+=2;
-        }
-        else
-        {
-            components[i].ready = false;
+            topology->set_position(components[i].vertex,components[i].position.x,components[i].position.y);
         }
         //else is INV, which does not contribute to vertex
     }
