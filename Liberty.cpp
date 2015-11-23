@@ -901,6 +901,15 @@ void Liberty::print()
     }
         
 }
+CELL * Liberty::findCell(char * cellName)
+{
+	for (std::list<CELL>::iterator it=cells.begin(); it!=cells.end(); ++it)
+	{
+		if(strcmp(it->name,cellName)==0)
+			return &(*it);
+	}
+	return NULL;
+}
 void Liberty::print_timing_character(TIMING_CHARACTER * tc)
 {
 	unsigned i,j;

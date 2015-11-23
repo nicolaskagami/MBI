@@ -1,4 +1,5 @@
-
+#ifndef LIBERTY_H
+#define LIBERTY_H
 #include<iostream>
 #include<stdio.h>
 #include<stdlib.h>
@@ -148,10 +149,13 @@ class Liberty
 		POWER_CHARACTER get_power_character();
 		void print_timing_character(TIMING_CHARACTER * tc);
 		void print_power_character(POWER_CHARACTER * pc);
-        Liberty(char * libFileName);  
-		void print();
+
+		CELL * findCell(char * cellName);
+        Liberty(char * libFileName);
 		~Liberty();
+		void print();
 	private:
 		FILE * libFile;
 		char line[MAX_LINE];
 };
+#endif

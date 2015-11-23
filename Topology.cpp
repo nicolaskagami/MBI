@@ -291,9 +291,10 @@ Paag::~Paag()
 }
 
 //DEF
-Def::Def(char * defFileName)
+Def::Def(char * defFileName,Liberty *liberty)
 {
 	FILE * defFile;
+    lib = liberty;
     defFile = fopen(defFileName,"r");
 	topology = new Topology();
 	char line[MAX_LINE];
@@ -357,14 +358,15 @@ Def::Def(char * defFileName)
                             } else if(strcmp("COMPONENTS",aux)==0)
                             {//COMPONENTS
                                 aux = strtok(NULL," ;\n");
-                                printf("Num of Components: %s\n",aux);
+                                unsigned numComponents = strtoul(aux,NULL,10);
+                                //printf("Num of Components: %u\n",numComponents);
+                                components.reserve(numComponents);
                                 while(fgets(line,MAX_LINE,defFile)&&!feof(defFile))
                                 {
                                     aux = strtok(line,";\n");
                                     if((aux)&&(strcmp("END COMPONENTS",line)==0))
                                     {
-                                        aux = strtok(NULL,"\" ;\n") ;
-                                        printf("Components End\n");
+                                        aux = strtok(NULL,"\" ;\n");
                                         break;
                                     }
                                     aux = strtok(line," ;\n");
@@ -372,8 +374,27 @@ Def::Def(char * defFileName)
                                     {
                                         if(strcmp("-",aux)==0)
                                         {
-                                            aux = strtok(NULL," \n");
-                                            puts(aux);
+                                            COMPONENT component;
+                                            aux = strtok(NULL," \t\n");
+                                            strcpy(component.name,aux);
+                                            aux = strtok(NULL," \t\n");
+                                            if(aux)
+                                                component.cell = lib->findCell(aux);
+                                            
+                                            fgets(line,MAX_LINE,defFile);
+                                            aux = strtok(line," ();\t\n");
+                                            if(strcmp("+",aux)==0)
+                                            {
+                                                aux = strtok(NULL," ();\t\n");
+                                                if(strcmp("PLACED",aux)==0)
+                                                {
+                                                    aux = strtok(NULL," ();\t\n");
+                                                    component.position.x = strtof(aux,NULL);
+                                                    aux = strtok(NULL," ();\t\n");
+                                                    component.position.y = strtof(aux,NULL);
+                                                }
+                                            }
+                                            components.push_back(component);
                                         }
                                     }
                                 } 
@@ -381,14 +402,15 @@ Def::Def(char * defFileName)
                             } else if(strcmp("PINS",aux)==0)
                             {//PINS
                                 aux = strtok(NULL," ;\n");
-                                printf("Num of Pins: %s\n",aux);
+                                unsigned numPins = strtoul(aux,NULL,10);
+                                //printf("Num of Pins: %u\n",numPins);
+                                pins.reserve(numPins);
                                 while(fgets(line,MAX_LINE,defFile)&&!feof(defFile))
                                 {
                                     aux = strtok(line,";\n");
                                     if((aux)&&(strcmp("END PINS",line)==0))
                                     {
-                                        aux = strtok(NULL,"\" ;\n") ;
-                                        printf("Pins End\n");
+                                        aux = strtok(NULL,"\" ;\n");
                                         break;
                                     }
                                     aux = strtok(line," ;\n");
@@ -396,13 +418,73 @@ Def::Def(char * defFileName)
                                     {
                                         if(strcmp("-",aux)==0)
                                         {
+                                            PIN pin;
                                             aux = strtok(NULL," \n");
-                                            puts(aux);
+                                            strcpy(pin.name,aux);
+
+                                            fgets(line,MAX_LINE,defFile);
+                                            aux = strtok(line," ();\t\n");
+                                            if(strcmp("+",aux)==0)
+                                            {
+                                                aux = strtok(NULL," ();\t\n");
+                                                if(strcmp("DIRECTION",aux)==0)
+                                                {
+                                                    aux = strtok(NULL," ();\t\n");
+                                                    if(strcmp("INPUT",aux)==0)
+                                                    {
+                                                        pin.direction = true;
+                                                    }
+                                                    else
+                                                    if(strcmp("OUTPUT",aux)==0)
+                                                    {
+                                                        pin.direction = false;
+                                                    }
+                                                }
+                                            }
+                                            fgets(line,MAX_LINE,defFile);
+                                            fgets(line,MAX_LINE,defFile);
+                                            aux = strtok(line," ();\t\n");
+                                            if(strcmp("+",aux)==0)
+                                            {
+                                                aux = strtok(NULL," ();\t\n");
+                                                if(strcmp("PLACED",aux)==0)
+                                                {
+                                                    aux = strtok(NULL," ();\t\n");
+                                                    pin.position.x = strtof(aux,NULL);
+                                                    aux = strtok(NULL," ();\t\n");
+                                                    pin.position.y = strtof(aux,NULL);
+                                                }
+                                            }
+                                            pins.push_back(pin);
                                         }
                                     }
                                 } 
 
-                            } //else if(strcmp("PINS",aux)==0)
+                           } else if(strcmp("NETS",aux)==0)
+                            {//NETS
+                                aux = strtok(NULL," ;\n");
+                                unsigned numNets = strtoul(aux,NULL,10);
+                                //printf("Num of Pins: %u\n",numNets);
+                                nets.reserve(numNets);
+                                while(fgets(line,MAX_LINE,defFile)&&!feof(defFile))
+                                {
+                                    aux = strtok(line,";\t\n");
+                                    if((aux)&&(strcmp("END NETS",line)==0))
+                                    {
+                                        aux = strtok(NULL,"\" ;\n");
+                                        break;
+                                    }
+                                    aux = strtok(line," ;\t\n");
+                                    if(aux)
+                                    {
+                                        if(strcmp("-",aux)==0)
+                                        {
+                                            
+                                        }
+
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -410,8 +492,28 @@ Def::Def(char * defFileName)
             }
         }
     }
+    print();
 }
 Def::~Def()
 {
     delete topology;
+}
+void Def::print()
+{
+    printf("Def\n");
+    printf("Components:\n");
+    for(unsigned i = 0; i < components.size();i++)
+    {
+        printf("%s: (%.2f, %.2f) %s\n",components[i].name,components[i].position.x,components[i].position.y,components[i].cell->name);
+    }
+    printf("Pins:\n");
+    for(unsigned i = 0; i < pins.size();i++)
+    {
+        printf("%s: (%.2f, %.2f) %s\n",pins[i].name,pins[i].position.x,pins[i].position.y,(pins[i].direction)?"Input":"Output");
+    }
+    printf("Nets:\n");
+    for(unsigned i = 0; i < nets.size();i++)
+    {
+        printf("%s: \n",nets[i].name);
+    }
 }

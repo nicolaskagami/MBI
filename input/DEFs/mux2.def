@@ -91,5 +91,14 @@ PINS 4 ;
         ( -70 0 ) ( 70 140 ) ;
 END PINS
 
+NETS 3 ;
+    - net1
+       ( PIN input1 ) ( g1 A ) ;
+    - net2
+       ( g1 O ) ( g2 B ) ( g5 B ) ;
+    - net3
+       ( g5 O ) ( PIN output1 ) ;
+END NETS
+
 END DESIGN
 

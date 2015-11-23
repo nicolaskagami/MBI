@@ -37,6 +37,7 @@ MBI::MBI(int argc,char ** argv)
 		printf("Selected positional input file:   \t%s\n",positional_input_file_name);
 		printf("Selected timing input file:       \t%s\n",timing_input_file_name);
 		printf("Selected cell library input file: \t%s\n",cell_input_file_name);
+        parse_lib(cell_input_file_name);
 		switch(positional_input_source)
 		{
 			case 1: parse_paag(positional_input_file_name);break;
@@ -45,7 +46,7 @@ MBI::MBI(int argc,char ** argv)
 		}
 		parse_sdc(timing_input_file_name);
 		set_clock();
-        parse_lib(cell_input_file_name);
+        
 	}
 	else
 	{
@@ -495,7 +496,7 @@ void MBI::clean_paag()
 }
 void MBI::parse_def(char * defFileName)
 {
-	def = new Def(defFileName);
+	def = new Def(defFileName,lib);
 
 	vertices = def->topology->vertices;
 	num_vertices = def->topology->num_vertices;
@@ -653,7 +654,6 @@ void MBI::set_clock()
 int main(int argc, char ** argv)
 {
     MBI nets(argc,argv);
-	//MBI nets("./input/example4.paag","./input/example4.sdc","./input/simple-cells.lib");
 	nets.max_inv_fanout = 2;
 	nets.max_cell_fanout = 2;
 	

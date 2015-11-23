@@ -5,6 +5,8 @@
 #include<string.h>
 #include<list>
 #include<queue>
+
+#include "Liberty.h"
 #include "Geometry.h"
 
 #define MAX_LINE 255
@@ -57,6 +59,25 @@ typedef struct
     float max_delay;
 } OUTPUT;
 
+//Def structures
+typedef struct 
+{
+    char name[MAX_NAME];
+    bool direction; //input or output
+    Point position;
+} PIN;
+typedef struct 
+{
+    char name[MAX_NAME];
+    Point position;
+    CELL * cell;
+} COMPONENT;
+typedef struct 
+{
+    char name[MAX_NAME];
+    //
+} NET;
+
 class Topology
 {
 	public:
@@ -92,14 +113,17 @@ class Paag
 		void print();
 };
 
-class Def 
+class Def
 {
     public:
         //Def
+        Liberty * lib;
 		Topology * topology;
+		std::vector<COMPONENT> components;
+        std::vector<PIN> pins;
+        std::vector<NET> nets;
 		
-		
-        Def(char * defFileName);  
+        Def(char * defFileName,Liberty * liberty);  
 		~Def();
 		void print();
 };
