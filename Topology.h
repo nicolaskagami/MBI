@@ -37,46 +37,24 @@ typedef struct
     unsigned num_negative_critical;
     InverterTree * inverter_tree;
 }VERT;
-
 typedef struct 
 {
     unsigned target;
     float path_delay;
     unsigned level;
 } EDGE;
-
 typedef struct
 {
     unsigned index;
     char name[MAX_LABEL];
     float delay;
 } INPUT;
-
 typedef struct
 {
     unsigned index;
     char name[MAX_LABEL];
     float max_delay;
 } OUTPUT;
-
-//Def structures
-typedef struct 
-{
-    char name[MAX_NAME];
-    bool direction; //input or output
-    Point position;
-} PIN;
-typedef struct 
-{
-    char name[MAX_NAME];
-    Point position;
-    CELL * cell;
-} COMPONENT;
-typedef struct 
-{
-    char name[MAX_NAME];
-    //
-} NET;
 
 class Topology
 {
@@ -90,8 +68,12 @@ class Topology
 		unsigned num_inputs;
         OUTPUT * outputs;
 		unsigned num_outputs;
-		
+
+        float X;
+        float Y;
+
 		Topology();
+		~Topology();
 		int allocate_memory(unsigned v, unsigned e, unsigned I, unsigned O);
         void preallocate(unsigned src,unsigned tgt,bool signal);
         void indexify();
@@ -113,6 +95,36 @@ class Paag
 		void print();
 };
 
+//Def structures
+typedef struct 
+{
+    char name[MAX_NAME];
+    bool direction; //input or output
+    Point position;
+    unsigned vertex;
+} PIN;
+typedef struct 
+{
+    char name[MAX_NAME];
+    Point position;
+    CELL * cell;
+    unsigned vertex;
+    bool vertexSignal;
+    bool ready;
+} COMPONENT;
+typedef struct
+{
+    char name[MAX_NAME];
+    char pin[MAX_LABEL];
+    COMPONENT * component;
+} NET_POINT;  
+typedef struct 
+{
+    char name[MAX_NAME];
+    std::vector<NET_POINT> targets;
+    NET_POINT source;
+} NET;
+
 class Def
 {
     public:
@@ -126,4 +138,13 @@ class Def
         Def(char * defFileName,Liberty * liberty);  
 		~Def();
 		void print();
+        bool isPinOutput(char * pinName);
+        PIN * findPin(char * pinName);
+        void toTopology();
+        COMPONENT * findComponent(char * compName);
+    private:
+        unsigned numVertices;
+        unsigned numEdges;
+        unsigned numInputs;
+        unsigned numOutputs;
 };

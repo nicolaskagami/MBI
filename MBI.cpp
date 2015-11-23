@@ -41,7 +41,7 @@ MBI::MBI(int argc,char ** argv)
 		switch(positional_input_source)
 		{
 			case 1: parse_paag(positional_input_file_name);break;
-			case 2: parse_def(positional_input_file_name);exit(1);break;//def parser
+			case 2: parse_def(positional_input_file_name);break;//def parser
 			default:exit(1);
 		}
 		parse_sdc(timing_input_file_name);
