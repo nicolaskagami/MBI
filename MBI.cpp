@@ -103,7 +103,7 @@ void MBI::print()
     printf("Edges: %d\n",num_edges);
     for(i = 0;i<num_vertices;i++)
     {
-        if((vertices[i].positive_targets+vertices[i].negative_targets)>0)
+        //if((vertices[i].positive_targets+vertices[i].negative_targets)>0)
         {
             printf("Vert %d (%.2f,%.2f)\n",i,vertices[i].position.x,vertices[i].position.y);
             printf("Sources: ");
@@ -303,6 +303,7 @@ void MBI::insert_buffers()
 }
 void MBI::insert_buffer(unsigned vert)
 {
+    //printf("Inserting Vert: %u\n",vert);
     if(min_height(vertices[vert].positive_targets,vertices[vert].negative_targets)>0)
     {
         sort_vert(vertices[vert]);
@@ -313,7 +314,7 @@ void MBI::insert_buffer(unsigned vert)
 		vertices[vert].inverter_tree->connect();
         vertices[vert].post_delay = vertices[vert].inverter_tree->maxDelay;
         calculate_path_delay(vert);
-        vertices[vert].inverter_tree->print_inverters();
+        //vertices[vert].inverter_tree->print_inverters();
     }
 }
 void MBI::sort_vert(VERT vert)
@@ -442,7 +443,7 @@ unsigned MBI::min_height(unsigned posConsumers,unsigned negConsumers)
     unsigned leavesAvailable, leaves;
     unsigned height1_branches;
     
-    if((negConsumers == 0)&&(posConsumers<=max_inv_fanout)) 
+    if((negConsumers == 0)&&(posConsumers<=max_cell_fanout)) 
     {
         return 0; 
     }
@@ -654,7 +655,6 @@ void MBI::set_clock()
 int main(int argc, char ** argv)
 {
     MBI nets(argc,argv);
-    nets.print();
 	nets.max_inv_fanout = 2;
 	nets.max_cell_fanout = 2;
 	
@@ -662,9 +662,10 @@ int main(int argc, char ** argv)
     nets.set_initial_delay();
     nets.estimate_delay();
 	
+    
     nets.insert_buffers();
     nets.estimate_delay();
     nets.calculate_critical_delay();
-    nets.print();
+    printf("Critical Delay: %.4f\n",nets.critical_path_delay);
     //nets.lib->print();
 }

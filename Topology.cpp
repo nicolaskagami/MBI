@@ -304,7 +304,6 @@ Def::Def(char * defFileName,Liberty *liberty)
 	topology = new Topology();
 	char line[MAX_LINE];
     char * aux;
-	
     if(defFile)
     {
         while(fgets(line,MAX_LINE,defFile)&&!feof(defFile))
@@ -488,16 +487,19 @@ Def::Def(char * defFileName,Liberty *liberty)
                                         if(strcmp("-",aux)==0)
                                         {
                                             NET net;
+                                            NET_POINT np;
+
                                             aux = strtok(NULL," ;\t\n");
                                             strcpy(net.name,aux);
-                                            fgets(line,MAX_LINE,defFile);
-                                            aux = strtok(line," ;)(\t\n");
                                             //First pin
-                                            NET_POINT np;
+                                            fgets(line,MAX_LINE,defFile);
+
+                                            aux = strtok(line," ;)(\t\n");
                                             strcpy(np.name,aux);
                                             aux = strtok(NULL," ;)(\t\n");
                                             strcpy(np.pin,aux);
-                                            if((strcmp("PIN",np.name)==0)&&(isPinOutput(np.pin)))
+
+                                            while((strcmp("PIN",np.name)==0)&&(isPinOutput(np.pin)))
                                             {
                                                 //np is only target, next one is source...
                                                 net.targets.push_back(np);
@@ -505,33 +507,28 @@ Def::Def(char * defFileName,Liberty *liberty)
                                                 strcpy(np.name,aux);
                                                 aux = strtok(NULL," ;)(\t\n");
                                                 strcpy(np.pin,aux);
-                                                net.source = np;
                                             }
-                                            else
+                                            net.source = np;
+                                            //Other pins
+                                            aux = strtok(NULL," )(\t\n");
+                                            do
                                             {
-                                                net.source = np;
-                                                //Other pins
-                                                aux = strtok(NULL," )(\t\n");
-                                                do
+                                                while(aux)
                                                 {
-                                                    while(aux)
+                                                    strcpy(np.name,aux);
+                                                    aux = strtok(NULL," )(\t\n");
+                                                    if(aux)
                                                     {
-                                                        NET_POINT np;
-                                                        strcpy(np.name,aux);
+                                                        strcpy(np.pin,aux);
                                                         aux = strtok(NULL," )(\t\n");
-                                                        if(aux)
-                                                        {
-                                                            strcpy(np.pin,aux);
-                                                            aux = strtok(NULL," )(\t\n");
-                                                            net.targets.push_back(np);
-                                                        }
+                                                        net.targets.push_back(np);
                                                     }
-                                                    fgets(line,MAX_LINE,defFile);
-                                                    aux = strtok(line," )(\t\n");
-                                                    
-                                                } while((aux)&&(aux[0]!=';'));
+                                                }
+                                                fgets(line,MAX_LINE,defFile);
+                                                aux = strtok(line," )(\t\n");
+                                                
+                                            } while((aux)&&(aux[0]!=';'));
 
-                                            }
                                             nets.push_back(net);
                                         }
 
@@ -544,9 +541,16 @@ Def::Def(char * defFileName,Liberty *liberty)
             
             }
         }
+
+        toTopology();
     }
-    toTopology();
+    else
+    {
+        printf("Def Error: Can't open file: %s\n", defFileName);exit(1);
+    }
+    
     //print();
+
 }
 Def::~Def()
 {
@@ -576,7 +580,7 @@ void Def::print()
         printf("\tTargets: ");
         for(unsigned j=0;j<nets[i].targets.size();j++)
             printf("(%s %s) ",nets[i].targets[j].name,nets[i].targets[j].pin);
-        printf("\n");
+        printf("\n");    getchar();
     }
 }
 bool Def::isPinOutput(char * pinName)
@@ -627,7 +631,7 @@ void Def::toTopology()
     }
     for(unsigned i = 0; i < components.size();i++)
     {
-        if((components[i].cell->name,"AND2_X1")==0)
+        if(strcmp(components[i].cell->name,"AND2_X1")==0)
         {
             //And
             components[i].vertex =  numVertices++;
@@ -640,7 +644,9 @@ void Def::toTopology()
         }
         //else is INV, which does not contribute to vertex
     }
+
     //Determine the source component for each net point
+    //printf("Determining Components\n");
     for(unsigned i = 0; i < nets.size();i++)
     {
         nets[i].source.component = NULL;
@@ -665,7 +671,9 @@ void Def::toTopology()
             }
         }
     }
+    //printf("Allocating Memory\n");
     topology->allocate_memory(numVertices,numEdges,numInputs,numOutputs);
+    //printf("Toughest Part\n");
     bool netsReady;
     do
     { //This could be done much more efficiently
@@ -696,8 +704,10 @@ void Def::toTopology()
                         }
                     }
                 }
-
-                //else push to a queue?
+                else
+                {   //printf("Net: %u: (%s %s) with %u\n",i,nets[i].source.name,nets[i].source.pin,nets[i].targets.size());
+                    netsReady = false;
+                }
             }
             else
             {
@@ -705,7 +715,7 @@ void Def::toTopology()
                 PIN * pin = findPin(nets[i].source.pin);
                 if(pin == NULL)
                 {
-                    printf("Def Error: Pin not found\n");
+                    printf("Def Error: Pin %s not found\n",nets[i].source.pin);exit(1);
                 }
                 for(unsigned j=0;j<nets[i].targets.size();j++)
                 {
@@ -730,6 +740,7 @@ void Def::toTopology()
             }
         }
     }while(!netsReady);
+    //printf("Preallocation\n");
     //Preallocation
     for(unsigned i = 0; i < nets.size();i++)
     {
@@ -741,7 +752,7 @@ void Def::toTopology()
                 {
                     if(nets[i].targets[j].component->ready)
                     {
-                        if((nets[i].targets[j].component->cell->name,"AND2_X1")==0)
+                        if(strcmp(nets[i].targets[j].component->cell->name,"AND2_X1")==0)
                             topology->preallocate(nets[i].source.component->vertex,nets[i].targets[j].component->vertex,nets[i].source.component->vertexSignal);
                     }
                 }
@@ -750,7 +761,7 @@ void Def::toTopology()
                     PIN * outputPin = findPin(nets[i].targets[j].pin);
                     if(outputPin == NULL)
                     {
-                        printf("Def Error: Pin not found\n");exit(1);
+                        printf("Def Error: Pin %s not found\n",nets[i].source.pin);exit(1);
                     }
                     topology->preallocate(nets[i].source.component->vertex,outputPin->vertex,nets[i].source.component->vertexSignal);
                 }
@@ -762,13 +773,13 @@ void Def::toTopology()
             PIN * pin = findPin(nets[i].source.pin);
             if(pin == NULL)
             {
-                printf("Def Error: Pin not found\n");exit(1);
+                printf("Def Error: Pin %s not found\n",nets[i].source.pin);exit(1);
             }
             for(unsigned j=0;j<nets[i].targets.size();j++)
             {
                 if((nets[i].targets[j].component)&&(nets[i].targets[j].component->ready))
                 {
-                    if((nets[i].targets[j].component->cell->name,"AND2_X1")==0)
+                    if(strcmp(nets[i].targets[j].component->cell->name,"AND2_X1")==0)
                         topology->preallocate(pin->vertex,nets[i].targets[j].component->vertex,false);
                 }
                 else
@@ -776,7 +787,7 @@ void Def::toTopology()
                     PIN * outputPin = findPin(nets[i].targets[j].pin);
                     if(outputPin == NULL)
                     {
-                        printf("Def Error: Pin not found\n");exit(1);
+                        printf("Def Error: Pin %s not found\n",nets[i].source.pin);exit(1);
                     }
                     topology->preallocate(pin->vertex,outputPin->vertex,false);
                 }
@@ -784,6 +795,7 @@ void Def::toTopology()
         }
     }
     //Indexify
+    //printf("Indexify\n");
     topology->indexify();
     //Add edges
     for(unsigned i = 0; i < nets.size();i++)
@@ -793,7 +805,7 @@ void Def::toTopology()
             for(unsigned j=0;j<nets[i].targets.size();j++)
                 if((nets[i].targets[j].component)&&(nets[i].targets[j].component->ready))
                 {
-                    if((nets[i].targets[j].component->cell->name,"AND2_X1")==0)
+                    if(strcmp(nets[i].targets[j].component->cell->name,"AND2_X1")==0)
                         topology->add_edge(nets[i].source.component->vertex,nets[i].targets[j].component->vertex,nets[i].source.component->vertexSignal);
                 }
                 else
@@ -813,26 +825,28 @@ void Def::toTopology()
             PIN * pin = findPin(nets[i].source.pin);
             if(pin == NULL)
             {
-                printf("Def Error: Pin not found\n");exit(1);
+                printf("Def Error: Pin %s not found\n",nets[i].source.pin);exit(1);
             }
             for(unsigned j=0;j<nets[i].targets.size();j++)
                 if((nets[i].targets[j].component)&&(nets[i].targets[j].component->ready))
                 {
-                    if((nets[i].targets[j].component->cell->name,"AND2_X1")==0)
+                    if(strcmp(nets[i].targets[j].component->cell->name,"AND2_X1")==0)
                         topology->add_edge(pin->vertex,nets[i].targets[j].component->vertex,false);
                 }
                 else
                 {
-                    printf("Def Warning: Connecting Pin to Pin\n");
+                    
                     PIN  * outputPin = findPin(nets[i].targets[j].pin);
                     if(outputPin == NULL)
                     {
-                        printf("Def Error: Pin not found\n");exit(1);
+                        printf("Def Error: Pin %s not found\n",nets[i].source.pin);exit(1);
                     }
+                    printf("Def Warning: Connecting Pin %s to Pin %s\n",pin->name,outputPin->name);
                     topology->add_edge(pin->vertex,outputPin->vertex,false);
                 }
         }
     }
+
     //Position Vertices
     for(unsigned i = 0; i < pins.size();i++)
     {
@@ -856,12 +870,13 @@ void Def::toTopology()
     }
     for(unsigned i = 0; i < components.size();i++)
     {
-        if((components[i].cell->name,"AND2_X1")==0)
+        if(strcmp(components[i].cell->name,"AND2_X1")==0)
         {
             topology->set_position(components[i].vertex,components[i].position.x,components[i].position.y);
         }
         //else is INV, which does not contribute to vertex
     }
+
 }
 COMPONENT * Def::findComponent(char * compName)
 {

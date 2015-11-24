@@ -28,10 +28,8 @@ InverterTree::InverterTree(unsigned posTargets,unsigned negTargets,unsigned maxC
 	numCurrentPositiveTargets = 0;
 	numCurrentNegativeTargets = 0;
 	
-	height = min_height(posTargets,negTargets);
-	if(height == 0)
-		height = 1;
-	
+	height = min_height(posTargets,negTargets)+1;
+
 	levels = (LEVEL*) malloc(height*sizeof(LEVEL));
     levels[0].vacant = maxCellFanout - 1;
     levels[0].inv_taken = 1;
@@ -63,6 +61,7 @@ InverterTree::~InverterTree()
 void InverterTree::connect()
 {
 	place_criticals();
+	
 	expand();
 	prune();
 	place_non_criticals();
@@ -96,9 +95,8 @@ void InverterTree::expand()
 				if(positiveAvailable >= positiveConsumersLeft)
 				{
 					negativeAvailable = (positiveAvailable-positiveConsumersLeft)/degree;
-					positiveAvailable-=positiveConsumersLeft;
+					positiveAvailable=positiveConsumersLeft;
 					//printf("Height: %u/%u, Pos: %u/%u Neg %u/%u\n",i,height,positiveAvailable,positiveConsumersLeft,negativeAvailable,negativeConsumersLeft);
-
 				    if(negativeAvailable >= negativeConsumersLeft) //If this is not enough, these won't be the final layers and we should expand all
                     {
                         levels[i+1].inv_taken--;
@@ -119,7 +117,7 @@ void InverterTree::expand()
 				if(negativeAvailable >= negativeConsumersLeft)
 				{
 					positiveAvailable = (negativeAvailable-negativeConsumersLeft)/degree;
-					negativeAvailable-=negativeConsumersLeft;
+					negativeAvailable=negativeConsumersLeft;
 					//printf("Height: %u/%u, Pos: %u/%u Neg %u/%u\n",i,height,positiveAvailable,positiveConsumersLeft,negativeAvailable,negativeConsumersLeft);
 
 				    if(positiveAvailable >= positiveConsumersLeft) //If this is not enough, these won't be the final layers and we should expand all
@@ -366,7 +364,7 @@ void InverterTree::place_criticals_FlatPercent()
         highest_delay = positiveTargets[0].post_delay;
     if((numNegativeTargets>0)&&(negativeTargets[0].post_delay>highest_delay))
         highest_delay = negativeTargets[0].post_delay;
-	
+
 	for(unsigned p=0;p<numPositiveTargets;p++)
 	{
 		if(positiveTargets[p].post_delay>=highest_delay*CRITICAL_THRESHOLD)
@@ -689,11 +687,13 @@ void InverterTree::add_critical_target(unsigned target_index,bool signal)
 	{
 		i=1; //Negative levels
 		negativeConsumersLeft--;
+		numNegativeCriticals++;
 	}
 	else
 	{
 		i=0;// Positive levels
 		positiveConsumersLeft--;
+		numPositiveCriticals++;
 	}
 	//printf("Height: %u\n",height);
 	for(;i<height;i+=2)
@@ -746,7 +746,7 @@ void InverterTree::add_negative_target(unsigned target,bool isVertex,float delay
 	//Allocate according to position
 	//Make a list of all non critical targets that need to be reached and then determine which inverters feed which targets
     //Make one for positive and one for negative targets, send through parameters if the target is inverter or vertex
-	//printf("Adding target: %u, delay: %.4f\n",target,delay);
+	//printf("Adding (-) target: %u, delay: %.4f\n",target,delay);
 	negativeTargets[numNegativeTargets].target = target;
 	negativeTargets[numNegativeTargets].isVertex = isVertex;
 	negativeTargets[numNegativeTargets].post_delay = delay;
@@ -757,7 +757,7 @@ void InverterTree::add_positive_target(unsigned target,bool isVertex,float delay
 	//Allocate according to position
 	//Make a list of all non critical targets that need to be reached and then determine which inverters feed which targets
     //Make one for positive and one for negative targets, send through parameters if the target is inverter or vertex
-	//printf("Adding target: %u, delay: %.4f\n",target,delay);
+	//printf("Adding (+) target: %u, delay: %.4f\n",target,delay);
 	positiveTargets[numPositiveTargets].target = target;
 	positiveTargets[numPositiveTargets].isVertex = isVertex;
 	positiveTargets[numPositiveTargets].post_delay = delay;
@@ -765,6 +765,7 @@ void InverterTree::add_positive_target(unsigned target,bool isVertex,float delay
 }
 void InverterTree::add_current_negative_target(unsigned target,bool isVertex,float delay,Point position)
 {
+	//printf("Adding Current (+) target: %u, delay: %.4f\n",target,delay);
 	currentNegativeTargets[numCurrentNegativeTargets].target = target;
 	currentNegativeTargets[numCurrentNegativeTargets].isVertex = isVertex;
 	currentNegativeTargets[numCurrentNegativeTargets].post_delay = delay;
@@ -772,6 +773,7 @@ void InverterTree::add_current_negative_target(unsigned target,bool isVertex,flo
 }
 void InverterTree::add_current_positive_target(unsigned target,bool isVertex,float delay,Point position)
 {
+	//printf("Adding Current (-) target: %u, delay: %.4f\n",target,delay);
 	currentPositiveTargets[numCurrentPositiveTargets].target = target;
 	currentPositiveTargets[numCurrentPositiveTargets].isVertex = isVertex;
 	currentPositiveTargets[numCurrentPositiveTargets].post_delay = delay;
@@ -785,7 +787,7 @@ unsigned InverterTree::min_height(unsigned posConsumers,unsigned negConsumers)
     unsigned leavesAvailable, leaves;
     unsigned height1_branches;
     
-    if((negConsumers == 0)&&(posConsumers<=degree)) 
+    if((negConsumers == 0)&&(posConsumers<=maximumCellFanout)) 
     {
         return 0; 
     }
@@ -877,6 +879,17 @@ unsigned InverterTree::consolidate_inverter(TARGET * target_list,TEMP_INVERTER t
 }
 void InverterTree::print()
 {
+	printf("All Targets: %u / %u criticals\n",numPositiveCriticals,numNegativeCriticals);
+	unsigned i;
+	for( i=0;i<numPositiveCriticals;i++)
+		printf("(+) [%u]: %u\n",positiveTargets[i].target,positiveLevels[i]);
+	for(;i<numPositiveTargets;i++)
+		printf("(+) %u: %u\n",positiveTargets[i].target,positiveLevels[i]);
+	for(i=0;i<numNegativeCriticals;i++)
+		printf("(-) [%u]: %u\n",negativeTargets[i].target,negativeLevels[i]);
+	for(;i<numNegativeTargets;i++)
+		printf("(-) %u: %u\n",negativeTargets[i].target,negativeLevels[i]);
+
 	printf("Inv Tree of Height %u, Degree %u\n",height,degree);
 	for(unsigned i=0;i<height;i++)
 		printf("Vacant: %u Inverters Fed: %u Signals Fed: %u\n",levels[i].vacant,levels[i].inv_taken,levels[i].signal_taken);
