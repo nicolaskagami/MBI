@@ -1,2 +1,11 @@
 
-./a.out --paag ./input/example4.paag --sdc ./input/example4.sdc --lib ./input/simple-cells.lib
+INPUTS=./input
+for mbi in bin/*
+do
+    for file in ${INPUTS}/DEFs/*.def 
+    do
+        echo $file
+        echo $(basename ${file} .def)
+        ${mbi} --def $file --sdc ${INPUTS}/example4.sdc --lib ${INPUTS}/simple-cells.lib > Results/$(basename ${file} .def)$(basename $mbi).txt
+    done
+done
