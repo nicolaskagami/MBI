@@ -12,7 +12,7 @@
  //Up to 10% 
 
 #ifndef NET_ORDER
-#define NET_ORDER 2 
+#define NET_ORDER 0 
 #endif
 
 #define MAX_LINE 255

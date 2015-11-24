@@ -38,12 +38,13 @@ MBI::MBI(int argc,char ** argv)
 		printf("Selected timing input file:       \t%s\n",timing_input_file_name);
 		printf("Selected cell library input file: \t%s\n",cell_input_file_name);
         parse_lib(cell_input_file_name);
-		switch(positional_input_source)
+        switch(positional_input_source)
 		{
 			case 1: parse_paag(positional_input_file_name);break;
 			case 2: parse_def(positional_input_file_name);break;//def parser
 			default:exit(1);
 		}
+
 		parse_sdc(timing_input_file_name);
 		set_clock();
         
@@ -139,7 +140,7 @@ void MBI::print_configuration()
     printf("%d ",CRIT_ALG);
     printf("%.2f ",CRITICAL_THRESHOLD);
     printf("%d ",NON_CRIT_ALG);
-    printf("%d ",INV_POS);
+    printf("%d \n",INV_POS);
 }
 
 //
@@ -180,14 +181,18 @@ void MBI::estimate_delay()
     {
         vert = q.front();
         q.pop();
+        //printf("Vert: %u\n",vert);
         unsigned ind,base,tgt;
         for(base = vertices[vert].pindex,ind=0;ind<(vertices[vert].positive_targets+vertices[vert].negative_targets);ind++)
         {
             tgt = edges[base+ind].target;
             delay = vertices[vert].pre_delay + nodal_delay + edges[base+ind].path_delay;
             if(vertices[tgt].pre_delay<delay)
+            {
                 vertices[tgt].pre_delay = delay;
-            q.push(tgt);
+                q.push(tgt);
+            }
+            
         }
     }
     //Output Propagation
@@ -210,8 +215,11 @@ void MBI::estimate_delay()
                     delay += edges[base+ind].path_delay;break;
                 }
             if(vertices[src].post_delay<delay)
+            {
+                q.push(src);
                 vertices[src].post_delay = delay;
-            q.push(src);
+            }
+            
         }
     }
 }
@@ -665,7 +673,7 @@ int main(int argc, char ** argv)
     MBI nets(argc,argv);
 	nets.max_inv_fanout = 2;
 	nets.max_cell_fanout = 2;
-	
+
     nets.set_nodal_delay("AND2_X1","INV_X1");
     nets.set_initial_delay();
     nets.estimate_delay();

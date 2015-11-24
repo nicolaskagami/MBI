@@ -60,20 +60,26 @@ InverterTree::~InverterTree()
 //Main Functions
 void InverterTree::connect()
 {
+	//printf("place_criticals\n");
 	place_criticals();
-	
+	//printf("Expand\n");
 	expand();
+	//printf("Prune\n");
 	prune();
+	//printf("place_non_criticals\n");
 	place_non_criticals();
+	//printf("Connect\n");
 	connect_targets();
+	//printf("Determining max delay\n");
 	determine_max_delay();
-	//print();
 }
 void InverterTree::expand()
 {
 	//Expand until there is space for the rest, as determined by the targetLeft variables
-	unsigned positiveAvailable =0;
-	unsigned negativeAvailable =0;
+	int positiveAvailable =0;
+	unsigned positiveCriticalsCovered = 0;
+	int negativeAvailable =0;
+	unsigned negativeCriticalsCovered = 0;
 	unsigned expanded;
 	unsigned i;
 	
@@ -82,7 +88,12 @@ void InverterTree::expand()
 	{
 		if((i+1)>=height)
 			add_levels(1);
-		
+
+		if(i%2)
+			negativeCriticalsCovered+=levels[i].signal_taken;
+		else
+			positiveCriticalsCovered+=levels[i].signal_taken;
+
 		expanded = levels[i].vacant;
 		if(expanded > 0)
 		{
@@ -92,12 +103,12 @@ void InverterTree::expand()
 				//Next level (i+1) is positive
                 //Remember that we allocated an extra slot for an inverter at the last level
 				positiveAvailable = levels[i+1].vacant + (expanded*degree) + 1; //+1 for the inverter that was alloted
-				if(positiveAvailable >= positiveConsumersLeft)
+				if((positiveAvailable >= positiveConsumersLeft)&&(positiveCriticalsCovered==numPositiveCriticals))
 				{
 					negativeAvailable = (positiveAvailable-positiveConsumersLeft)/degree;
 					positiveAvailable=positiveConsumersLeft;
 					//printf("Height: %u/%u, Pos: %u/%u Neg %u/%u\n",i,height,positiveAvailable,positiveConsumersLeft,negativeAvailable,negativeConsumersLeft);
-				    if(negativeAvailable >= negativeConsumersLeft) //If this is not enough, these won't be the final layers and we should expand all
+				    if((negativeAvailable >= negativeConsumersLeft)&&(negativeCriticalsCovered==numNegativeCriticals)) //If this is not enough, these won't be the final layers and we should expand all
                     {
                         levels[i+1].inv_taken--;
                         levels[i+1].vacant++;
@@ -114,13 +125,13 @@ void InverterTree::expand()
 				//Next level (i+1) is negative
                 //Remember that we allocated an extra slot for an inverter at the last level
 				negativeAvailable = levels[i+1].vacant + (expanded*degree) + 1;
-				if(negativeAvailable >= negativeConsumersLeft)
+				if((negativeAvailable >= negativeConsumersLeft)&&(negativeCriticalsCovered==numNegativeCriticals))
 				{
 					positiveAvailable = (negativeAvailable-negativeConsumersLeft)/degree;
 					negativeAvailable=negativeConsumersLeft;
 					//printf("Height: %u/%u, Pos: %u/%u Neg %u/%u\n",i,height,positiveAvailable,positiveConsumersLeft,negativeAvailable,negativeConsumersLeft);
 
-				    if(positiveAvailable >= positiveConsumersLeft) //If this is not enough, these won't be the final layers and we should expand all
+				    if((positiveAvailable >= positiveConsumersLeft)&&(positiveCriticalsCovered==numPositiveCriticals)) //If this is not enough, these won't be the final layers and we should expand all
                     {
                         levels[i+1].inv_taken--;
                         levels[i+1].vacant++;
@@ -162,7 +173,7 @@ void InverterTree::prune()
 			//printf("\tN Left: %d\n",simulatedNegConsumersLeft);
 			if(h%2)
 			{
-				pruned = degree*((levels[h].vacant - simulatedNegConsumersLeft)/degree);
+				pruned = degree*(((int)levels[h].vacant - simulatedNegConsumersLeft)/degree);
 				if(pruned>0)
 				{
 					//printf("Height %u:Pruning: %u, saving %d invs\n",height,pruned,pruned/degree);
@@ -181,7 +192,7 @@ void InverterTree::prune()
 			}
 			else
 			{
-				pruned = degree*((levels[h].vacant - simulatedPosConsumersLeft)/degree);
+				pruned = degree*(((int)levels[h].vacant - simulatedPosConsumersLeft)/degree);
 				if(pruned>0)
 				{
 					//printf("Height %u:Pruning: %u, saving %d invs\n",height,pruned,pruned/degree);
@@ -285,10 +296,12 @@ void InverterTree::connect_targets()
 		
 		//numInverters = ((numTargets-1) / degree)+1;
 		numInverters = levels[currentLayer-1].inv_taken;
+		
 		//printf("Layer: %u, Num inv: %u/%u Num Targets: %u/%u/%u\n",currentLayer,numInverters,levels[currentLayer-1].inv_taken,numTargets,degree*numInverters,degree*levels[currentLayer-1].inv_taken);
 		if(numInverters>sizeInvertersArray)
 		{
 			printf("More inverters than calculated %u > %u\n",numInverters,sizeInvertersArray);//This should never happen
+			print();
 			exit(1);
 		}
 		//printf("Current Layer is %u (%c) %u targets, %u inverters\n",currentLayer,(currentLayer%2)? '-' : '+',numTargets,numInverters);
@@ -456,10 +469,19 @@ void InverterTree::place_non_criticals()
 	unsigned p;
 	unsigned n;
 	for(p=0;p<numPositiveCriticals;p++)
-		levels[positiveLevels[p]].signal_taken--;
+	{
+		if(levels[positiveLevels[p]].signal_taken!=0)
+		{
+			levels[positiveLevels[p]].signal_taken--;
+		}
+	}
 	for(n=0;n<numNegativeCriticals;n++)
-		levels[negativeLevels[n]].signal_taken--;
-	
+	{
+		if(levels[negativeLevels[n]].signal_taken!=0)
+		{
+			levels[negativeLevels[n]].signal_taken--;
+		}
+	}
 	for(unsigned h = 0;h<height;h++)
 	{
 		unsigned signals_cap = levels[h].signal_taken;
@@ -726,7 +748,7 @@ void InverterTree::add_critical_target(unsigned target_index,bool signal)
 			levels[i].vacant--;
 			levels[i].inv_taken++;
 			levels[i+1].vacant +=degree-1;
-			levels[i+1].signal_taken++;
+			levels[i+1].signal_taken++;//print();
 			determine_level(target_index,i+1);
 			//printf("2Added Target %u to level %u\n",target_index,i+1);
 			return;
@@ -736,7 +758,7 @@ void InverterTree::add_critical_target(unsigned target_index,bool signal)
 	add_levels(2);//Still in doubt
 	i++;
 	levels[i].vacant--;
-	levels[i].signal_taken++;
+	levels[i].signal_taken++;print();
 	determine_level(target_index,i);
 	//printf("3Added Target %u to level %u\n",target_index,i);
 	return;
@@ -810,6 +832,7 @@ unsigned InverterTree::min_height(unsigned posConsumers,unsigned negConsumers)
             height1_branches = negConsumers;
             leavesAvailable = posAvailable;
         }
+        //printf("Consumers: %u %u\n",posConsumers,negConsumers);
         //printf("Height:%d Available P %d, N %d \n",minHeight,posAvailable,negAvailable);
     }
     while((leaves > leavesAvailable)||(height1_branches > ((leavesAvailable-leaves)/degree)));

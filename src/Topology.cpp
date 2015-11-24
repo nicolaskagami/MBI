@@ -471,7 +471,7 @@ Def::Def(char * defFileName,Liberty *liberty)
                             {//NETS
                                 aux = strtok(NULL," ;\n");
                                 unsigned numNets = strtoul(aux,NULL,10);
-                                //printf("Num of Pins: %u\n",numNets);
+                                //printf("Num of Nets: %u\n",numNets);
                                 nets.reserve(numNets);
                                 while(fgets(line,MAX_LINE,defFile)&&!feof(defFile))
                                 {
@@ -488,30 +488,15 @@ Def::Def(char * defFileName,Liberty *liberty)
                                         {
                                             NET net;
                                             NET_POINT np;
+                                            bool srcSet = false;
 
                                             aux = strtok(NULL," ;\t\n");
                                             strcpy(net.name,aux);
                                             //First pin
                                             fgets(line,MAX_LINE,defFile);
+                                            aux = strtok(line," )(\t\n");
 
-                                            aux = strtok(line," ;)(\t\n");
-                                            strcpy(np.name,aux);
-                                            aux = strtok(NULL," ;)(\t\n");
-                                            strcpy(np.pin,aux);
-
-                                            while((strcmp("PIN",np.name)==0)&&(isPinOutput(np.pin)))
-                                            {
-                                                //np is only target, next one is source...
-                                                net.targets.push_back(np);
-                                                aux = strtok(NULL," ;)(\t\n");
-                                                strcpy(np.name,aux);
-                                                aux = strtok(NULL," ;)(\t\n");
-                                                strcpy(np.pin,aux);
-                                            }
-                                            net.source = np;
-                                            //Other pins
-                                            aux = strtok(NULL," )(\t\n");
-                                            do
+                                            while((aux)&&(aux[0]!=';'))
                                             {
                                                 while(aux)
                                                 {
@@ -521,17 +506,22 @@ Def::Def(char * defFileName,Liberty *liberty)
                                                     {
                                                         strcpy(np.pin,aux);
                                                         aux = strtok(NULL," )(\t\n");
-                                                        net.targets.push_back(np);
+                                                        if((srcSet)||((strcmp("PIN",np.name)==0)&&(isPinOutput(np.pin))))
+                                                        {
+                                                            net.targets.push_back(np);
+                                                        }
+                                                        else
+                                                        {
+                                                            net.source = np;
+                                                            srcSet = true;
+                                                        }
                                                     }
                                                 }
                                                 fgets(line,MAX_LINE,defFile);
                                                 aux = strtok(line," )(\t\n");
-                                                
-                                            } while((aux)&&(aux[0]!=';'));
-
+                                            } 
                                             nets.push_back(net);
                                         }
-
                                     }
                                 }
                             }
@@ -541,7 +531,6 @@ Def::Def(char * defFileName,Liberty *liberty)
             
             }
         }
-
         toTopology();
     }
     else
@@ -565,7 +554,7 @@ void Def::print()
         printf("%s: (%.2f, %.2f) %s\n",components[i].name,components[i].position.x,components[i].position.y,components[i].cell->name);
         if(!components[i].ready)
         {
-            printf("Def Error: Component not ready!\n");exit(1);
+            printf("Def Error: Component not ready!\n");//exit(1);
         }
     }
     printf("Pins:\n");
