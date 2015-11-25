@@ -128,8 +128,8 @@ void MBI::print()
                     printf("%d ",edges[b+j].target);
             }
             printf("\n");
-			if(vertices[i].inverter_tree)
-				vertices[i].inverter_tree->print();
+			//if(vertices[i].inverter_tree)
+				//vertices[i].inverter_tree->print();
         }
     }
     printf("Critical Delay: %.4f\n",critical_path_delay);
@@ -381,9 +381,16 @@ void MBI::add_targets(unsigned vert)
 }
 void MBI::calculate_critical_delay()
 {
+ 
     for(unsigned vert=0;vert<num_vertices;vert++)
         if((vertices[vert].pre_delay+vertices[vert].post_delay) > critical_path_delay)
+        {
             critical_path_delay = (vertices[vert].pre_delay+vertices[vert].post_delay);
+            if(critical_path_delay> 1)
+            {
+                printf("WTF vert: %u %.4f\n",vert,critical_path_delay);getchar();
+            }
+        }
 }
 void MBI::calculate_path_delay(unsigned vert)
 {
@@ -677,11 +684,14 @@ int main(int argc, char ** argv)
     nets.set_nodal_delay("AND2_X1","INV_X1");
     nets.set_initial_delay();
     nets.estimate_delay();
-	
+    nets.calculate_critical_delay();
+    //printf("Critical Delay: %.4f\n",nets.critical_path_delay);
+	//exit(1);
     
     nets.insert_buffers();
     nets.estimate_delay();
     nets.calculate_critical_delay();
+    nets.print();
     nets.print_configuration();
     printf("Critical Delay: %.4f\n",nets.critical_path_delay);
     //nets.lib->print();

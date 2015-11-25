@@ -281,61 +281,65 @@ void InverterTree::connect_targets()
 	
 	for(currentLayer = height-1;currentLayer>0;currentLayer--)
 	{
-		collect_targets(currentLayer);
-		if(currentLayer%2)
-		{
-			targets = currentNegativeTargets;
-			numTargets = numCurrentNegativeTargets;
-		}
-		else
-		{
-			targets = currentPositiveTargets;
-			numTargets = numCurrentPositiveTargets;
-		}
-		
-		
 		//numInverters = ((numTargets-1) / degree)+1;
 		numInverters = levels[currentLayer-1].inv_taken;
-		
-		//printf("Layer: %u, Num inv: %u/%u Num Targets: %u/%u/%u\n",currentLayer,numInverters,levels[currentLayer-1].inv_taken,numTargets,degree*numInverters,degree*levels[currentLayer-1].inv_taken);
-		if(numInverters>sizeInvertersArray)
+		if(numInverters)
 		{
-			printf("More inverters than calculated %u > %u\n",numInverters,sizeInvertersArray);//This should never happen
-			print();
-			exit(1);
-		}
-		//printf("Current Layer is %u (%c) %u targets, %u inverters\n",currentLayer,(currentLayer%2)? '-' : '+',numTargets,numInverters);
-
-        //Introduce here the Non-Critical allocation
-		
-        non_critical_allocation(); 
-		
-        float totalDistance = 0;
-        for(unsigned i=0;i<numInverters;i++)
-            for(unsigned t=0;t<inverters[i].num_targets;t++)
-                totalDistance+=inverters[i].position.distance(targets[inverters[i].targets_indexes[t]].position);
-
-        //printf("Total Distance: %.2f\n",totalDistance);
-        //Temporary Inverters are ready, let's consolidate them
-		for(unsigned i=0;i<numInverters;i++)
-		{
-			unsigned inv_index = consolidate_inverter(targets,inverters[i]);
+			collect_targets(currentLayer);
 			if(currentLayer%2)
 			{
-				//Current layer is negative, these inverters will be targets in the positive layer
-				add_current_positive_target(inv_index,false,positionedInverters[inv_index].post_delay,inverters[i].position);
+				targets = currentNegativeTargets;
+				numTargets = numCurrentNegativeTargets;
 			}
 			else
 			{
-				//Current layer is positive, these inverters will be targets in the negative layer
-				add_current_negative_target(inv_index,false,positionedInverters[inv_index].post_delay,inverters[i].position);
+				targets = currentPositiveTargets;
+				numTargets = numCurrentPositiveTargets;
 			}
+			
+			
+			
+			
+			//printf("Layer: %u, Num inv: %u/%u Num Targets: %u/%u/%u\n",currentLayer,numInverters,levels[currentLayer-1].inv_taken,numTargets,degree*numInverters,degree*levels[currentLayer-1].inv_taken);
+			if(numInverters>sizeInvertersArray)
+			{
+				printf("More inverters than calculated %u > %u\n",numInverters,sizeInvertersArray);//This should never happen
+				print();
+				exit(1);
+			}
+			//printf("Current Layer is %u (%c) %u targets, %u inverters\n",currentLayer,(currentLayer%2)? '-' : '+',numTargets,numInverters);
+
+	        //Introduce here the Non-Critical allocation
+			
+	        non_critical_allocation(); 
+			
+	        float totalDistance = 0;
+	        for(unsigned i=0;i<numInverters;i++)
+	            for(unsigned t=0;t<inverters[i].num_targets;t++)
+	                totalDistance+=inverters[i].position.distance(targets[inverters[i].targets_indexes[t]].position);
+
+	        //printf("Total Distance: %.2f\n",totalDistance);
+	        //Temporary Inverters are ready, let's consolidate them
+			for(unsigned i=0;i<numInverters;i++)
+			{
+				unsigned inv_index = consolidate_inverter(targets,inverters[i]);
+				if(currentLayer%2)
+				{
+					//Current layer is negative, these inverters will be targets in the positive layer
+					add_current_positive_target(inv_index,false,positionedInverters[inv_index].post_delay,inverters[i].position);
+				}
+				else
+				{
+					//Current layer is positive, these inverters will be targets in the negative layer
+					add_current_negative_target(inv_index,false,positionedInverters[inv_index].post_delay,inverters[i].position);
+				}
+			}
+			//Zero out current layer occupation
+			if(currentLayer%2)
+				numCurrentNegativeTargets = 0;
+			else
+				numCurrentPositiveTargets = 0;
 		}
-		//Zero out current layer occupation
-		if(currentLayer%2)
-			numCurrentNegativeTargets = 0;
-		else
-			numCurrentPositiveTargets = 0;
 	}
 	
 	//Deallocate reused space
@@ -729,6 +733,15 @@ void InverterTree::add_critical_target(unsigned target_index,bool signal)
 			levels[i].signal_taken++;
 			return;
 		}
+		else if ((i>0)&&(levels[i-1].vacant>0))
+		{
+			levels[i-1].vacant--;
+			levels[i-1].inv_taken++;
+			levels[i].vacant +=degree-1;
+			levels[i].signal_taken++;//print();
+			determine_level(target_index,i);
+			return;
+		}
 	}
 	
 	//If code reaches this point, we need more inverters!
@@ -755,10 +768,13 @@ void InverterTree::add_critical_target(unsigned target_index,bool signal)
 		}
 	}
 	//If code reaches this point, we need more levels!
-	add_levels(2);//Still in doubt
+	if(i==height)
+		add_levels(2);
+	else
+		add_levels(1);//i == height -1
 	i++;
 	levels[i].vacant--;
-	levels[i].signal_taken++;print();
+	levels[i].signal_taken++;
 	determine_level(target_index,i);
 	//printf("3Added Target %u to level %u\n",target_index,i);
 	return;
