@@ -299,7 +299,7 @@ void InverterTree::connect_targets()
 	{
 		//numInverters = ((numTargets-1) / degree)+1;
 		numInverters = levels[currentLayer-1].inv_taken;
-		if(numInverters)
+		if(numInverters>0)
 		{
 			collect_targets(currentLayer);
 			if(currentLayer%2)
@@ -312,9 +312,9 @@ void InverterTree::connect_targets()
 				targets = currentPositiveTargets;
 				numTargets = numCurrentPositiveTargets;
 			}
-			
-			
-			
+        }
+		if((numInverters>0)&&(numTargets>0))
+        {
 			
 			//printf("Layer: %u, Num inv: %u/%u Num Targets: %u/%u/%u\n",currentLayer,numInverters,levels[currentLayer-1].inv_taken,numTargets,degree*numInverters,degree*levels[currentLayer-1].inv_taken);
 			if(numInverters>sizeInvertersArray)
@@ -555,7 +555,8 @@ float InverterTree::non_critical_allocation_worstFirst()
     float worstDelay = 0;
 	Point furthestPoint;
 	unsigned furthest;
-	
+    if(numTargets==0)	
+        return 0;
 	bool * supplied_targets = (bool*) malloc(numTargets*sizeof(bool));
 	float * distances = (float*) malloc(degree*sizeof(float));
 	
@@ -605,6 +606,7 @@ float InverterTree::non_critical_allocation_worstFirst()
 						{
 							distances[worstIndex] = distance;
 							inverters[inv].targets_indexes[worstIndex] = i;
+                            worst_distance = distance;
 							for(unsigned j=0;j<degree;j++) //Rediscover worst distance
 							{
 								if(distances[j]>worst_distance)
@@ -618,7 +620,7 @@ float InverterTree::non_critical_allocation_worstFirst()
 				}
 			}
 			inverters[inv].position = furthestPoint;
-			for(unsigned j=0;j<degree;j++)
+			for(unsigned j=0;j<inverters[inv].num_targets;j++)
 				supplied_targets[inverters[inv].targets_indexes[j]] = true;
 		}
 	}
