@@ -15,7 +15,7 @@
 //1: Relative percentage
 //2: Inverter Delay Relative Groups
 #ifndef CRIT_ALG
-#define CRIT_ALG 0
+#define CRIT_ALG 2 
 #endif
 
 //Non-Critical Algorithms:
@@ -161,7 +161,9 @@ class InverterTree
 		unsigned consolidate_inverter(TARGET * target_list,TEMP_INVERTER temp_inv);
 		void print_inverters();
 		void print();
-        //Non Critical Allocation
+        //Debug
+        bool Debug;
+        void verify();
         
         
 };

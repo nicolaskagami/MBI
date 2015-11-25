@@ -2,6 +2,8 @@
 
 InverterTree::InverterTree(unsigned posTargets,unsigned negTargets,unsigned maxCellFanout,unsigned maxInvFanout,float invDelay,Point srcPosition)
 {
+    Debug = false;
+
 	sourcePosition = srcPosition;
 	inverterDelay = invDelay;
 	maxDelay = 0;
@@ -20,6 +22,20 @@ InverterTree::InverterTree(unsigned posTargets,unsigned negTargets,unsigned maxC
 	positiveLevels = (unsigned*) malloc(posTargets*sizeof(unsigned));
 	negativeLevels = (unsigned*) malloc(negTargets*sizeof(unsigned));
 	
+    for(unsigned i =0;i<posTargets;i++)
+    {
+        positiveTargets[i].target = 0; 
+        positiveTargets[i].post_delay = 0; 
+        positiveTargets[i].isVertex = true; 
+        positiveLevels[i] = 0; 
+    }
+    for(unsigned i =0;i<negTargets;i++)
+    {
+        negativeTargets[i].target = 0; 
+        negativeTargets[i].post_delay = 0; 
+        negativeTargets[i].isVertex = true; 
+        negativeLevels[i] = 0; 
+    }
 	positiveConsumersLeft = posTargets;
 	negativeConsumersLeft = negTargets;
 	
@@ -60,17 +76,17 @@ InverterTree::~InverterTree()
 //Main Functions
 void InverterTree::connect()
 {
-	//printf("place_criticals\n");
+//	printf("place_criticals\n");
 	place_criticals();
-	//printf("Expand\n");
+//	printf("Expand\n");
 	expand();
-	//printf("Prune\n");
+//	printf("Prune\n");
 	prune();
-	//printf("place_non_criticals\n");
+//	printf("place_non_criticals\n");
 	place_non_criticals();
-	//printf("Connect\n");
+//	printf("Connect\n");
 	connect_targets();
-	//printf("Determining max delay\n");
+//	printf("Determining max delay\n");
 	determine_max_delay();
 }
 void InverterTree::expand()
@@ -395,20 +411,26 @@ void InverterTree::place_criticals_FlatPercent()
 }
 void InverterTree::place_criticals_RelativePercent()
 {
-	float highest_delay = 0;
-	if(numPositiveTargets>0)
-        highest_delay = positiveTargets[0].post_delay;
-    if((numNegativeTargets>0)&&(negativeTargets[0].post_delay>highest_delay))
-        highest_delay = negativeTargets[0].post_delay;
-	
-	for(unsigned p=0;p<numPositiveTargets-1;p++)
+    float average_delay = 0;
+
+	for(unsigned p=0;p<numPositiveTargets;p++)
+    {
+        average_delay+=positiveTargets[p].post_delay;
+    }
+	for(unsigned n=0;n<numNegativeTargets;n++)
+    {
+        average_delay+=negativeTargets[n].post_delay;
+    }
+    average_delay /= (numNegativeTargets+numPositiveTargets);
+
+	for(unsigned p=0;p<numPositiveTargets;p++)
 	{
-		if(positiveTargets[p].post_delay>=positiveTargets[p+1].post_delay*(1+CRITICAL_THRESHOLD))
+		if(positiveTargets[p].post_delay>=average_delay*(2-CRITICAL_THRESHOLD))
 			add_critical_target(p,false);
 	}
-	for(unsigned n=0;n<numNegativeTargets-1;n++)
+	for(unsigned n=0;n<numNegativeTargets;n++)
 	{
-		if(negativeTargets[n].post_delay>=negativeTargets[n+1].post_delay*(1+CRITICAL_THRESHOLD))
+		if(negativeTargets[n].post_delay>=average_delay*(2-CRITICAL_THRESHOLD))
 			add_critical_target(n,true);
 	}
 }
@@ -419,39 +441,43 @@ void InverterTree::place_criticals_InvDifference()
 		unsigned groupSize = levels[h].vacant;
 		if(h%2)
 		{
-			for(unsigned n = groupSize-1;n>numNegativeCriticals;n--)
+            if((2+(int)numNegativeCriticals+groupSize)>((int)numNegativeTargets))
+                groupSize = (numNegativeTargets - numNegativeCriticals -2);
+			for(int n = numNegativeCriticals + groupSize;n>=(int)numNegativeCriticals;n--)
 			{
+				//printf("n: %d [%d]/%d ",n,numNegativeCriticals,numNegativeTargets);
 				//Find the greatest group that is substantially (2*inverterDelay) more critical than the rest
-				//printf("n: %u %.4f vs %.4f\n",n,negativeTargets[n].post_delay,(2*inverterDelay)+negativeTargets[n+1].post_delay);
+				//printf("n: %d %.4f vs %.4f\n",n,negativeTargets[n].post_delay,(2*inverterDelay)+negativeTargets[n+1].post_delay);
 				if(negativeTargets[n].post_delay>(2*inverterDelay)+negativeTargets[n+1].post_delay)
 				{
-					for(unsigned n=numNegativeCriticals;n<(numNegativeCriticals+groupSize);n++)
+					for(unsigned i=numNegativeCriticals;i<n;i++)
 					{
 						levels[h].signal_taken++;
 						levels[h].vacant--;
-						determine_level(n,h);
+						determine_level(i,h);
 					}
-					numNegativeCriticals+=groupSize;
+					numNegativeCriticals=n;
 					break;
 				}
 			}
-			
 		}
 		else
 		{
-			for(unsigned p = groupSize-1;p>numPositiveCriticals;p--)
+            if((2+(int)numPositiveCriticals+groupSize)>((int)numPositiveTargets))
+                groupSize = (numPositiveTargets - numPositiveCriticals -2);
+			for(int p = numPositiveCriticals + groupSize;p>=(int)numPositiveCriticals;p--)
 			{
 				//Find the greatest group that is substantially (2*inverterDelay) more critical than the rest
-				//printf("p: %u %.4f vs %.4f\n",p,positiveTargets[p].post_delay,(2*inverterDelay)+positiveTargets[p+1].post_delay);
+				//printf("p: %d %.4f vs %.4f\n",p,positiveTargets[p].post_delay,(2*inverterDelay)+positiveTargets[p+1].post_delay);
 				if(positiveTargets[p].post_delay>(2*inverterDelay)+positiveTargets[p+1].post_delay)
 				{
-					for(unsigned p=numPositiveCriticals;p<numPositiveCriticals+groupSize;p++)
+					for(unsigned i=numPositiveCriticals;i<=p;i++)
 					{
 						levels[h].signal_taken++;
 						levels[h].vacant--;
-						determine_level(p,h);
+						determine_level(i,h);
 					}
-					numPositiveCriticals+=groupSize;
+					numPositiveCriticals=p;
 					break;
 				}
 			}
@@ -492,12 +518,16 @@ void InverterTree::place_non_criticals()
 		if(h%2)
 		{
 			signals_cap+=n;
+            if(signals_cap>numNegativeTargets)
+                signals_cap = numNegativeTargets;
 			for(;n<signals_cap;n++)
 				determine_level(n,h);
 		}
 		else
 		{
 			signals_cap+=p;
+            if(signals_cap>numPositiveTargets)
+                signals_cap = numPositiveTargets;
 			for(;p<signals_cap;p++)
 				determine_level(p,h);
 		}
@@ -859,12 +889,31 @@ void InverterTree::determine_level(unsigned tgt_index, unsigned level)
 {
 	//printf("Determining Target %u, level: %u\n",tgt_index,level);
 	if(level %2)
-		negativeLevels[tgt_index] = level;
+    {
+        if(tgt_index<numNegativeTargets)
+            negativeLevels[tgt_index] = level;
+        else
+        {
+            Debug = true;
+            printf("Trying to assign tgt_index %u to level %u\n",tgt_index,level);
+        }
+    }
 	else
-		positiveLevels[tgt_index] = level;
+    {
+        if(tgt_index<numPositiveTargets)
+            positiveLevels[tgt_index] = level;
+        else
+        {
+            Debug = true;
+            printf("Trying to assign tgt_index %u to level %u\n",tgt_index,level);
+        }
+    }
+    if(Debug)
+        print();
 }
 void InverterTree::collect_targets(unsigned level)
 {
+    verify();
 	if(level % 2)
 		for(unsigned i=0;i<numNegativeTargets;i++)
 		{
@@ -918,7 +967,7 @@ unsigned InverterTree::consolidate_inverter(TARGET * target_list,TEMP_INVERTER t
 }
 void InverterTree::print()
 {
-	printf("All Targets: %u / %u criticals\n",numPositiveCriticals,numNegativeCriticals);
+	printf("All Targets: +:[%u]/%u -:[%u]/%u criticals\n",numPositiveCriticals,numPositiveTargets,numNegativeCriticals,numNegativeTargets);
 	unsigned i;
 	for( i=0;i<numPositiveCriticals;i++)
 		printf("(+) [%u]: %u\n",positiveTargets[i].target,positiveLevels[i]);
@@ -954,4 +1003,36 @@ void InverterTree::print_inverters()
 			printf("%u ",it->targets[degree-j-1]);
 		printf("\n");
 	}
+}
+void InverterTree::verify()
+{
+    for(unsigned i=0;i<numPositiveTargets;i++)
+    {
+        if(positiveLevels[i] > height)
+        { 
+            printf("Invalid Positive level\n");
+            Debug = true;
+        }
+    }
+    for(unsigned i=0;i<numNegativeTargets;i++)
+    {
+        if(negativeLevels[i] > height)
+        {
+            printf("Invalid Negative level\n");
+            Debug = true;
+        }
+    }
+    for(unsigned i=0;i<height-1;i++)
+    {
+        if((levels[i+1].vacant+levels[i+1].signal_taken+levels[i+1].inv_taken)!=(levels[i].inv_taken*degree))
+        {
+            printf("Incoherent Levels\n");
+            Debug = true;
+        }
+    }
+    if(Debug)
+    {
+        printf("Printing\n");getchar();
+        //print();
+    }
 }

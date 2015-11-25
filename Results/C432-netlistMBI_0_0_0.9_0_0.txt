@@ -1,4 +1,0 @@
-Selected positional input file:   	./input/DEFs/C432-netlist.def
-Selected timing input file:       	./input/example4.sdc
-Selected cell library input file: 	./input/simple-cells.lib
-0 0 0.90 0 0 Critical Delay: 0.2240

@@ -1,12 +1,43 @@
 
 #include "Topology.h"
 //
-Topology::Topology()
+Topology::Topology(unsigned v, unsigned e,unsigned I, unsigned O)
 {
-	vertices = NULL;
-	edges = NULL;
-	inputs = NULL;
-	outputs = NULL;
+    edges = (EDGE*) malloc(sizeof(EDGE)*e);
+    vertices = (VERT*) malloc(sizeof(VERT)*v);
+    num_edges = e;
+    num_vertices = v;
+    if(edges==NULL || vertices==NULL)
+    {
+        std::cerr << "Memory Allocation Error\n" ;
+        exit(1);
+    }
+    for(unsigned i=0;i<num_vertices;i++)
+    {
+		vertices[i].num_srcs = 0;
+		vertices[i].pre_delay = 0;
+		vertices[i].post_delay = 0;
+		vertices[i].positive_targets = 0;
+		vertices[i].negative_targets = 0;
+		vertices[i].pindex = 0;
+		vertices[i].nindex = 0;
+		vertices[i].position.x = -1;
+		vertices[i].position.y = -1;
+		vertices[i].num_positive_critical = 0;
+		vertices[i].num_negative_critical = 0;
+		vertices[i].inverter_tree = NULL;
+    }
+    for(unsigned i=0;i<num_edges;i++)
+    {
+        edges[i].level = 0;
+        edges[i].target = 0;
+        edges[i].path_delay = 0;
+    }
+	inputs = (INPUT*) malloc(sizeof(INPUT)*I);
+	outputs = (OUTPUT*) malloc(sizeof(OUTPUT)*O);
+
+	num_inputs = 0;
+	num_outputs = 0;
 }
 Topology::~Topology()
 {
@@ -121,7 +152,6 @@ Paag::Paag(char * paagFileName)
 {
 	FILE * paagFile;
     paagFile = fopen(paagFileName,"r");
-	topology = new Topology();
 	char line[MAX_LINE];
 	
     if(paagFile)
@@ -153,7 +183,7 @@ Paag::Paag(char * paagFileName)
             char * aux;
             unsigned i;
             float x,y;	
-            topology->allocate_memory(M+1,A*2,I,O);
+            topology = new Topology(M+1,A*2,I,O);
             //printf("M %d, I %d, L %d, O %d, A %d, X %d, Y %d\n",M,I,L,O,A,X,Y);
             //Inputs
             //Add input i as vertex number i/2 (vertex 0 being reserved for FALSE)
@@ -301,7 +331,7 @@ Def::Def(char * defFileName,Liberty *liberty)
 	FILE * defFile;
     lib = liberty;
     defFile = fopen(defFileName,"r");
-	topology = new Topology();
+    topology = NULL;
 	char line[MAX_LINE];
     char * aux;
     if(defFile)
@@ -532,6 +562,7 @@ Def::Def(char * defFileName,Liberty *liberty)
             }
         }
         toTopology();
+        fclose(defFile);
     }
     else
     {
@@ -598,7 +629,7 @@ PIN * Def::findPin(char * pinName)
 }
 void Def::toTopology()
 {
-    topology = new Topology();
+    topology = NULL;
     //Preparation
     numEdges = 0;
     numVertices = 0;
@@ -625,6 +656,7 @@ void Def::toTopology()
             //And
             components[i].vertex =  numVertices++;
             components[i].ready = true;
+            components[i].vertexSignal = false;
             numEdges+=2;
         }
         else
@@ -661,7 +693,7 @@ void Def::toTopology()
         }
     }
     //printf("Allocating Memory\n");
-    topology->allocate_memory(numVertices,numEdges,numInputs,numOutputs);
+    topology = new Topology(numVertices,numEdges,numInputs,numOutputs);
     //printf("Toughest Part\n");
     bool netsReady;
     do

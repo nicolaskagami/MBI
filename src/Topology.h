@@ -72,7 +72,7 @@ class Topology
         float X;
         float Y;
 
-		Topology();
+		Topology(unsigned v, unsigned e, unsigned I, unsigned O);
 		~Topology();
 		int allocate_memory(unsigned v, unsigned e, unsigned I, unsigned O);
         void preallocate(unsigned src,unsigned tgt,bool signal);
