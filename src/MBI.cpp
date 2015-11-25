@@ -34,9 +34,9 @@ MBI::MBI(int argc,char ** argv)
 	}
 	if((positional_input_file_name)&&(timing_input_file_name)&&(cell_input_file_name))
 	{
-		printf("Selected positional input file:   \t%s\n",positional_input_file_name);
-		printf("Selected timing input file:       \t%s\n",timing_input_file_name);
-		printf("Selected cell library input file: \t%s\n",cell_input_file_name);
+		//printf("Selected positional input file:   \t%s\n",positional_input_file_name);
+		//printf("Selected timing input file:       \t%s\n",timing_input_file_name);
+		//printf("Selected cell library input file: \t%s\n",cell_input_file_name);
         parse_lib(cell_input_file_name);
         switch(positional_input_source)
 		{
@@ -140,7 +140,7 @@ void MBI::print_configuration()
     printf("%d ",CRIT_ALG);
     printf("%.2f ",CRITICAL_THRESHOLD);
     printf("%d ",NON_CRIT_ALG);
-    printf("%d \n",INV_POS);
+    printf("%d ",INV_POS);
 }
 
 //
@@ -685,14 +685,12 @@ int main(int argc, char ** argv)
     nets.set_initial_delay();
     nets.estimate_delay();
     nets.calculate_critical_delay();
-    //printf("Critical Delay: %.4f\n",nets.critical_path_delay);
-	//exit(1);
-    
+
     nets.insert_buffers();
     nets.estimate_delay();
     nets.calculate_critical_delay();
     //nets.print();
     nets.print_configuration();
-    printf("Critical Delay: %.4f\n",nets.critical_path_delay);
+    printf("%.4f\n",nets.critical_path_delay);
     //nets.lib->print();
 }

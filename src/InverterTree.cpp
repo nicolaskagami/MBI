@@ -76,17 +76,17 @@ InverterTree::~InverterTree()
 //Main Functions
 void InverterTree::connect()
 {
-//	printf("place_criticals\n");
+	//printf("place_criticals\n");
 	place_criticals();
-//	printf("Expand\n");
+	//printf("Expand\n");
 	expand();
-//	printf("Prune\n");
+	//printf("Prune\n");
 	prune();
-//	printf("place_non_criticals\n");
+	//printf("place_non_criticals\n");
 	place_non_criticals();
-//	printf("Connect\n");
+	//printf("Connect\n");
 	connect_targets();
-//	printf("Determining max delay\n");
+	//printf("Determining max delay\n");
 	determine_max_delay();
 }
 void InverterTree::expand()
@@ -443,7 +443,7 @@ void InverterTree::place_criticals_InvDifference()
 		{
             if((2+(int)numNegativeCriticals+groupSize)>((int)numNegativeTargets))
                 groupSize = (numNegativeTargets - numNegativeCriticals -2);
-			for(int n = numNegativeCriticals + groupSize;n>=(int)numNegativeCriticals;n--)
+			for(int n = numNegativeCriticals + groupSize-1;n>=(int)numNegativeCriticals;n--)
 			{
 				//printf("n: %d [%d]/%d ",n,numNegativeCriticals,numNegativeTargets);
 				//Find the greatest group that is substantially (2*inverterDelay) more critical than the rest
@@ -456,7 +456,7 @@ void InverterTree::place_criticals_InvDifference()
 						levels[h].vacant--;
 						determine_level(i,h);
 					}
-					numNegativeCriticals=n;
+					numNegativeCriticals=n+1;
 					break;
 				}
 			}
@@ -465,7 +465,7 @@ void InverterTree::place_criticals_InvDifference()
 		{
             if((2+(int)numPositiveCriticals+groupSize)>((int)numPositiveTargets))
                 groupSize = (numPositiveTargets - numPositiveCriticals -2);
-			for(int p = numPositiveCriticals + groupSize;p>=(int)numPositiveCriticals;p--)
+			for(int p = numPositiveCriticals + groupSize-1;p>=(int)numPositiveCriticals;p--)
 			{
 				//Find the greatest group that is substantially (2*inverterDelay) more critical than the rest
 				//printf("p: %d %.4f vs %.4f\n",p,positiveTargets[p].post_delay,(2*inverterDelay)+positiveTargets[p+1].post_delay);
@@ -477,7 +477,7 @@ void InverterTree::place_criticals_InvDifference()
 						levels[h].vacant--;
 						determine_level(i,h);
 					}
-					numPositiveCriticals=p;
+					numPositiveCriticals=p+1;
 					break;
 				}
 			}
