@@ -319,6 +319,8 @@ Paag::Paag(char * paagFileName)
 			exit(1);
         }
     }
+    topology->num_inputs = I;
+    topology->num_outputs = O;
 }
 Paag::~Paag()
 {
@@ -862,7 +864,7 @@ void Def::toTopology()
                     {
                         printf("Def Error: Pin %s not found\n",nets[i].source.pin);exit(1);
                     }
-                    printf("Def Warning: Connecting Pin %s to Pin %s\n",pin->name,outputPin->name);
+                    //printf("Def Warning: Connecting Pin %s to Pin %s\n",pin->name,outputPin->name);
                     topology->add_edge(pin->vertex,outputPin->vertex,false);
                 }
         }

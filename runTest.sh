@@ -7,6 +7,6 @@ do
         #echo $file
         echo $mbi
         echo $(basename ${file} .def)
-        ${mbi} --def $file --sdc ${INPUTS}/example4.sdc --lib ${INPUTS}/simple-cells.lib > Results/$(basename ${file} .def)$(basename $mbi).txt
+        ${mbi} --def $file --sdc ${INPUTS}/bench.sdc --lib ${INPUTS}/simple-cells.lib >> Results/$(basename ${file} .def).dat
     done
 done

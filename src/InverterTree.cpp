@@ -388,6 +388,8 @@ void InverterTree::place_criticals()
 			break;
 		case 2: place_criticals_InvDifference();
 			break;
+        case 3: numNegativeCriticals = 0;numPositiveCriticals=0;
+            break;        
 	}
 }
 void InverterTree::place_criticals_FlatPercent()
@@ -494,6 +496,17 @@ void InverterTree::place_criticals_InvDifference()
 //Non critical targets algorithms
 void InverterTree::place_non_criticals()
 {
+    switch(NON_CRIT_PLACE)
+    {
+        default:
+        case 0: place_non_criticals_Ordered();
+                break;
+        case 1: place_non_criticals_Random();
+                break;
+    }
+}
+void InverterTree::place_non_criticals_Ordered()
+{
 	//Prepare levels for non_critical allocation:
 	//Take away the criticals from signal_taken so that we know how many non_critical are required
 	unsigned p;
@@ -514,29 +527,107 @@ void InverterTree::place_non_criticals()
 	}
 	for(unsigned h = 0;h<height;h++)
 	{
+        //n and p start at the non criticals
+        //This code may look weird, but it is correct
 		unsigned signals_cap = levels[h].signal_taken;
-		if(h%2)
-		{
-			signals_cap+=n;
+        if(h%2)
+        {
+            signals_cap+=n;
             if(signals_cap>numNegativeTargets)
                 signals_cap = numNegativeTargets;
-			for(;n<signals_cap;n++)
-				determine_level(n,h);
-		}
-		else
-		{
-			signals_cap+=p;
+            for(;n<signals_cap;n++)
+                determine_level(n,h);
+        }
+        else
+        {
+            signals_cap+=p;
             if(signals_cap>numPositiveTargets)
                 signals_cap = numPositiveTargets;
-			for(;p<signals_cap;p++)
-				determine_level(p,h);
-		}
+            for(;p<signals_cap;p++)
+                determine_level(p,h);
+        }
 	}
 	//Revalidate value of signal_taken
 	for(unsigned p=0;p<numPositiveCriticals;p++)
 		levels[positiveLevels[p]].signal_taken++;
 	for(unsigned n=0;n<numNegativeCriticals;n++)
 		levels[negativeLevels[n]].signal_taken++;
+}
+void InverterTree::place_non_criticals_Random()
+{
+    bool * pAssignedTargets = (bool*) malloc(numPositiveTargets*sizeof(bool));
+    bool * nAssignedTargets = (bool*) malloc(numNegativeTargets*sizeof(bool));
+    for(unsigned i=0;i<numPositiveTargets;i++)
+        pAssignedTargets[i] = false;
+    for(unsigned i=0;i<numNegativeTargets;i++)
+        nAssignedTargets[i] = false;
+
+	unsigned p;
+	unsigned n;
+	for(p=0;p<numPositiveCriticals;p++)
+    {
+        pAssignedTargets[p] = true;
+		if(levels[positiveLevels[p]].signal_taken!=0)
+			levels[positiveLevels[p]].signal_taken--;
+    }
+	for(n=0;n<numNegativeCriticals;n++)
+    {
+        nAssignedTargets[n] = true;
+		if(levels[negativeLevels[n]].signal_taken!=0)
+			levels[negativeLevels[n]].signal_taken--;
+    }
+
+	srand(time(NULL));
+
+	for(unsigned h = 0;h<height;h++)
+	{
+        for(unsigned i = 0;i<levels[h].signal_taken;i++)
+        {
+            if(h%2)
+            {
+                unsigned rando = (rand() % (numNegativeTargets-numNegativeCriticals)) + numNegativeCriticals;
+                for(unsigned j = 0;j<numNegativeTargets;j++)
+                {
+                    if(!nAssignedTargets[rando])
+                    {
+                        nAssignedTargets[rando] = true;
+                        determine_level(rando,h);
+                        break;
+                    }
+                    else
+                    {
+                        rando = ((rando +1) % (numNegativeTargets-numNegativeCriticals)) + numNegativeCriticals;
+                    }
+                }
+            }
+            else
+            {
+                unsigned rando = (rand() % (numPositiveTargets-numPositiveCriticals)) + numPositiveCriticals;
+                for(unsigned j = 0;j<numPositiveTargets;j++)
+                {
+                    if(!pAssignedTargets[rando])
+                    {
+                        pAssignedTargets[rando] = true;
+                        determine_level(rando,h);
+                        break;
+                    }
+                    else
+                    {
+                        rando = ((rando +1) % (numPositiveTargets-numPositiveCriticals)) + numPositiveCriticals;
+                    }
+                }
+            }
+        }
+	}
+
+	//Revalidate value of signal_taken
+	for(unsigned p=0;p<numPositiveCriticals;p++)
+		levels[positiveLevels[p]].signal_taken++;
+	for(unsigned n=0;n<numNegativeCriticals;n++)
+		levels[negativeLevels[n]].signal_taken++;
+
+    free(pAssignedTargets);
+    free(nAssignedTargets);
 }
 float InverterTree::non_critical_allocation() 
 {
@@ -990,6 +1081,7 @@ void InverterTree::print()
 			printf("Target: %u Post Delay: %.4f\n",positiveTargets[i].target,positiveTargets[i].post_delay);
 	for(unsigned i=0;i<numCurrentPositiveTargets;i++)
 		printf("Inverter %u Post Delay: %.4f\n",currentPositiveTargets[i].target,positionedInverters[currentPositiveTargets[i].target].post_delay);
+    printf("Max Tree delay: %.2f\n",maxDelay);
 }
 void InverterTree::print_inverters()
 {

@@ -104,7 +104,7 @@ void MBI::print()
     printf("Edges: %d\n",num_edges);
     for(i = 0;i<num_vertices;i++)
     {
-        //if((vertices[i].positive_targets+vertices[i].negative_targets)>0)
+        if((vertices[i].positive_targets+vertices[i].negative_targets)>10)
         {
             printf("Vert %d (%.2f,%.2f)\n",i,vertices[i].position.x,vertices[i].position.y);
             printf("Sources: ");
@@ -128,8 +128,8 @@ void MBI::print()
                     printf("%d ",edges[b+j].target);
             }
             printf("\n");
-			//if(vertices[i].inverter_tree)
-				//vertices[i].inverter_tree->print();
+			if(vertices[i].inverter_tree)
+				vertices[i].inverter_tree->print();
         }
     }
     printf("Critical Delay: %.4f\n",critical_path_delay);
@@ -140,6 +140,7 @@ void MBI::print_configuration()
     printf("%d ",CRIT_ALG);
     printf("%.2f ",CRITICAL_THRESHOLD);
     printf("%d ",NON_CRIT_ALG);
+    printf("%d ",NON_CRIT_PLACE);
     printf("%d ",INV_POS);
 }
 
@@ -176,12 +177,11 @@ void MBI::estimate_delay()
     //Input Propagation
     for(i=0;i<num_inputs;i++)
         q.push(inputs[i].index);
-
     while(!q.empty())
     {
         vert = q.front();
         q.pop();
-        //printf("Vert: %u\n",vert);
+        //printf("Vert: %u\n",vert);getchar();
         unsigned ind,base,tgt;
         for(base = vertices[vert].pindex,ind=0;ind<(vertices[vert].positive_targets+vertices[vert].negative_targets);ind++)
         {
@@ -192,7 +192,6 @@ void MBI::estimate_delay()
                 vertices[tgt].pre_delay = delay;
                 q.push(tgt);
             }
-            
         }
     }
     //Output Propagation
@@ -210,16 +209,17 @@ void MBI::estimate_delay()
             unsigned ind,base,tgt;
             delay = vertices[vert].post_delay + nodal_delay;
             for(base = vertices[src].pindex,ind=0;ind<(vertices[src].positive_targets+vertices[src].negative_targets);ind++)
+            {
                 if(edges[base+ind].target == vert)
                 {
                     delay += edges[base+ind].path_delay;break;
                 }
+            }
             if(vertices[src].post_delay<delay)
             {
-                q.push(src);
                 vertices[src].post_delay = delay;
+                q.push(src);
             }
-            
         }
     }
 }
@@ -328,8 +328,9 @@ void MBI::insert_buffer(unsigned vert)
         //
         add_targets(vert);
 		vertices[vert].inverter_tree->connect();
-        vertices[vert].post_delay = vertices[vert].inverter_tree->maxDelay;
+        //vertices[vert].post_delay = vertices[vert].inverter_tree->maxDelay;
         calculate_path_delay(vert);
+        vertices[vert].inverter_tree->print();
         //vertices[vert].inverter_tree->print_inverters();
     }
 }
@@ -386,10 +387,6 @@ void MBI::calculate_critical_delay()
         if((vertices[vert].pre_delay+vertices[vert].post_delay) > critical_path_delay)
         {
             critical_path_delay = (vertices[vert].pre_delay+vertices[vert].post_delay);
-            if(critical_path_delay> 1)
-            {
-                printf("WTF vert: %u %.4f\n",vert,critical_path_delay);getchar();
-            }
         }
 }
 void MBI::calculate_path_delay(unsigned vert)
@@ -402,6 +399,8 @@ void MBI::calculate_path_delay(unsigned vert)
     for( unsigned i=0;i<vertices[vert].positive_targets;i++)
     {
         edges[pbase+i].path_delay = vertices[vert].inverter_tree->positiveLevels[i]*inv_delay;
+        //if(vertices[vert].inverter_tree->height>4)
+        //printf("P Path delay: %.2f\n",edges[pbase+i].path_delay);
     }
     
     for( unsigned i=0;i<vertices[vert].negative_targets;i++)
@@ -416,11 +415,11 @@ void MBI::set_nodal_delay(char * cellName,char * invName)
     {
         if(strcmp(cellName,it->name)==0)
         {
-            nodal_delay = 0.005;
+            nodal_delay = 1;
         }else
         if(strcmp(invName,it->name)==0)
         {
-            inv_delay = 0.001;
+            inv_delay = 1;
         }
     }
 }
@@ -649,6 +648,7 @@ void MBI::parse_sdc(char * sdcFileName)
         fclose(sdcFile);
     }
 
+
 }
 void MBI::clean_sdc()
 {
@@ -673,13 +673,17 @@ void MBI::set_clock()
     {
         printf("SDC Error: No Clocks Set\n");
     }
+    //Set unset max delays
+    for(unsigned i =0;i<num_outputs;i++)
+        if(outputs[i].max_delay == 0)
+            outputs[i].max_delay = current_clock.period;
 }
 
 int main(int argc, char ** argv)
 {
     MBI nets(argc,argv);
 	nets.max_inv_fanout = 2;
-	nets.max_cell_fanout = 2;
+	nets.max_cell_fanout = 1;
 
     nets.set_nodal_delay("AND2_X1","INV_X1");
     nets.set_initial_delay();
@@ -689,7 +693,7 @@ int main(int argc, char ** argv)
     nets.insert_buffers();
     nets.estimate_delay();
     nets.calculate_critical_delay();
-    //nets.print();
+    nets.print();
     nets.print_configuration();
     printf("%.4f\n",nets.critical_path_delay);
     //nets.lib->print();

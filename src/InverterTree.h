@@ -25,6 +25,11 @@
 #define NON_CRIT_ALG 1 
 #endif
 
+//Non-Critical Placing
+#ifndef NON_CRIT_PLACE
+#define NON_CRIT_PLACE 0 
+#endif
+
 //Inverter Positioning
 //0: Centroid
 //1: Weighted Centroid
@@ -139,6 +144,8 @@ class InverterTree
 		
 		//Non critical targets algorithms
 		void place_non_criticals();
+		void place_non_criticals_Ordered();
+		void place_non_criticals_Random();
 		float non_critical_allocation();
         float non_critical_allocation_kmeans();
         float non_critical_allocation_worstFirst();
