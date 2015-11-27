@@ -88,6 +88,7 @@ void InverterTree::connect()
 	connect_targets();
 	//printf("Determining max delay\n");
 	determine_max_delay();
+    //print();
 }
 void InverterTree::expand()
 {
@@ -562,8 +563,8 @@ void InverterTree::place_non_criticals_Random()
     for(unsigned i=0;i<numNegativeTargets;i++)
         nAssignedTargets[i] = false;
 
-	unsigned p;
-	unsigned n;
+	unsigned p=0;
+	unsigned n=0;
 	for(p=0;p<numPositiveCriticals;p++)
     {
         pAssignedTargets[p] = true;
@@ -578,7 +579,7 @@ void InverterTree::place_non_criticals_Random()
     }
 
 	srand(time(NULL));
-
+/*
 	for(unsigned h = 0;h<height;h++)
 	{
         for(unsigned i = 0;i<levels[h].signal_taken;i++)
@@ -619,7 +620,29 @@ void InverterTree::place_non_criticals_Random()
             }
         }
 	}
-
+*/
+	for(unsigned h = 0;h<height;h++)
+	{
+        //n and p start at the non criticals
+        //This code may look weird, but it is correct
+		unsigned signals_cap = levels[h].signal_taken;
+        if(h%2)
+        {
+            signals_cap+=n;
+            if(signals_cap>numNegativeTargets)
+                signals_cap = numNegativeTargets;
+            for(;n<signals_cap;n++)
+                determine_level(numNegativeTargets-n-1+numNegativeCriticals,h);
+        }
+        else
+        {
+            signals_cap+=p;
+            if(signals_cap>numPositiveTargets)
+                signals_cap = numPositiveTargets;
+            for(;p<signals_cap;p++)
+                determine_level(numPositiveTargets-p-1+numPositiveCriticals,h);
+        }
+	}
 	//Revalidate value of signal_taken
 	for(unsigned p=0;p<numPositiveCriticals;p++)
 		levels[positiveLevels[p]].signal_taken++;
@@ -1001,8 +1024,8 @@ void InverterTree::determine_level(unsigned tgt_index, unsigned level)
             printf("Trying to assign tgt_index %u to level %u\n",tgt_index,level);
         }
     }
-    if(Debug)
-        print();
+    //if(Debug)
+        //print();
 }
 void InverterTree::collect_targets(unsigned level)
 {
@@ -1063,13 +1086,13 @@ void InverterTree::print()
 	printf("All Targets: +:[%u]/%u -:[%u]/%u criticals\n",numPositiveCriticals,numPositiveTargets,numNegativeCriticals,numNegativeTargets);
 	unsigned i;
 	for( i=0;i<numPositiveCriticals;i++)
-		printf("(+) [%u]: %u\n",positiveTargets[i].target,positiveLevels[i]);
+		printf("(+) [%u]: %u %.4f\n",positiveTargets[i].target,positiveLevels[i],positiveTargets[i].post_delay);
 	for(;i<numPositiveTargets;i++)
-		printf("(+) %u: %u\n",positiveTargets[i].target,positiveLevels[i]);
+		printf("(+) %u: %u %.4f\n",positiveTargets[i].target,positiveLevels[i],positiveTargets[i].post_delay);
 	for(i=0;i<numNegativeCriticals;i++)
-		printf("(-) [%u]: %u\n",negativeTargets[i].target,negativeLevels[i]);
+		printf("(-) [%u]: %u %.4f\n",negativeTargets[i].target,negativeLevels[i],negativeTargets[i].post_delay);
 	for(;i<numNegativeTargets;i++)
-		printf("(-) %u: %u\n",negativeTargets[i].target,negativeLevels[i]);
+		printf("(-) %u: %u %.4f\n",negativeTargets[i].target,negativeLevels[i],negativeTargets[i].post_delay);
 
 	printf("Inv Tree of Height %u, Degree %u\n",height,degree);
 	for(unsigned i=0;i<height;i++)

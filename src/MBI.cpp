@@ -330,7 +330,7 @@ void MBI::insert_buffer(unsigned vert)
 		vertices[vert].inverter_tree->connect();
         //vertices[vert].post_delay = vertices[vert].inverter_tree->maxDelay;
         calculate_path_delay(vert);
-        vertices[vert].inverter_tree->print();
+       // vertices[vert].inverter_tree->print();
         //vertices[vert].inverter_tree->print_inverters();
     }
 }
@@ -693,7 +693,7 @@ int main(int argc, char ** argv)
     nets.insert_buffers();
     nets.estimate_delay();
     nets.calculate_critical_delay();
-    nets.print();
+   // nets.print();
     nets.print_configuration();
     printf("%.4f\n",nets.critical_path_delay);
     //nets.lib->print();
