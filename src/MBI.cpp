@@ -694,7 +694,7 @@ int main(int argc, char ** argv)
     nets.estimate_delay();
     nets.calculate_critical_delay();
    // nets.print();
-    nets.print_configuration();
+    //nets.print_configuration();
     printf("%.4f\n",nets.critical_path_delay);
     //nets.lib->print();
 }
