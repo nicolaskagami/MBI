@@ -328,7 +328,7 @@ void MBI::insert_buffer(unsigned vert)
         //
         add_targets(vert);
 		vertices[vert].inverter_tree->connect();
-        //vertices[vert].post_delay = vertices[vert].inverter_tree->maxDelay;
+        vertices[vert].post_delay = vertices[vert].inverter_tree->maxDelay;
         calculate_path_delay(vert);
        // vertices[vert].inverter_tree->print();
         //vertices[vert].inverter_tree->print_inverters();
