@@ -173,5 +173,6 @@ class InverterTree
         bool Debug;
         void verify();
         float summedDistances;     
+        float worstDistance;
         
 };

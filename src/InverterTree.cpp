@@ -57,6 +57,7 @@ InverterTree::InverterTree(unsigned posTargets,unsigned negTargets,unsigned maxC
 		levels[i].signal_taken = 0;
 	}
     summedDistances = 0;
+    worstDistance =0;
 }
 InverterTree::~InverterTree()
 {
@@ -336,13 +337,12 @@ void InverterTree::connect_targets()
 	            for(unsigned t=0;t<inverters[i].num_targets;t++)
 	                totalDistance+=inverters[i].position.distance(targets[inverters[i].targets_indexes[t]].position);
 */
-	        float worstDistance = 0;
 	        for(unsigned i=0;i<numInverters;i++)
 	            for(unsigned t=0;t<inverters[i].num_targets;t++)
 	                if(worstDistance<inverters[i].position.distance(targets[inverters[i].targets_indexes[t]].position))
 	                worstDistance=inverters[i].position.distance(targets[inverters[i].targets_indexes[t]].position);
-            if(worstDistance>0)
-                summedDistances+=worstDistance;
+            //if(totalDistance>0)
+             //   summedDistances+=worstDistance;
 	        //printf("Total Distance: %.2f\n",totalDistance);
 	        //Temporary Inverters are ready, let's consolidate them
 			for(unsigned i=0;i<numInverters;i++)
