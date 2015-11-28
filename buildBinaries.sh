@@ -3,13 +3,13 @@ BIN=./bin
 SRC=./src
 SRCs="$SRC/MBI.cpp $SRC/Liberty.cpp $SRC/Topology.cpp $SRC/Geometry.cpp $SRC/InverterTree.cpp"
 
-for NET_ORDER in 0 1 2
+for NET_ORDER in 0
 do
-for CRIT_ALG in 0 1 2
+for CRIT_ALG in 3 
 do
 for CRIT_THRESHOLD in 0.9
 do
-for NON_CRIT_ALG in 0
+for NON_CRIT_ALG in 0 1 2
 do
 for INV_POS in 0
 do
@@ -18,5 +18,5 @@ done
 done
 done
 done
-g++ -DNET_ORDER=$NET_ORDER -DCRIT_ALG=3 -DCRITICAL_THRESHOLD=0 -DNON_CRIT_ALG=0 -DNON_CRIT_PLACE=1 -DINV_POS=0 $SRCs -o ${BIN}/MBI_RANDOM$NET_ORDER
+#g++ -DNET_ORDER=$NET_ORDER -DCRIT_ALG=3 -DCRITICAL_THRESHOLD=0 -DNON_CRIT_ALG=0 -DNON_CRIT_PLACE=1 -DINV_POS=0 $SRCs -o ${BIN}/MBI_RANDOM$NET_ORDER
 done

@@ -1,6 +1,6 @@
 
 #include "MBI.h"
-
+float inverterDistance = 0;
 MBI::MBI(int argc,char ** argv)
 {
 	positional_input_source = 0;
@@ -328,8 +328,9 @@ void MBI::insert_buffer(unsigned vert)
         //
         add_targets(vert);
 		vertices[vert].inverter_tree->connect();
-        vertices[vert].post_delay = vertices[vert].inverter_tree->maxDelay;
+        //vertices[vert].post_delay = vertices[vert].inverter_tree->maxDelay;
         calculate_path_delay(vert);
+        inverterDistance+=vertices[vert].inverter_tree->summedDistances;
        // vertices[vert].inverter_tree->print();
         //vertices[vert].inverter_tree->print_inverters();
     }
@@ -399,13 +400,15 @@ void MBI::calculate_path_delay(unsigned vert)
     for( unsigned i=0;i<vertices[vert].positive_targets;i++)
     {
         edges[pbase+i].path_delay = vertices[vert].inverter_tree->positiveLevels[i]*inv_delay;
-        //if(vertices[vert].inverter_tree->height>4)
-        //printf("P Path delay: %.2f\n",edges[pbase+i].path_delay);
+        if(vertices[vert].post_delay<(edges[pbase+i].path_delay + vertices[edges[pbase+i].target].post_delay))
+            vertices[vert].post_delay = (edges[pbase+i].path_delay + vertices[edges[pbase+i].target].post_delay);
     }
     
     for( unsigned i=0;i<vertices[vert].negative_targets;i++)
     {
         edges[nbase+i].path_delay = vertices[vert].inverter_tree->negativeLevels[i]*inv_delay;
+        if(vertices[vert].post_delay<(edges[nbase+i].path_delay + vertices[edges[nbase+i].target].post_delay))
+            vertices[vert].post_delay = (edges[nbase+i].path_delay + vertices[edges[nbase+i].target].post_delay);
     }
 }
 
@@ -695,6 +698,7 @@ int main(int argc, char ** argv)
     nets.calculate_critical_delay();
    // nets.print();
     //nets.print_configuration();
-    printf("%.4f\n",nets.critical_path_delay);
+    //printf("%.4f\n",nets.critical_path_delay);
+    printf("%.4f\n",inverterDistance);
     //nets.lib->print();
 }

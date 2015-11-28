@@ -56,6 +56,7 @@ InverterTree::InverterTree(unsigned posTargets,unsigned negTargets,unsigned maxC
 		levels[i].inv_taken = 1;
 		levels[i].signal_taken = 0;
 	}
+    summedDistances = 0;
 }
 InverterTree::~InverterTree()
 {
@@ -330,11 +331,18 @@ void InverterTree::connect_targets()
 			
 	        non_critical_allocation(); 
 			
-	        float totalDistance = 0;
+	        /*float totalDistance = 0;
 	        for(unsigned i=0;i<numInverters;i++)
 	            for(unsigned t=0;t<inverters[i].num_targets;t++)
 	                totalDistance+=inverters[i].position.distance(targets[inverters[i].targets_indexes[t]].position);
-
+*/
+	        float worstDistance = 0;
+	        for(unsigned i=0;i<numInverters;i++)
+	            for(unsigned t=0;t<inverters[i].num_targets;t++)
+	                if(worstDistance<inverters[i].position.distance(targets[inverters[i].targets_indexes[t]].position))
+	                worstDistance=inverters[i].position.distance(targets[inverters[i].targets_indexes[t]].position);
+            if(worstDistance>0)
+                summedDistances+=worstDistance;
 	        //printf("Total Distance: %.2f\n",totalDistance);
 	        //Temporary Inverters are ready, let's consolidate them
 			for(unsigned i=0;i<numInverters;i++)
@@ -579,7 +587,6 @@ void InverterTree::place_non_criticals_Random()
     }
 
 	srand(time(NULL));
-/*
 	for(unsigned h = 0;h<height;h++)
 	{
         for(unsigned i = 0;i<levels[h].signal_taken;i++)
@@ -620,8 +627,8 @@ void InverterTree::place_non_criticals_Random()
             }
         }
 	}
-*/
-	for(unsigned h = 0;h<height;h++)
+/*Worst
+ * for(unsigned h = 0;h<height;h++)
 	{
         //n and p start at the non criticals
         //This code may look weird, but it is correct
@@ -643,6 +650,7 @@ void InverterTree::place_non_criticals_Random()
                 determine_level(numPositiveTargets-p-1+numPositiveCriticals,h);
         }
 	}
+    */
 	//Revalidate value of signal_taken
 	for(unsigned p=0;p<numPositiveCriticals;p++)
 		levels[positiveLevels[p]].signal_taken++;
@@ -661,6 +669,8 @@ float InverterTree::non_critical_allocation()
             return non_critical_allocation_kmeans();
         case 1: 
             return non_critical_allocation_worstFirst();
+        case 2: 
+            return non_critical_allocation_Random();
     }
 }
 float InverterTree::non_critical_allocation_worstFirst()
@@ -696,6 +706,7 @@ float InverterTree::non_critical_allocation_worstFirst()
 		
 		if(furthest_distance>0)
 		{
+			inverters[inv].position = furthestPoint;
 			for(unsigned i =0;i<numTargets;i++)
 			{
 				float worst_distance = 0;//worst distance from the inverter to it's targets
@@ -733,11 +744,15 @@ float InverterTree::non_critical_allocation_worstFirst()
 					}
 				}
 			}
-			inverters[inv].position = furthestPoint;
 			for(unsigned j=0;j<inverters[inv].num_targets;j++)
 				supplied_targets[inverters[inv].targets_indexes[j]] = true;
 		}
 	}
+    for(unsigned i=0;i<numInverters;i++)
+    {
+        //Reposition each inverter according to its targets
+        position_inverter(&inverters[i]);
+    }
 	
 	free(supplied_targets);
 	free(distances);
@@ -775,7 +790,7 @@ float InverterTree::non_critical_allocation_kmeans()
                     }
                 }
             }
-            //if(inverters[closest_inverter].num_targets<degree)
+            if(inverters[closest_inverter].num_targets<degree)
             inverters[closest_inverter].targets_indexes[inverters[closest_inverter].num_targets++] = t;
         }
         
@@ -784,19 +799,38 @@ float InverterTree::non_critical_allocation_kmeans()
             //Reposition each inverter according to its targets
             position_inverter(&inverters[i]);
         }
-        //For tests
-        float totalDistance = 0;
-        for(unsigned i=0;i<numInverters;i++)
-            for(unsigned t=0;t<inverters[i].num_targets;t++)
-            {
-                totalDistance+=inverters[i].position.distance(targets[inverters[i].targets_indexes[t]].position);
-            }
-        //printf("Total Distance: %.2f\n",totalDistance);
     }
 
     return worstDelay;
 }
+float InverterTree::non_critical_allocation_Random() 
+{
+	srand(time(NULL));
+    if(numTargets == 0)
+        return 0;
 
+    unsigned target =0;
+    for(unsigned i = 0;i<numInverters;i++)
+    {
+        inverters[i].num_targets = 0;
+        for(unsigned j=0;j<degree;j++)
+        {
+            if(target<numTargets) 
+                inverters[i].targets_indexes[inverters[i].num_targets++]=target++;
+            else
+            {
+                i=numInverters;break;
+            }
+        }
+    }
+    for(unsigned i=0;i<numInverters;i++)
+    {
+        //Reposition each inverter according to its targets
+        position_inverter(&inverters[i]);
+    }
+
+    return 0;
+}
 //Inverter Positioning algorithms
 void InverterTree::position_inverter(TEMP_INVERTER * inv)
 {

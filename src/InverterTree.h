@@ -149,6 +149,7 @@ class InverterTree
 		float non_critical_allocation();
         float non_critical_allocation_kmeans();
         float non_critical_allocation_worstFirst();
+        float non_critical_allocation_Random();
 		
 		//Inverter Positioning
         void position_inverter(TEMP_INVERTER * inv);
@@ -171,6 +172,6 @@ class InverterTree
         //Debug
         bool Debug;
         void verify();
-        
+        float summedDistances;     
         
 };
