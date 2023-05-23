@@ -9,4 +9,4 @@ and positions of the inverters and how they supply the targets.
 The targets are sorted by post-delay and divided into critical and non-critical targets. 
 Critical targets with higher delay will be allotted preferably closer to the root, in detriment to the delay of the non-critical targets. 
 The tree is then expanded to be able to supply all targets and the non-critical targets are distributed along the leaves. 
-The targets are appointed to inverters according to a locality heuristic.
+The targets are appointed to inverters according to a locality-based heuristic.
